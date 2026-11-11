@@ -1,0 +1,16 @@
+/* Styles are split by area; the order matters because later files override earlier ones. */
+@import "../styles/tokens.css";
+@import "../styles/layout.css";
+@import "../styles/overview.css";
+@import "../styles/recipes.css";
+@import "../styles/dialog.css";
+@import "../styles/detail.css";
+@import "../styles/settings.css";
+@import "../styles/print.css";
+@import "../styles/stock.css";
+@import "../styles/menus.css";
+@import "../styles/rota.css";
+@import "../styles/safety.css";
+@import "../styles/performance.css";
+@import "../styles/utilities.css";
+@import "../styles/responsive.css";

@@ -1,0 +1,29 @@
+/* Recipe detail sheet. */
+.detail-hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(220px, .7fr); gap: 20px; padding: 19px 24px; border-bottom: 1px solid #eaebe5; }
+.detail-photo { position: relative; min-height: 164px; overflow: hidden; border-radius: 10px; background: linear-gradient(130deg,#e1e6d7,#efe5d4); }
+.detail-photo::before { position: absolute; top: -25px; right: -10px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.32); content: ""; }
+.detail-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.detail-photo .cover-art { width: 84px; height: 84px; }
+.detail-photo .cover-art svg { width: 39px; height: 39px; }
+.detail-summary { display: flex; flex-direction: column; justify-content: center; }
+.detail-summary h3 { margin-top: 8px; color: #384236; font-size: 18px; font-weight: 650; line-height: 1.25; letter-spacing: -.45px; }
+.detail-summary p { margin-top: 7px; color: #92978d; font-size: 10px; line-height: 1.55; }
+.detail-flags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
+.detail-mini-stat { display: flex; gap: 14px; margin-top: auto; padding-top: 15px; color: #858b80; font-size: 9px; }
+.detail-mini-stat span { display: flex; align-items: center; gap: 5px; }
+.detail-mini-stat svg { width: 13px; height: 13px; color: #9aa18f; }
+.detail-body { padding: 18px 24px 22px; }
+.detail-two-col { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; }
+.detail-block { margin-bottom: 20px; }
+.detail-block h4 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; color: #5a6751; font-size: 10px; font-weight: 740; }
+.detail-block h4 small { color: #a5aa9e; font-size: 8px; font-weight: 450; }
+.detail-text { color: #747c70; font-size: 9px; line-height: 1.7; white-space: pre-line; }
+.detail-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+.detail-table th { padding: 6px 5px; border-bottom: 1px solid #e9ebe5; color: #a0a59a; font-size: 8px; font-weight: 600; text-align: left; }
+.detail-table td { padding: 8px 5px; border-bottom: 1px solid #f0f1ec; color: #656e61; vertical-align: top; }
+.detail-table td:last-child { color: #45533e; font-weight: 650; text-align: right; white-space: nowrap; }
+.allergen-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.allergen-tag { padding: 4px 7px; border-radius: 5px; color: #936b4e; background: #f5eee4; font-size: 8px; }
+.check-pill-list { display: grid; gap: 6px; }
+.check-pill { display: flex; align-items: flex-start; gap: 7px; color: #747c70; font-size: 9px; line-height: 1.5; }
+.check-pill::before { content: "✓"; display: grid; flex: 0 0 auto; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #617750; background: #edf1e7; font-size: 8px; }

@@ -1,0 +1,58 @@
+/* Staff rota page. */
+.rota-view { display: grid; gap: 12px; }
+.rota-nav { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.rota-current { min-width: min(380px, 62vw); text-align: center; }
+.rota-current p { margin: 0 0 4px; color: var(--green); font-size: 10px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+.rota-current h2 { margin: 0; color: #30392e; font-size: 16px; }
+.rota-nav-button { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--green-dark); background: #fff; font-size: 18px; cursor: pointer; }
+.rota-nav-button:hover:not(:disabled) { background: var(--sage); }
+.rota-nav-button:disabled { opacity: .35; cursor: default; }
+.rota-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.rota-history { display: flex; align-items: center; gap: 8px; color: #5d6857; font-size: 11px; }
+.rota-history select { min-height: 32px; max-width: 360px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.rota-status { margin-left: auto; color: var(--green); font-size: 11px; }
+.rota-hint { margin: 0; }
+
+.rota-table { min-width: 980px; table-layout: fixed; }
+.rota-table th { text-align: center; }
+.rota-table th:first-child { width: 170px; text-align: left; }
+.rota-table th.rota-total { width: 70px; }
+.rota-table th:last-child:empty { width: 38px; }
+.rota-day { display: block; color: #4d5a46; font-size: 11px; }
+.rota-date { display: block; margin-top: 2px; color: #9ba095; font-size: 10px; font-weight: 500; }
+.rota-table td { padding: 5px 6px; }
+.rota-name-cell input { width: 100%; min-height: 32px; padding: 0 8px; border: 1px solid transparent; border-radius: 7px; color: #30392e; background: #f7f7f3; font-weight: 560; }
+.rota-name-cell input:focus { border-color: #bfcdb0; background: #fff; }
+.rota-cell { position: relative; }
+.rota-shift { width: 100%; min-height: 32px; padding: 0 22px 0 6px; border: 1px solid var(--line); border-radius: 7px; color: #30392e; background: #fff; text-align: center; font-variant-numeric: tabular-nums; }
+.rota-shift::placeholder { color: #c3c7bd; }
+.rota-shift:read-only { border-color: transparent; background: transparent; }
+.rota-cell.day-off .rota-shift { border-color: #b5d4f4; color: #0c447c; background: #e6f1fb; font-weight: 600; }
+.rota-cell.holiday .rota-shift { border-color: #fac775; color: #633806; background: #faeeda; font-weight: 600; }
+.rota-cell.invalid .rota-shift { border-color: #e8a493; color: #944d3e; background: #fcf2ef; }
+.rota-menu-toggle { position: absolute; top: 50%; right: 9px; width: 18px; height: 22px; padding: 0; transform: translateY(-50%); border: 0; border-radius: 4px; color: #8a9184; background: transparent; font-size: 10px; cursor: pointer; }
+.rota-menu-toggle:hover { color: var(--green-dark); background: var(--soft); }
+.rota-menu { position: absolute; z-index: 5; top: calc(100% - 2px); right: 6px; display: grid; min-width: 112px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: #fff; box-shadow: var(--shadow); }
+.rota-menu button { padding: 7px 9px; border: 0; border-radius: 6px; color: #3f4a3a; background: none; font-size: 11px; text-align: left; cursor: pointer; }
+.rota-menu button:hover, .rota-menu button:focus-visible { background: var(--sage); }
+.rota-table .rota-total { color: #30392e; font-weight: 650; text-align: center; }
+.rota-table tfoot th, .rota-table tfoot td { padding: 9px 6px; border-top: 1px solid #e3e6dc; color: #354632; background: #f2f4ec; font-size: 11px; font-weight: 650; text-align: center; }
+.rota-table tfoot th { text-align: left; padding-left: 12px; }
+.rota-table .rota-grand { color: #fff; background: var(--green-dark); }
+.rota-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.rota-actions-spacer { flex: 1; }
+.rota-danger { color: #a3593f; }
+.rota-print { display: none; }
+
+@media print {
+  .rota-print { display: block; color: #111; }
+  .rota-print h3 { margin: 0; font-size: 19px; }
+  .rota-print > p { margin: 4px 0 12px; color: #555; font-size: 11px; }
+  .rota-print table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .rota-print th, .rota-print td { padding: 6px 4px; border: 1px solid #bbb; text-align: center; }
+  .rota-print th { color: #fff; background: #354632; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rota-print td:first-child, .rota-print tfoot th { text-align: left; }
+  .rota-print td.dayOff { background: #e6f1fb; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rota-print td.holiday { background: #faeeda; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rota-print tfoot th, .rota-print tfoot td { font-weight: 700; }
+}

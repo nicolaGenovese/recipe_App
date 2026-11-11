@@ -1,0 +1,35 @@
+/* Settings dialog. */
+.settings-layout { display: grid; grid-template-columns: 166px minmax(0,1fr); min-height: 390px; }
+.settings-nav { display: grid; align-content: start; gap: 4px; padding: 17px 10px; border-right: 1px solid #eaebe5; background: #f5f6f1; }
+.settings-nav button { min-height: 34px; padding: 0 9px; border: 0; border-radius: 7px; color: #858b80; background: transparent; font-size: 9px; text-align: left; cursor: pointer; }
+.settings-nav button.active { color: #4f6045; background: #e7ecde; font-weight: 680; }
+.settings-pane { display: none; padding: 19px 22px; }.settings-pane.active { display: block; }
+.settings-pane h3 { margin-bottom: 5px; color: #465240; font-size: 13px; font-weight: 650; }
+.settings-pane > p { margin-bottom: 13px; color: #9ba095; font-size: 9px; line-height: 1.55; }
+.editable-list { display: grid; gap: 6px; }
+.editable-row { display: flex; align-items: center; gap: 7px; }
+.editable-row input { flex: 1; min-width: 0; height: 32px; padding: 0 8px; border: 1px solid #e7e9e2; border-radius: 6px; color: #596254; background: #fff; font-size: 9px; }
+.editable-row button { display: grid; flex: 0 0 auto; place-items: center; width: 27px; height: 27px; border: 0; border-radius: 5px; color: #a59a90; background: transparent; font-size: 14px; cursor: pointer; }
+.editable-row button:hover { color: #a34e3f; background: #fbefeb; }
+.settings-add { margin-top: 9px; padding: 0; border: 0; color: #667b53; background: transparent; font-size: 9px; font-weight: 650; cursor: pointer; }
+.settings-add:hover { color: #394b31; }
+.settings-note { margin-top: 14px; padding: 9px 10px; border-radius: 7px; color: #848b7e; background: #f0f2eb; font-size: 8px; line-height: 1.55; }
+/* Settings: general and GP rules */
+.settings-pane .form-grid { margin-bottom: 12px; }
+.settings-subtitle { margin: 16px 0 9px; color: #6f7a66; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.settings-check { display: flex; align-items: flex-start; gap: 9px; margin: 0 0 11px; }
+.settings-check input { margin-top: 2px; }
+.settings-check span { display: grid; gap: 2px; }
+.settings-check strong { color: #4d5747; font-size: 10px; font-weight: 620; }
+.settings-check small { color: #9ba095; font-size: 9px; line-height: 1.45; }
+
+/* Staff list. */
+.staff-table input:not([type="checkbox"]) { width: 100%; min-height: 30px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.staff-table td:nth-child(3) input { max-width: 90px; text-align: right; }
+.staff-table input[type="checkbox"] { accent-color: var(--green); }
+.staff-inactive td { opacity: .55; }
+.settings-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; color: #5d6857; font-size: 11px; }
+.settings-inline input { width: 80px; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 7px; }
+.rota-name { display: block; color: #30392e; font-weight: 600; }
+.rota-person-meta { display: block; margin-top: 2px; color: #8f968a; font-size: 10px; }
+.rota-person-meta.missing { color: #a3593f; }

@@ -1,0 +1,64 @@
+/* Food safety records and prep labels. */
+.safety-view { display: grid; gap: 12px; }
+.safety-today { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #f0d4cc; border-radius: 10px; background: #fcf2ef; }
+.safety-today.done { border-color: #cfdcc0; background: #f1f5ea; }
+.safety-today > div:first-child { display: grid; gap: 2px; }
+.safety-today strong { color: #6d3a2e; font-size: 13px; }
+.safety-today.done strong { color: var(--green-dark); }
+.safety-today > div:first-child span { color: var(--muted); font-size: 11px; }
+.safety-today-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.safety-today .safety-status { margin-left: auto; }
+.safety-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.safety-bar label { display: flex; align-items: center; gap: 6px; color: #5d6857; font-size: 11px; }
+.safety-bar input[type="date"] { min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.safety-table th small { display: block; margin-top: 2px; color: #9ba095; font-weight: 500; }
+.safety-table tbody tr { cursor: pointer; }
+.safety-table tbody tr:hover td { background: #fafaf6; }
+.safety-table td { white-space: nowrap; }
+.safety-table td:last-child { white-space: normal; }
+.safety-bad td { background: #fdf6f3; }
+.safety-out { color: #a3412b !important; font-weight: 700; }
+.safety-empty { padding: 22px !important; color: #9ba095 !important; text-align: center; cursor: default; }
+.safety-status { display: inline-flex; align-items: center; min-height: 20px; padding: 0 8px; border-radius: 999px; font-size: 10px; font-weight: 650; white-space: nowrap; }
+.safety-status.ok { color: #27500a; background: #e5efd8; }
+.safety-status.bad { color: #7a2a18; background: #f7d9cf; }
+.safety-pending { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; padding: 10px; border: 1px dashed #e8b7a6; border-radius: 9px; background: #fffaf7; }
+.safety-pending strong { margin-right: 4px; color: #6d3a2e; font-size: 11px; }
+.safety-readings { margin: 12px 0; }
+.safety-temp { width: 100%; max-width: 110px; min-height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-variant-numeric: tabular-nums; }
+.safety-temp.out { border-color: #e8a493; color: #944d3e; background: #fcf2ef; font-weight: 700; }
+.safety-alert { display: grid; gap: 5px; margin: 12px 0; padding: 10px 12px; border: 1px solid #f0c4b6; border-radius: 9px; background: #fcf2ef; }
+.safety-alert strong { color: #7a2a18; font-size: 12px; }
+.safety-alert label { color: #6d3a2e; font-size: 11px; }
+.safety-alert textarea { min-height: 60px; padding: 8px; border: 1px solid #ebc2b4; border-radius: 7px; background: #fff; }
+.safety-cool { margin: 12px 0; }
+.safety-checks { margin: 12px 0; }
+.safety-checklist { display: grid; gap: 4px; margin: 12px 0; padding: 0; list-style: none; }
+.safety-checklist li { display: grid; grid-template-columns: 1fr 130px 44px; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.safety-checklist li.done { border-color: #cfdcc0; background: #f4f7ee; }
+.safety-checklist label { display: flex; align-items: center; gap: 8px; color: #3f4a3a; font-size: 12px; cursor: pointer; }
+.safety-checklist input[type="checkbox"] { accent-color: var(--green); }
+.safety-item-by { min-height: 28px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; font-size: 11px; }
+.safety-checklist small { color: #8f968a; font-size: 10px; text-align: right; }
+.safety-equipment input, .safety-equipment select { width: 100%; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.safety-print, .labels-print { display: none; }
+.labels-table input[type="number"] { width: 70px; }
+
+@media (max-width: 640px) {
+  .safety-checklist li { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .safety-print { display: block; color: #111; }
+  .safety-print h3 { margin: 0; font-size: 18px; }
+  .safety-print > p { margin: 4px 0 12px; color: #555; font-size: 11px; }
+  .safety-print table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .safety-print th, .safety-print td { padding: 5px 4px; border: 1px solid #bbb; color: #111; text-align: left; white-space: normal; }
+  .safety-print .safety-status { padding: 0; background: none; }
+  .labels-edit { display: none !important; }
+  .labels-print { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .prep-label { display: grid; gap: 1.5mm; min-height: 32mm; padding: 3mm; border: 1px dashed #777; color: #111; font-size: 9pt; break-inside: avoid; }
+  .prep-label strong { font-size: 12pt; }
+  .prep-label-useby { font-size: 11pt; font-weight: 700; }
+  .prep-label small { color: #444; font-size: 8pt; }
+}

@@ -1,0 +1,43 @@
+/* Breakpoints and print output. Imported last so it can override everything above. */
+@media (max-width: 1180px) {
+  .sidebar { width: 220px; padding-inline: 12px; }.main-area { margin-left: 220px; }.content-wrap { padding-inline: 28px; }.topbar { padding-inline: 28px; }
+  .overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }.overview-card { min-height: 112px; }
+  .recipe-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 780px) {
+  .sidebar { position: sticky; top: 0; z-index: 8; flex-direction: row; align-items: center; width: 100%; height: 57px; padding: 0 14px; border-right: 0; border-bottom: 1px solid #e8eae3; }
+  .brand { gap: 7px; margin: 0; }.brand-mark { width: 31px; height: 31px; border-radius: 9px; }.brand-mark svg { width: 22px; height: 22px; }.brand-copy strong { font-size: 16px; }.brand-copy small { font-size: 9px; }
+  .workspace-switcher, .sidebar .nav-label, .sidebar-bottom { display: none; }
+  .side-nav { display: flex; gap: 3px; margin-left: auto; }.nav-item { width: auto; min-height: 34px; padding: 0 8px; }.nav-item > span:nth-child(2) { font-size: 0; }.nav-icon { width: 19px; }.nav-count { margin-left: -5px; font-size: 9px; }
+  .main-area { margin-left: 0; }.topbar { position: relative; height: 54px; padding-inline: 18px; }.content-wrap { padding: 27px 18px 25px; }
+  .topbar-actions { gap: 9px; }.global-search { width: min(45vw,240px); }.global-search kbd { display: none; }
+  .page-intro { align-items: flex-start; flex-direction: column; margin-bottom: 21px; }.intro-actions { align-self: stretch; }.intro-actions .button { flex: 1; }
+  .overview-grid { gap: 8px; margin-bottom: 29px; }.overview-card { min-height: 107px; padding: 13px; }.overview-value { font-size: 23px; }.overview-foot { font-size: 8px; }
+  .section-heading { align-items: center; }.section-tools .button { min-width: 32px; font-size: 0; }.section-tools .button svg { width: 16px; height: 16px; }.list-controls { align-items: flex-end; }.filter-tabs { gap: 11px; }.filter-tab { font-size: 9px; }.sort-label { display: none; }.sort-tools select { max-width: 111px; font-size: 9px; }
+  .recipe-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }.card-cover { height: 118px; }.card-body { padding: 11px 10px 9px; }.card-title { font-size: 11px; }.card-description { font-size: 8px; }.card-stat { font-size: 8px; }.card-footer { gap: 3px; }.card-actions { gap: 0; }.card-action { width: 21px; }.card-cost { font-size: 10px; }.card-cost small { display: none; }
+  .list-layout .card-cover { flex-basis: 96px; }.list-layout .card-body { grid-template-columns: 1fr auto; gap: 4px 9px; padding: 9px; }.list-layout .card-description { display: none; }.list-layout .card-meta { grid-column: 1; }.list-layout .card-title { grid-column: 1; }.list-layout .card-footer { grid-column: 2; }.list-layout .card-cost { min-width: 60px; }
+  .ingredient-row { grid-template-columns: minmax(0,1.3fr) 64px 60px 66px 60px 25px; }.ingredient-row select:first-child, .ingredient-row input[data-key="supplier"] { display: none; }.ingredient-labels { grid-template-columns: minmax(0,1.3fr) 64px 60px 66px 60px 25px; }.ingredient-labels span:first-child, .ingredient-labels span:nth-child(3) { display:none; }
+  .detail-hero { grid-template-columns: 1fr; }.detail-photo { min-height: 133px; }.detail-two-col { grid-template-columns: 1fr; gap: 0; }.pill-metrics { grid-template-columns: repeat(2,1fr); }.settings-layout { grid-template-columns: 1fr; }.settings-nav { display: flex; overflow: auto; padding: 9px 12px; border-right: 0; border-bottom: 1px solid #eaebe5; }.settings-nav button { flex: 0 0 auto; }.settings-pane { padding: 17px; }
+}
+@media (max-width: 470px) {
+  .breadcrumbs { font-size: 9px; }.global-search { width: 43vw; height: 32px; gap: 5px; padding: 0 6px; }.global-search input { font-size: 9px; }.topbar-icon { width: 27px; }.topbar-avatar { width: 25px; height: 25px; font-size: 10px; }
+  .overview-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }.overview-card { min-height: 98px; padding: 11px; }.overview-label { font-size: 7px; }.overview-value { margin-top: 7px; font-size: 20px; }
+  .recipe-grid { grid-template-columns: 1fr; }.card-cover { height: 139px; }.card-body { padding: 12px 13px 10px; }.card-title { font-size: 12px; }.card-description { font-size: 9px; }.card-cost small { display: inline; }
+  .list-layout .recipe-card { min-height: 76px; }.list-layout .card-cover { flex-basis: 80px; min-height: 76px; }.list-layout .card-menu { gap: 3px; }.list-layout .card-flag { min-height: 19px; padding-inline: 5px; font-size: 6px; }.list-layout .card-more { width: 21px; height: 21px; }.list-layout .card-body { padding: 8px; }
+  .filter-tabs { gap: 9px; }.filter-tab { gap: 4px; font-size: 8px; }.sort-tools select { max-width: 92px; }.view-toggle { width: 24px; }.control-divider { margin-inline: 0; }
+  .page-footer { align-items: flex-start; flex-direction: column; gap: 9px; }.pagination { flex-wrap: wrap; gap: 7px; padding: 8px 0; }.pagination-controls { margin-left: auto; }
+  .app-dialog { max-height: calc(100vh - 12px); width: calc(100% - 12px); border-radius: 13px; }.dialog-header { padding: 15px 15px 12px; }.dialog-body { padding: 15px; }.dialog-footer { padding: 11px 15px; }.editor-tabs { padding-inline: 15px; }.form-grid, .form-grid.cols-3, .form-grid.cols-4 { grid-template-columns: 1fr 1fr; gap: 9px; }.form-field.span-3 { grid-column: span 2; }.form-field.span-full { grid-column: 1 / -1; }.form-field input:not([type=checkbox]):not([type=file]), .form-field select { min-height: 33px; }.ingredient-row { grid-template-columns: minmax(0,1fr) 60px 55px 62px 56px 24px; gap: 4px; }.ingredient-row select:first-child, .ingredient-row input[data-key="supplier"] { display: none; }.ingredient-labels { grid-template-columns: minmax(0,1fr) 60px 55px 62px 56px 24px; gap: 4px; }.ingredient-labels span:first-child, .ingredient-labels span:nth-child(3) { display:none; }.ingredient-labels span:nth-child(2)::after { content:"Nome"; }.ingredient-extra-row { grid-template-columns: minmax(0,1fr) 85px; }.checklist-options { grid-template-columns: 1fr; }.print-options { grid-template-columns: 1fr; }.detail-hero { padding: 14px 15px; }.detail-body { padding: 15px; }.dialog-header h2 { font-size: 17px; }
+}
+@media (max-width: 780px) {
+  .stock-head { align-items: stretch; flex-direction: column; }
+  .stock-pick-head { display: none; }
+  .stock-pick-row { grid-template-columns: 24px minmax(0, 1fr) 118px; }
+  .stock-pick-row > span:nth-of-type(1), .stock-pick-row > span:nth-of-type(2) { display: none; }
+}
+@media print {
+  .stock-print-head { display: block; margin-bottom: 12px; }
+  .stock-table-wrap { overflow: visible; border: 0; }
+  .stock-lines input { width: auto; max-width: 62px; padding: 0; border: 0; background: transparent; }
+  .stock-supplier { break-inside: auto; }
+  body { color: #111; background: #fff; }.app-shell, .app-dialog::backdrop, .toast { display: none!important; }.app-dialog { position: static; display: block; width: 100%; max-width: none; max-height: none; overflow: visible; border: 0; box-shadow: none; }.dialog-content { min-height: 0; }.dialog-header, .dialog-footer, .editor-tabs, .dialog-close, .print-options, .print-actions, .print-help { display: none!important; }.dialog-body { padding: 0; }.print-preview { max-height: none; overflow: visible; margin: 0; padding: 0; border: 0; }.preview-sheet { color: #111; }.preview-sheet h3 { font-size: 19px; }.preview-recipe { break-inside: avoid; border-color: #ccc; }.preview-recipe strong { color: #111; }.preview-recipe small, .preview-sheet > p { color: #555; }.preview-allergens { color: #333; }
+}

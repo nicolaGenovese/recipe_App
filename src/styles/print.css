@@ -1,0 +1,14 @@
+/* Print dialog, preview and toast. */
+.print-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.print-option { display: flex; align-items: flex-start; gap: 10px; min-height: 63px; padding: 11px; border: 1px solid #e7e9e2; border-radius: 9px; background: #fff; cursor: pointer; }
+.print-option:has(input:checked) { border-color: #bfcdb0; background: #f4f6ef; }
+.print-option input { margin: 2px 0 0; accent-color: var(--green); }
+.print-option strong { display: block; color: #56634c; font-size: 9px; }.print-option small { display: block; margin-top: 4px; color: #9ba095; font-size: 8px; line-height: 1.45; }
+.print-preview { max-height: 35vh; overflow: auto; margin-top: 14px; padding: 14px; border: 1px solid #e8eae3; border-radius: 8px; background: #fff; }
+.preview-sheet h3 { color: #30392e; font-size: 14px; }.preview-sheet > p { margin: 4px 0 11px; color: #92978d; font-size: 8px; }
+.preview-recipe { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid #eef0e9; color: #667060; font-size: 9px; }
+.preview-recipe strong { color: #42503a; font-weight: 640; }.preview-recipe small { display: block; margin-top: 3px; color: #9da297; font-size: 8px; }.preview-allergens { grid-column: 1 / -1; color: #997653; font-size: 8px; }
+.toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; max-width: min(370px, calc(100vw - 30px)); padding: 11px 14px; transform: translateY(12px); border: 1px solid #e0e5d8; border-radius: 9px; color: #41543a; background: #f5f7f1; box-shadow: var(--shadow); font-size: 10px; opacity: 0; pointer-events: none; transition: .2s ease; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { border-color: #f0d4cc; color: #944d3e; background: #fcf2ef; }
+.print-images { margin-top: 12px; }

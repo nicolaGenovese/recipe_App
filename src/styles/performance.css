@@ -1,0 +1,44 @@
+/* Performance page: weekly summary, sales, waste and menu analysis. */
+.perf-view { display: grid; gap: 12px; }
+.perf-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.perf-tiles .metric-tile small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; font-weight: 400; }
+.perf-bad { color: #a3412b; }
+.perf-notes { display: grid; gap: 6px; margin: 12px 0; }
+.perf-notes p { margin: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; color: #4d5a46; background: #fafaf7; font-size: 12px; }
+.perf-notes p.perf-warn { border-color: #f0c4b6; color: #6d3a2e; background: #fcf2ef; }
+.perf-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.perf-columns h4 { margin: 0 0 8px; color: #4d5a46; font-size: 12px; }
+.perf-columns small { color: var(--muted); }
+.perf-sales, .perf-waste, .perf-analysis { display: grid; gap: 10px; }
+.perf-net { display: flex; align-items: center; gap: 8px; color: #5d6857; font-size: 11px; }
+.perf-net input { width: 120px; min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; }
+.perf-sales-table input { width: 90px; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; text-align: right; }
+.perf-unmatched td { background: #fffaf3; }
+.perf-tag { margin-left: 6px; padding: 1px 6px; border-radius: 999px; color: #633806; background: #faeeda; font-size: 9px; }
+.perf-waste-total { color: #30392e; font-size: 13px; }
+.perf-analysis select { min-height: 32px; margin-left: 6px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.perf-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px; color: #5d6857; font-size: 11px; }
+.perf-class { display: inline-block; min-width: 76px; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 650; text-align: center; }
+.perf-class.star { color: #27500a; background: #e5efd8; }
+.perf-class.plowhorse { color: #0c447c; background: #e6f1fb; }
+.perf-class.puzzle { color: #633806; background: #faeeda; }
+.perf-class.dog { color: #7a2a18; background: #f7d9cf; }
+.perf-print { display: none; }
+.perf-days { margin-bottom: 14px; }
+.perf-days h4 { margin: 0 0 8px; color: #4d5a46; font-size: 12px; }
+.rota-table tfoot tr.rota-cost-row th, .rota-table tfoot tr.rota-cost-row td { border-top: 0; color: #5d6857; background: #f7f8f2; font-weight: 600; }
+.rota-table th.rota-rate { width: 84px; }
+.rota-rate input { width: 100%; min-height: 32px; padding: 0 6px; border: 1px solid var(--line); border-radius: 7px; text-align: right; }
+.rota-rate input:disabled { background: #f4f4f0; }
+.rota-table { min-width: 1080px; }
+.rota-oncost { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #5d6857; font-size: 11px; }
+.rota-oncost input { width: 80px; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 7px; }
+
+@media (max-width: 760px) { .perf-columns { grid-template-columns: 1fr; } }
+
+@media print {
+  .perf-print { display: block; color: #111; }
+  .perf-print h3 { margin: 0; font-size: 19px; }
+  .perf-print > p { margin: 4px 0 12px; color: #555; font-size: 11px; }
+  .perf-print .metric-tile { border: 1px solid #bbb; }
+}
