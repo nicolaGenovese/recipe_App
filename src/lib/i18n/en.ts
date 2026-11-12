@@ -971,5 +971,28 @@ export const EN: Record<string, string> = {
   // Allergen picker
   "Nessun allergene: clicca per sceglierli": "No allergens: click to choose",
   "Aggiungi gli allergeni in Impostazioni → Allergeni.": "Add allergens in Settings → Allergens.",
-  "Nessun allergene": "No allergens"
+  "Nessun allergene": "No allergens",
+  // Units
+  "Valuta, lingua e unità di misura usate in tutta l'app.": "Currency, language and units used across the app.",
+  "Unità di misura": "Units of measure",
+  "Le unità spuntate compaiono nei menu di ingredienti e prodotti. Le conversioni (per esempio g ↔ kg, oz ↔ g) restano automatiche.": "Ticked units appear in the ingredient and product menus. Conversions (for example g ↔ kg, oz ↔ g) stay automatic.",
+  "Sistema metrico": "Metric",
+  "Sistema imperiale (UK)": "Imperial (UK)",
+  "A pezzi e a misura": "Counts and kitchen measures",
+  "Scegli almeno un'unità.": "Choose at least one unit.",
+  "g · grammi": "g · grams",
+  "kg · chili": "kg · kilograms",
+  "ml · millilitri": "ml · millilitres",
+  "cl · centilitri": "cl · centilitres",
+  "l · litri": "l · litres",
+  "oz · once": "oz · ounces",
+  "lb · libbre": "lb · pounds",
+  "fl oz · once liquide": "fl oz · fluid ounces",
+  "pint · pinte": "pint · pints",
+  "tsp · cucchiaino": "tsp · teaspoon",
+  "tbsp · cucchiaio": "tbsp · tablespoon",
+  "pz · pezzi": "pz · pieces",
+  "porz · porzioni": "porz · portions",
+  "mazzo · mazzi": "mazzo · bunches",
+  "confezione · confezioni": "confezione · packs"
 };

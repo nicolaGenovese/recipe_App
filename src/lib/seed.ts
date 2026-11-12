@@ -1,4 +1,5 @@
 // Default settings for a new archive. A new archive has no recipes, products or other data.
+import { DEFAULT_UNITS } from "@/lib/stock/units";
 import type { Settings } from "@/lib/types";
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -8,6 +9,8 @@ export const DEFAULT_SETTINGS: Settings = {
   ccpChecks: ["Controllare integrità e temperatura alla ricezione", "Etichettare e conservare secondo le procedure della cucina", "Separare crudo e pronto al consumo", "Verificare e registrare cottura o mantenimento", "Raffreddare, coprire e datare le preparazioni"],
   prepChecks: ["Tagliere rosso · carne cruda", "Tagliere blu · pesce crudo", "Tagliere verde · ortaggi", "Tagliere giallo · alimenti cotti", "Tagliere bianco · pane e latticini", "Tagliere marrone · radici"],
   currency: "EUR",
+  language: "en",
+  units: [...DEFAULT_UNITS],
   gp: { target: 70, includeTransfers: true, salesIncludeVat: false, salesVatRate: 10, recipeMarginOnNet: true, defaultVat: 10, defaultMarginTarget: 68 },
   labour: { onCostPercent: 0 },
   staff: [],

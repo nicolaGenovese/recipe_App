@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { currentQuantity, inventoryRow, maxBatches, nextStockCode } from "@/lib/stock/inventory";
 import { ingredientUnitCost, unitFactor } from "@/lib/stock/units";
+import { normalizeSettings } from "@/lib/settings";
 import type { StockDelivery, StockItem, StockReport } from "@/lib/types";
 
 const item = (over: Partial<StockItem> = {}): StockItem => ({
@@ -74,5 +75,25 @@ describe("units and costs", () => {
   it("counts how many batches the stock allows", () => {
     expect(maxBatches([{ quantity: 2, available: 7 }, { quantity: 1, available: 10 }])).toBe(3);
     expect(maxBatches([])).toBe(0);
+  });
+});
+
+
+describe("units", () => {
+  it("converts metric and UK imperial units", () => {
+    expect(unitFactor("kg", "g")).toBe(1000);
+    expect(unitFactor("lb", "g")).toBeCloseTo(453.592);
+    expect(unitFactor("pint", "ml")).toBeCloseTo(568.261);
+    expect(unitFactor("floz", "ml")).toBeCloseTo(28.4131);
+    expect(unitFactor("pz", "kg")).toBeNull();
+  });
+
+  it("defaults to English and the metric units, and keeps the chosen units", () => {
+    const fresh = normalizeSettings(null);
+    expect(fresh.language).toBe("en");
+    expect(fresh.units).toContain("kg");
+    expect(normalizeSettings({ units: ["oz", "lb", "oz", " "] } as never).units).toEqual(["oz", "lb"]);
+    expect(normalizeSettings({ units: [] } as never).units).toEqual(fresh.units);
+    expect(normalizeSettings({ language: "it" } as never).language).toBe("it");
   });
 });

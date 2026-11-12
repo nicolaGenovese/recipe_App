@@ -33,3 +33,9 @@
 .rota-name { display: block; color: #30392e; font-weight: 600; }
 .rota-person-meta { display: block; margin-top: 2px; color: #8f968a; font-size: 10px; }
 .rota-person-meta.missing { color: #a3593f; }
+
+/* Units in Settings → General. */
+.settings-units { display: grid; gap: 8px; margin-top: 16px; }
+.settings-unit-group { display: grid; gap: 6px; }
+.settings-unit-group strong { color: #5d6857; font-size: 11px; }
+.settings-warn { color: #a3593f; }

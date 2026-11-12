@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
-import { Datalist, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
+import { Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
+import { UnitSelect } from "@/components/ui/UnitSelect";
 import { newId, num } from "@/lib/num";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
 import type { StockItem } from "@/lib/types";
@@ -63,7 +64,7 @@ export function StockItemDialog({ id }: { id?: string }) {
             <TextField label={t("Pezzi per confezione")} name="unitsPerPack" type="number" step="1" min={1} value={form.unitsPerPack} onChange={set("unitsPerPack")} hint={t("Solo per la misura Pezzo: il valore è pezzi ÷ pezzi per confezione × prezzo.")} />
             <TextField label={t("Giacenza iniziale")} name="initialStock" type="number" step="0.01" value={form.initialStock} onChange={set("initialStock")} hint={t("Usata finché non esiste un report inviato o un conteggio in Inventario.")} />
             <TextField label={t("Contenuto per unità di vendita")} name="recipeContent" type="number" step="0.001" value={form.recipeContent} onChange={set("recipeContent")} hint={t("Es. un cartone da 10 kg = 10.")} />
-            <TextField label={t("Unità nelle ricette")} name="recipeUnit" value={form.recipeUnit} onChange={set("recipeUnit")} />
+            <FieldShell label={t("Unità nelle ricette")} htmlFor="field-recipeUnit"><UnitSelect id="field-recipeUnit" value={form.recipeUnit} onChange={set("recipeUnit")} /></FieldShell>
             <TextField label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
             <TextField label={t("Allergeni separati da virgola")} name="allergens" value={form.allergens} onChange={set("allergens")} wide />
             <TextAreaField label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />

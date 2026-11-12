@@ -19,6 +19,10 @@ export function normalizeSettings(raw: Partial<Settings> | null | undefined, rot
   return {
     ...base, ...(raw || {}), gp: { ...base.gp, ...(raw?.gp || {}) } as GpRules,
     labour: { onCostPercent: Number.isFinite(Number(raw?.labour?.onCostPercent)) ? Math.max(0, Number(raw?.labour?.onCostPercent)) : base.labour.onCostPercent },
+    units: Array.isArray(raw?.units) && raw.units.some((unit) => typeof unit === "string" && unit.trim())
+      ? Array.from(new Set(raw.units.filter((unit): unit is string => typeof unit === "string").map((unit) => unit.trim()).filter(Boolean)))
+      : base.units,
+    language: raw?.language === "it" ? "it" : "en",
     staff: Array.isArray(raw?.staff) ? cleanStaff(raw.staff) : staffFromRota(rotaWeeks, raw?.labour?.rates || {}),
     foodSafety: {
       ...base.foodSafety, ...safety,

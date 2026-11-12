@@ -9,7 +9,7 @@ export function LoginForm({ target, configured }: { target: string; configured: 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const t = makeTranslate(typeof window === "undefined" ? "it" : readStoredLanguage());
+  const t = makeTranslate(typeof window === "undefined" ? "en" : readStoredLanguage());
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();

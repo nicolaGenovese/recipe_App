@@ -116,6 +116,8 @@ export interface Settings {
   foodSafety: FoodSafetySettings;
   labour: LabourSettings;
   staff: StaffMember[];
+  /** Units offered in ingredient and product fields, chosen in Settings → General. */
+  units: string[];
 }
 
 export type SettingsListKey = "categories" | "cookingMethods" | "allergens" | "ccpChecks" | "prepChecks";

@@ -24,7 +24,8 @@ export function makeTranslate(language: Language): Translate {
 }
 
 export function readStoredLanguage(): Language {
-  try { return localStorage.getItem(LANGUAGE_STORAGE_KEY) === "en" ? "en" : "it"; } catch { return "it"; }
+  // English unless this browser chose Italian.
+  try { return localStorage.getItem(LANGUAGE_STORAGE_KEY) === "it" ? "it" : "en"; } catch { return "en"; }
 }
 export function storeLanguage(language: Language): void {
   try { localStorage.setItem(LANGUAGE_STORAGE_KEY, language); } catch { /* Private mode: the archive still keeps it. */ }
