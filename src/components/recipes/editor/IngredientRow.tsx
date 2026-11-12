@@ -1,6 +1,6 @@
 "use client";
 
-import { AllergenPicker } from "@/components/recipes/editor/AllergenPicker";
+import { AllergenPicker } from "@/components/ui/AllergenPicker";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { INGREDIENT_TYPES, type IngredientDraft } from "@/lib/recipes/form";
 import { num } from "@/lib/num";

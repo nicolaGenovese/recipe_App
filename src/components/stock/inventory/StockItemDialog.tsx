@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
+import { AllergenPicker } from "@/components/ui/AllergenPicker";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { newId, num } from "@/lib/num";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
@@ -66,7 +67,7 @@ export function StockItemDialog({ id }: { id?: string }) {
             <TextField label={t("Contenuto per unità di vendita")} name="recipeContent" type="number" step="0.001" value={form.recipeContent} onChange={set("recipeContent")} hint={t("Es. un cartone da 10 kg = 10.")} />
             <FieldShell label={t("Unità nelle ricette")} htmlFor="field-recipeUnit"><UnitSelect id="field-recipeUnit" value={form.recipeUnit} onChange={set("recipeUnit")} /></FieldShell>
             <TextField label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
-            <TextField label={t("Allergeni separati da virgola")} name="allergens" value={form.allergens} onChange={set("allergens")} wide />
+            <FieldShell label={t("Allergeni")} htmlFor="field-allergens" wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
             <TextAreaField label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />
           </div>
           <Datalist id="stockSuppliers" values={suppliers} />
