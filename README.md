@@ -48,7 +48,7 @@ La password resta sul server: il browser parla solo con le API dell'app. Per por
 
 ## Online: Vercel e Neon
 
-L'app online gira su Vercel con il database Neon.
+L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto `recipe-app`) con il database Neon `recipe-studio-db` (regione London).
 
 - **Aggiornamenti:** ogni `git push` sul ramo `main` di GitHub (`nicolaGenovese/recipe_App`) pubblica una nuova versione su Vercel. Gli altri rami creano un'anteprima con un indirizzo a parte.
 - **Variabili su Vercel** (Project → Settings → Environment Variables):
