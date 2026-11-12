@@ -5,16 +5,19 @@ import { MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill, TextField } from "@/components/ui/Field";
 import { menuDishes, menuStats } from "@/lib/menus/menus";
+import { newId } from "@/lib/num";
 import { margin, portionCost } from "@/lib/recipes/math";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { useMenuActions } from "@/state/actions/useMenuActions";
+import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** Create or edit a menu: name, status and the dishes in serving order. */
 export function MenuEditorDialog({ id }: { id?: string }) {
-  const { data, gpRules, closeDialog, f, t, fmt } = useApp();
+  const { data, gpRules, closeDialog, notify, f, t, fmt } = useApp();
   const guard = useGuard();
   const { saveMenu, deleteMenu } = useMenuActions();
+  const { saveRecipe } = useRecipeActions();
   const base = id ? data.menus.find((menu) => menu.id === id) : undefined;
 
   const [name, setName] = useState(base?.name ?? "");
@@ -24,6 +27,8 @@ export function MenuEditorDialog({ id }: { id?: string }) {
   const [recipeIds, setRecipeIds] = useState(() => menuDishes(base ?? { recipeIds: [] }, data.recipes).map((recipe) => recipe.id));
   const [query, setQuery] = useState("");
   const [showBases, setShowBases] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [newRecipe, setNewRecipe] = useState("");
 
   const dishes = menuDishes({ recipeIds }, data.recipes);
   const stats = menuStats({ recipeIds }, data.recipes, gpRules);
@@ -32,6 +37,28 @@ export function MenuEditorDialog({ id }: { id?: string }) {
     .filter((recipe) => !recipeIds.includes(recipe.id) && (showBases || !recipe.archivedBatch))
     .filter((recipe) => !search || (recipe.name + " " + recipe.category).toLocaleLowerCase().includes(search))
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  // Typing a name that no recipe has offers to create it.
+  const exact = data.recipes.find((recipe) => recipe.name.trim().toLocaleLowerCase() === search);
+
+  /**
+   * Creates a recipe with just a name, saved at once and put on this menu. Ingredients, price and
+   * method are added later from the recipe; the menu shows it as "no price" until then.
+   */
+  const createRecipe = guard(async (raw: string) => {
+    const name = raw.trim();
+    if (!name) return;
+    const same = data.recipes.find((recipe) => recipe.name.trim().toLocaleLowerCase() === name.toLocaleLowerCase());
+    const recipe = same ?? await saveRecipe({
+      id: newId(), name, category: data.settings.categories[0] || "Senza categoria", portions: 1, archivedBatch: false, sellingPrice: 0,
+      vat: gpRules.defaultVat, marginTarget: gpRules.defaultMarginTarget, ingredients: [], creator: t("Team cucina")
+    });
+    setRecipeIds((old) => (old.includes(recipe.id) ? old : [...old, recipe.id]));
+    if (!same) notify(fmt(t("Ricetta “{0}” creata e aggiunta al menu. Completala dalla pagina Ricette."), recipe.name));
+    setAdding(false);
+    setNewRecipe("");
+    setQuery("");
+  });
 
   const move = (index: number, step: number) => setRecipeIds((old) => {
     const next = [...old];
@@ -65,7 +92,29 @@ export function MenuEditorDialog({ id }: { id?: string }) {
               <h4>{t("Ricette disponibili")}</h4>
               <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Cerca ricette…")} aria-label={t("Cerca ricette…")} />
               <CheckPill checked={showBases} onChange={setShowBases} className="menu-show-bases">{t("Mostra anche le basi")}</CheckPill>
+              {adding ? (
+                <span className="menu-quick-add">
+                  <input autoFocus value={newRecipe} placeholder={t("Nome della nuova ricetta")} aria-label={t("Nome della nuova ricetta")}
+                    onChange={(event) => setNewRecipe(event.target.value)}
+                    onKeyDown={(event) => {
+                      // Enter creates the recipe, not the menu.
+                      if (event.key === "Enter") { event.preventDefault(); void createRecipe(newRecipe); }
+                      if (event.key === "Escape") { event.preventDefault(); setAdding(false); setNewRecipe(""); }
+                    }} />
+                  <button type="button" className="button button-primary button-small" disabled={!newRecipe.trim()} onClick={() => createRecipe(newRecipe)}>{t("Crea")}</button>
+                  <button type="button" className="button button-quiet button-small" onClick={() => { setAdding(false); setNewRecipe(""); }}>{t("Annulla")}</button>
+                </span>
+              ) : (
+                <button type="button" className="menu-quick-new" onClick={() => { setAdding(true); setNewRecipe(query.trim()); }}>{t("+ Nuova ricetta")}</button>
+              )}
               <ul className="menu-pick">
+                {search && !exact && !adding ? (
+                  <li>
+                    <button type="button" className="menu-pick-create" onClick={() => createRecipe(query)}>
+                      <span>{fmt(t("Crea la ricetta “{0}”"), query.trim())}<small>{t("Solo il nome: il resto lo completi dopo")}</small></span><span aria-hidden="true">＋</span>
+                    </button>
+                  </li>
+                ) : null}
                 {available.map((recipe) => (
                   <li key={recipe.id}>
                     <button type="button" onClick={() => setRecipeIds((old) => [...old, recipe.id])}>
@@ -73,7 +122,7 @@ export function MenuEditorDialog({ id }: { id?: string }) {
                     </button>
                   </li>
                 ))}
-                {available.length ? null : <li className="field-hint">{t("Nessuna ricetta da aggiungere.")}</li>}
+                {available.length || search ? null : <li className="field-hint">{t("Nessuna ricetta da aggiungere.")}</li>}
               </ul>
             </section>
             <section className="menu-editor-pane">

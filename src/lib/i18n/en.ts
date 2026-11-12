@@ -1000,5 +1000,11 @@ export const EN: Record<string, string> = {
   "Nome del nuovo menu": "New menu name",
   "Crea": "Create",
   "+ Nuovo menu": "+ New menu",
-  "Nessun menu ancora: crealo qui e la ricetta ci viene aggiunta.": "No menus yet: create one here and the recipe is added to it."
+  "Nessun menu ancora: crealo qui e la ricetta ci viene aggiunta.": "No menus yet: create one here and the recipe is added to it.",
+  // Quick recipe
+  "Ricetta “{0}” creata e aggiunta al menu. Completala dalla pagina Ricette.": "Recipe “{0}” created and added to the menu. Complete it from the Recipes page.",
+  "Nome della nuova ricetta": "New recipe name",
+  "+ Nuova ricetta": "+ New recipe",
+  "Crea la ricetta “{0}”": "Create the recipe “{0}”",
+  "Solo il nome: il resto lo completi dopo": "Name only: fill in the rest later"
 };

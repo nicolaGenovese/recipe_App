@@ -106,3 +106,7 @@
 .menu-quick-new:hover { border-color: var(--green); background: var(--sage); }
 .menu-quick-add { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .menu-quick-add input { width: 180px; min-height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; }
+.menu-editor-pane .menu-quick-new { justify-self: start; }
+.menu-editor-pane .menu-quick-add input { width: 200px; }
+.menu-pick .menu-pick-create { border-color: #cfd8c2; border-style: dashed; background: #f6f8f1; }
+.menu-pick .menu-pick-create span:first-child { color: var(--green-dark); }
