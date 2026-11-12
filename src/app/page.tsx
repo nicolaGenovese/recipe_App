@@ -1,4 +1,5 @@
 import { RecipeStudio } from "@/components/shell/RecipeStudio";
+import { accessRequired } from "@/lib/server/access";
 import { getStore } from "@/lib/server/store";
 import type { AppState } from "@/lib/types";
 import { AppProvider } from "@/state/AppProvider";
@@ -12,7 +13,7 @@ export default async function Home() {
   try { initialState = await getStore().getState(); }
   catch (error) { console.error("Archivio non raggiungibile:", error instanceof Error ? error.message : error); }
   return (
-    <AppProvider initialState={initialState}>
+    <AppProvider initialState={initialState} accessProtected={accessRequired()}>
       <RecipeStudio />
     </AppProvider>
   );

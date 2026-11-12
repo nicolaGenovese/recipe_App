@@ -956,5 +956,16 @@ export const EN: Record<string, string> = {
   "Nessuna persona in organico.": "Nobody on staff.",
   "Aggiungi il personale e la paga oraria nelle impostazioni.": "Add staff and hourly rates in Settings.",
   "Gestisci personale e paghe": "Manage staff and pay",
-  "Aggiungi il personale in Impostazioni → Personale per sceglierlo da qui.": "Add staff in Settings → Staff to pick them here."
+  "Aggiungi il personale in Impostazioni → Personale per sceglierlo da qui.": "Add staff in Settings → Staff to pick them here.",
+  // Access
+  "Inserisci la password della cucina per entrare.": "Enter the kitchen password to sign in.",
+  "La password non è ancora configurata: imposta APP_PASSWORD nelle variabili d'ambiente.": "The password is not set yet: set APP_PASSWORD in the environment variables.",
+  "Password": "Password",
+  "Entra": "Sign in",
+  "Accesso…": "Signing in…",
+  "Accesso non riuscito.": "Sign-in failed.",
+  "Password errata.": "Wrong password.",
+  "Esci": "Log out",
+  "Accesso richiesto.": "Sign-in required.",
+  "Password non configurata: imposta APP_PASSWORD.": "Password not set: set APP_PASSWORD."
 };

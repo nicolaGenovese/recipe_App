@@ -30,13 +30,13 @@ npm start
 
 | Configurazione | Archivio |
 | --- | --- |
-| Nessuna variabile | `data/recipes.json` (creato al primo salvataggio, con ricette di esempio) |
+| Nessuna variabile | `data/recipes.json` (creato vuoto al primo salvataggio) |
 | `DATA_FILE=percorso/file.json` | Il file indicato. Un percorso relativo parte dalla cartella del progetto. |
 | `DATABASE_URL=postgresql://…` | Neon Postgres. Le tabelle vengono create al primo avvio. |
 
 Le variabili vanno in `.env.local` (non viene salvato nel controllo versione). Parti da [.env.example](.env.example).
 
-`data/recipes.json` contiene l'archivio portato dalla prima versione; in `data/backups/` ci sono le copie fatte prima delle importazioni del 10/11/2026. I file in `data/` sono esclusi dal controllo versione, quindi fai backup con l'esportazione JSON dell'app.
+Un archivio nuovo, locale o su Neon, parte vuoto: nessuna ricetta, prodotto o altro dato, solo le impostazioni predefinite. I file in `data/` sono esclusi dal controllo versione.
 
 ### Neon
 
@@ -45,6 +45,16 @@ Le variabili vanno in `.env.local` (non viene salvato nel controllo versione). P
 3. Riavvia l'app. La barra laterale mostra "Neon Postgres" quando la connessione funziona.
 
 La password resta sul server: il browser parla solo con le API dell'app. Per portare i dati dal file locale a Neon, esporta il JSON dall'app (icona di download in alto) prima di cambiare archivio e reimportalo dopo con **Importa**.
+
+## Online: Vercel e Neon
+
+L'app online gira su Vercel con il database Neon.
+
+- **Aggiornamenti:** ogni `git push` sul ramo `main` di GitHub (`nicolaGenovese/recipe_App`) pubblica una nuova versione su Vercel. Gli altri rami creano un'anteprima con un indirizzo a parte.
+- **Variabili su Vercel** (Project → Settings → Environment Variables):
+  - `DATABASE_URL`: impostata dall'integrazione Neon (Project → Storage).
+  - `APP_PASSWORD`: la password condivisa della cucina. Va scelta e inserita a mano. Cambiarla scollega tutti, che dovranno rientrare con la nuova password.
+- **Database:** le tabelle si creano da sole alla prima visita.
 
 ## Comandi
 
@@ -75,4 +85,9 @@ La password resta sul server: il browser parla solo con le API dell'app. Per por
 
 ## Sicurezza
 
-L'app non ha ancora utenti né login: chiunque raggiunga il server può modificare tutto. Usala sul tuo computer o in una rete fidata. Prima di metterla online va aggiunto l'accesso con utenti e ruoli.
+Finché non ci sono utenti e ruoli (vedi [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md)), l'app è protetta da una **password condivisa** (`APP_PASSWORD`). Senza password la pagina di accesso non lascia entrare nessuno.
+
+- **Dove vale:** la richiedono tutte le pagine e tutte le API, controllate sia prima di raggiungere l'app sia dentro ogni API.
+- **Accesso:** dopo l'accesso un cookie sicuro vale 30 giorni; il pulsante **Esci** nella barra laterale lo cancella.
+- **In locale:** senza `APP_PASSWORD` l'app resta aperta, comodo sul proprio computer.
+- **Limite:** tutti usano la stessa password, quindi l'app non sa chi ha fatto cosa. Per le firme dei registri si sceglie il nome a mano.

@@ -1,5 +1,5 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import { DEFAULT_SETTINGS, DEMO_RECIPES, DEMO_STOCK_ITEMS } from "@/lib/seed";
+import { DEFAULT_SETTINGS } from "@/lib/seed";
 import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
 import type { Menu, PrepList, RotaWeek, SafetyLog, SalesWeek, WasteLog, Recipe, Settings, StockDelivery, StockItem, StockReport } from "@/lib/types";
@@ -8,7 +8,7 @@ import type { RecordKind, Store } from "@/lib/server/store/types";
 type Sql = NeonQueryFunction<false, false>;
 type PayloadRow = { payload: unknown };
 
-/** Creates the tables on first use and fills an empty database with the demo content. */
+/** Creates the tables on first use. A new database starts with no data, only the default settings. */
 async function ensureSchema(sql: Sql): Promise<void> {
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_recipes (
     id text PRIMARY KEY, title text NOT NULL, category text NOT NULL DEFAULT '',
@@ -26,18 +26,8 @@ async function ensureSchema(sql: Sql): Promise<void> {
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_sales_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_safety_logs (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_rota_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  const [recipeRows, settingsRows, stockRows] = (await sql.transaction([
-    sql`SELECT count(*)::int AS total FROM recipe_studio_recipes`,
-    sql`SELECT count(*)::int AS total FROM recipe_studio_settings WHERE id = 1`,
-    sql`SELECT count(*)::int AS total FROM recipe_studio_stock_items`
-  ])) as { total: number }[][];
-  if (Number(stockRows[0]?.total ?? 0) === 0) {
-    await sql.transaction(DEMO_STOCK_ITEMS.map((item) => sql`INSERT INTO recipe_studio_stock_items (id, payload) VALUES (${item.id}, ${JSON.stringify(item)}::jsonb) ON CONFLICT (id) DO NOTHING`));
-  }
-  if (Number(recipeRows[0]?.total ?? 0) === 0) {
-    await sql.transaction(DEMO_RECIPES.map((recipe) => sql`INSERT INTO recipe_studio_recipes (id, title, category, current_menu, archived_batch, payload)
-      VALUES (${recipe.id}, ${recipe.name}, ${recipe.category}, ${recipe.currentMenu}, ${recipe.archivedBatch}, ${JSON.stringify(recipe)}::jsonb) ON CONFLICT (id) DO NOTHING`));
-  }
+  // A new database starts empty: only the default settings are written.
+  const [settingsRows] = (await sql.transaction([sql`SELECT count(*)::int AS total FROM recipe_studio_settings WHERE id = 1`])) as { total: number }[][];
   if (Number(settingsRows[0]?.total ?? 0) === 0) {
     await sql`INSERT INTO recipe_studio_settings (id, payload) VALUES (1, ${JSON.stringify(DEFAULT_SETTINGS)}::jsonb) ON CONFLICT (id) DO NOTHING`;
   }

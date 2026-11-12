@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ACCESS_COOKIE, hasAccess } from "@/lib/server/access";
 import { HttpError } from "@/lib/server/validation";
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
@@ -19,6 +20,12 @@ export async function readJson(request: Request): Promise<unknown> {
 /** Wraps a route handler: known errors keep their status, anything else means storage is unreachable. */
 export function handle<A extends unknown[]>(fn: (...args: A) => Promise<NextResponse>) {
   return async (...args: A): Promise<NextResponse> => {
+    // The proxy already checks access; checking again here keeps the API closed even if the proxy is bypassed.
+    const request = (args as unknown[])[0];
+    if (request instanceof Request) {
+      const cookie = request.headers.get("cookie")?.split(/;\s*/).find((part) => part.startsWith(ACCESS_COOKIE + "="))?.slice(ACCESS_COOKIE.length + 1);
+      if (!hasAccess(cookie)) return json({ error: "Accesso richiesto." }, 401);
+    }
     try {
       return await fn(...args);
     } catch (error) {

@@ -65,7 +65,8 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 ### Generale
 
 - Impostazioni: valuta, lingua (italiano, inglese), regole del calcolo GP, personale, liste personalizzabili.
-- Archivio su file JSON locale o su Neon Postgres; backup e importazione JSON, CSV delle ricette.
+- Online su Vercel con database Neon; in locale anche su file JSON. Backup e importazione JSON, CSV delle ricette.
+- Accesso protetto da una password condivisa.
 - Interfaccia in italiano e inglese, utilizzabile anche da telefono (barra laterale a icone).
 
 ## Da implementare
@@ -83,9 +84,9 @@ In ordine di utilità, secondo quanto discusso finora.
 9. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana.
 10. **Allergeni completi sui piatti del Main menu** e matrice allergeni per menu da stampare.
 
-## Dati da completare
+## Dati da inserire
 
-Senza questi dati alcuni calcoli restano a zero o falsati.
+L'archivio online parte vuoto. Per avere numeri affidabili servono:
 
 - **Prezzi dei prodotti** in Inventario (oggi tutti a 0) e **quantità degli ingredienti** nei piatti del Main menu (oggi 0): servono per costi, food cost, GP teorico, margini e analisi del menu.
 - **IVA predefinita**: in Impostazioni → Calcolo GP è al 10%; nel Regno Unito per la ristorazione è al 20%.
@@ -96,10 +97,7 @@ Senza questi dati alcuni calcoli restano a zero o falsati.
 
 ## Limiti noti
 
-- **Nessun login**: chiunque raggiunga l'indirizzo dell'app può vedere e modificare tutto. Va usata solo sul computer del locale o in una rete fidata.
-- **Neon non provato** con un database reale: le tabelle si creano da sole, ma l'archivio in uso è il file locale.
+- **Password condivisa, non utenti**: online l'app è protetta da un'unica password (`APP_PASSWORD`), ma non distingue chi la usa né limita cosa può fare.
 - **GP reale settimanale** approssimato: arriva dal report stock che copre più giorni della settimana.
 - **Controllo all'arrivo aperto da una consegna** non provato, perché l'archivio non ha ancora consegne.
 - **Vecchia app Rota** ancora attiva su Supabase: le modifiche fatte lì non arrivano qui.
-- **Server legato alla sessione**: se l'app è stata avviata da Claude, si ferma alla chiusura della sessione; altrimenti si avvia con `npm start`.
-- **Nessun controllo di versione**: la cartella non è un repository git; i backup dei dati sono in `data/backups/`.

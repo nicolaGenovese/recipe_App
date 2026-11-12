@@ -1,8 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
-import { clone } from "@/lib/num";
-import { DEMO_RECIPES, DEMO_STOCK_ITEMS } from "@/lib/seed";
 import { normalizeSettings } from "@/lib/settings";
 import type { AppData } from "@/lib/types";
 import type { RecordKind, Store } from "@/lib/server/store/types";
@@ -21,17 +19,17 @@ export function firstMenus(recipes: AppData["recipes"], language?: string) {
 }
 
 function emptyData(): AppData {
-  return { recipes: clone(DEMO_RECIPES), settings: normalizeSettings(null), stockItems: clone(DEMO_STOCK_ITEMS), stockReports: [], stockDeliveries: [], menus: firstMenus(DEMO_RECIPES), prepLists: [], rotaWeeks: [], safetyLogs: [], wasteLogs: [], salesWeeks: [] };
+  return { recipes: [], settings: normalizeSettings(null), stockItems: [], stockReports: [], stockDeliveries: [], menus: [], prepLists: [], rotaWeeks: [], safetyLogs: [], wasteLogs: [], salesWeeks: [] };
 }
 
 async function readData(file: string): Promise<AppData> {
   try {
     const parsed = JSON.parse(await readFile(file, "utf8")) as Partial<AppData>;
-    const recipes = Array.isArray(parsed.recipes) ? parsed.recipes : clone(DEMO_RECIPES);
+    const recipes = Array.isArray(parsed.recipes) ? parsed.recipes : [];
     return {
       recipes,
       settings: normalizeSettings(parsed.settings, Array.isArray(parsed.rotaWeeks) ? parsed.rotaWeeks : []),
-      stockItems: Array.isArray(parsed.stockItems) ? parsed.stockItems : clone(DEMO_STOCK_ITEMS),
+      stockItems: Array.isArray(parsed.stockItems) ? parsed.stockItems : [],
       stockReports: Array.isArray(parsed.stockReports) ? parsed.stockReports : [],
       stockDeliveries: Array.isArray(parsed.stockDeliveries) ? parsed.stockDeliveries : [],
       // Archives from before menus existed get their first menu from the old "current menu" flag.

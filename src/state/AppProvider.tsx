@@ -6,7 +6,6 @@ import { fmt, localeFor, makeTranslate, readStoredLanguage, storeLanguage, type 
 import { menuRecipeIds } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
 import { clone } from "@/lib/num";
-import { DEMO_RECIPES, DEMO_STOCK_ITEMS } from "@/lib/seed";
 import type { AppData, AppState, GpRules, Health, Language } from "@/lib/types";
 import { api } from "@/state/api";
 import type { DialogState } from "@/state/dialogs";
@@ -40,19 +39,21 @@ interface AppContextValue {
   closeDialog: () => void;
   toast: Toast | null;
   notify: (message: string, error?: boolean) => void;
+  /** True when the app sits behind the shared password, so a "log out" button makes sense. */
+  accessProtected: boolean;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 function fallbackData(): AppData {
-  return { recipes: clone(DEMO_RECIPES), settings: normalizeSettings(null), stockItems: clone(DEMO_STOCK_ITEMS), stockReports: [], stockDeliveries: [], menus: [], prepLists: [], rotaWeeks: [], safetyLogs: [], wasteLogs: [], salesWeeks: [] };
+  return { recipes: [], settings: normalizeSettings(null), stockItems: [], stockReports: [], stockDeliveries: [], menus: [], prepLists: [], rotaWeeks: [], safetyLogs: [], wasteLogs: [], salesWeeks: [] };
 }
 
 function toData(state: AppState): AppData {
   return {
-    recipes: Array.isArray(state.recipes) ? state.recipes : clone(DEMO_RECIPES),
+    recipes: Array.isArray(state.recipes) ? state.recipes : [],
     settings: normalizeSettings(state.settings),
-    stockItems: Array.isArray(state.stockItems) ? state.stockItems : clone(DEMO_STOCK_ITEMS),
+    stockItems: Array.isArray(state.stockItems) ? state.stockItems : [],
     stockReports: Array.isArray(state.stockReports) ? state.stockReports : [],
     stockDeliveries: Array.isArray(state.stockDeliveries) ? state.stockDeliveries : [],
     menus: Array.isArray(state.menus) ? state.menus : [],
@@ -64,7 +65,7 @@ function toData(state: AppState): AppData {
   };
 }
 
-export function AppProvider({ initialState, children }: { initialState: AppState | null; children: ReactNode }) {
+export function AppProvider({ initialState, accessProtected = false, children }: { initialState: AppState | null; accessProtected?: boolean; children: ReactNode }) {
   const [data, setData] = useState<AppData>(() => (initialState ? toData(initialState) : fallbackData()));
   const dataRef = useRef(data);
   const [loaded, setLoaded] = useState(Boolean(initialState));
@@ -131,7 +132,7 @@ export function AppProvider({ initialState, children }: { initialState: AppState
     stockView,
     setStockView: useCallback((change) => setStockViewState((old) => ({ ...old, ...(typeof change === "function" ? change(old) : change) })), []),
     dialog, openDialog: setDialog, closeDialog: useCallback(() => setDialog(null), []),
-    toast, notify
+    toast, notify, accessProtected
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

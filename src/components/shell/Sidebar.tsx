@@ -7,7 +7,7 @@ import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
 export function Sidebar() {
-  const { data, view, setView, openDialog, health, t } = useApp();
+  const { data, view, setView, openDialog, health, t, accessProtected } = useApp();
   const { recipes } = data;
   const items: [ViewFilter, string, ReactNode, number][] = [
     ["all", t("Tutte le ricette"), <GridIcon key="i" />, recipes.length],
@@ -64,6 +64,12 @@ export function Sidebar() {
           <span className="nav-icon" aria-hidden="true"><GearIcon /></span>
           <span>{t("Impostazioni")}</span>
         </button>
+        {accessProtected ? (
+          <button className="nav-item settings-link" type="button" onClick={async () => { await fetch("/api/logout", { method: "POST" }); window.location.assign("/login"); }}>
+            <span className="nav-icon" aria-hidden="true">⎋</span>
+            <span>{t("Esci")}</span>
+          </button>
+        ) : null}
         <div className="sidebar-user"><span className="user-avatar">C</span><span><strong>{t("Team cucina")}</strong><small>{t("Workspace personale")}</small></span><span className="user-more">···</span></div>
       </div>
     </aside>
