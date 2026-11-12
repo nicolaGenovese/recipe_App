@@ -994,5 +994,11 @@ export const EN: Record<string, string> = {
   "pz · pezzi": "pz · pieces",
   "porz · porzioni": "porz · portions",
   "mazzo · mazzi": "mazzo · bunches",
-  "confezione · confezioni": "confezione · packs"
+  "confezione · confezioni": "confezione · packs",
+  // Quick menu
+  "Menu “{0}” creato.": "Menu “{0}” created.",
+  "Nome del nuovo menu": "New menu name",
+  "Crea": "Create",
+  "+ Nuovo menu": "+ New menu",
+  "Nessun menu ancora: crealo qui e la ricetta ci viene aggiunta.": "No menus yet: create one here and the recipe is added to it."
 };

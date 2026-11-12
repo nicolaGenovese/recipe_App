@@ -27,6 +27,21 @@ export function useMenuActions() {
     notify(t(old ? "Menu salvato." : "Menu creato."));
   }
 
+  /**
+   * Creates an empty active menu without closing the open window, so the recipe editor can make one
+   * and tick it straight away. A name already used returns that menu instead of a copy.
+   */
+  async function createMenu(name: string): Promise<Menu | null> {
+    const clean = name.trim();
+    if (!clean) { notify(t("Inserisci il nome del menu."), true); return null; }
+    const existing = current().menus.find((menu) => menu.name.trim().toLocaleLowerCase() === clean.toLocaleLowerCase());
+    if (existing) return existing;
+    const now = new Date().toISOString();
+    const saved = await persistMenu({ id: newId(), name: clean, description: "", active: true, recipeIds: [], createdAt: now, updatedAt: now });
+    notify(fmt(t("Menu “{0}” creato."), saved.name));
+    return saved;
+  }
+
   async function deleteMenu(id: string) {
     const menu = current().menus.find((row) => row.id === id);
     if (!menu || !window.confirm(fmt(t("Eliminare il menu “{0}”? Le ricette restano in archivio."), menu.name))) return;
@@ -49,5 +64,5 @@ export function useMenuActions() {
     for (const menu of assignRecipeToMenus(current().menus, recipeId, menuIds)) await persistMenu(menu);
   }
 
-  return { saveMenu, deleteMenu, toggleActive, setRecipeMenus };
+  return { saveMenu, createMenu, deleteMenu, toggleActive, setRecipeMenus };
 }

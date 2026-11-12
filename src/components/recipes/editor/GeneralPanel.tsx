@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import type { FormPatch } from "@/components/recipes/editor/RecipeEditorDialog";
 import { CheckPill, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { PlateIcon } from "@/components/ui/icons";
 import { sortMenus } from "@/lib/menus/menus";
+import { useGuard } from "@/state/actions/useGuard";
+import { useMenuActions } from "@/state/actions/useMenuActions";
 import type { RecipeForm } from "@/lib/recipes/form";
 import { useApp } from "@/state/AppProvider";
 
@@ -12,6 +15,19 @@ const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024;
 
 export function GeneralPanel({ form, patch }: { form: RecipeForm; patch: FormPatch }) {
   const { data, t, notify } = useApp();
+  const guard = useGuard();
+  const { createMenu } = useMenuActions();
+  const [adding, setAdding] = useState(false);
+  const [newMenu, setNewMenu] = useState("");
+
+  /** The new menu is saved at once and ticked for this recipe; the dish joins it when the recipe is saved. */
+  const addMenu = guard(async () => {
+    const menu = await createMenu(newMenu);
+    if (!menu) return;
+    patch((old) => ({ menuIds: old.menuIds.includes(menu.id) ? old.menuIds : [...old.menuIds, menu.id] }));
+    setAdding(false);
+    setNewMenu("");
+  });
   const options = (values: string[]) => values.map((value) => ({ value, label: t(value) }));
   const categories = Array.from(new Set(data.settings.categories.concat(form.category || [])));
   const methods = Array.from(new Set(data.settings.cookingMethods.concat(form.cookingMethod || [])));
@@ -52,8 +68,23 @@ export function GeneralPanel({ form, patch }: { form: RecipeForm; patch: FormPat
                   {menu.name}{menu.active ? "" : " · " + t("sospeso")}
                 </CheckPill>
               ))}
-              {data.menus.length ? null : <small className="field-hint">{t("Nessun menu: creane uno dalla pagina Menu.")}</small>}
+              {adding ? (
+                <span className="menu-quick-add">
+                  <input autoFocus value={newMenu} placeholder={t("Nome del nuovo menu")} aria-label={t("Nome del nuovo menu")}
+                    onChange={(event) => setNewMenu(event.target.value)}
+                    onKeyDown={(event) => {
+                      // Enter must create the menu, not submit the whole recipe.
+                      if (event.key === "Enter") { event.preventDefault(); void addMenu(); }
+                      if (event.key === "Escape") { event.preventDefault(); setAdding(false); setNewMenu(""); }
+                    }} />
+                  <button type="button" className="button button-primary button-small" disabled={!newMenu.trim()} onClick={addMenu}>{t("Crea")}</button>
+                  <button type="button" className="button button-quiet button-small" onClick={() => { setAdding(false); setNewMenu(""); }}>{t("Annulla")}</button>
+                </span>
+              ) : (
+                <button type="button" className="menu-quick-new" onClick={() => setAdding(true)}>{t("+ Nuovo menu")}</button>
+              )}
             </div>
+            {data.menus.length || adding ? null : <small className="field-hint">{t("Nessun menu ancora: crealo qui e la ricetta ci viene aggiunta.")}</small>}
           </div>
           <div className="form-field">
             <span className="field-label">{t("Immagine della ricetta")}</span>
