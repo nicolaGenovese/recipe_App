@@ -1,5 +1,6 @@
 "use client";
 
+import { AllergenPicker } from "@/components/recipes/editor/AllergenPicker";
 import { INGREDIENT_TYPES, type IngredientDraft } from "@/lib/recipes/form";
 import { num } from "@/lib/num";
 import { useApp } from "@/state/AppProvider";
@@ -21,7 +22,7 @@ export function IngredientRow({ row, onChange, onRemove }: { row: IngredientDraf
         <button type="button" className="remove-ingredient" onClick={onRemove} aria-label={t("Rimuovi ingrediente")}>×</button>
       </div>
       <div className="ingredient-extra-row">
-        <input value={row.allergens} aria-label={t("Allergeni")} placeholder={t("Allergeni separati da virgola")} onChange={(event) => onChange({ allergens: event.target.value })} />
+        <AllergenPicker value={row.allergens} onChange={(allergens) => onChange({ allergens })} />
         <input type="number" min="0" step="0.1" value={row.kcal} aria-label={t("kcal per unità")} placeholder={t("kcal / unità")} onChange={(event) => onChange({ kcal: event.target.value })} />
       </div>
     </div>

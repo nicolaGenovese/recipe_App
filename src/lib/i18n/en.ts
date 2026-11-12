@@ -967,5 +967,9 @@ export const EN: Record<string, string> = {
   "Password errata.": "Wrong password.",
   "Esci": "Log out",
   "Accesso richiesto.": "Sign-in required.",
-  "Password non configurata: imposta APP_PASSWORD.": "Password not set: set APP_PASSWORD."
+  "Password non configurata: imposta APP_PASSWORD.": "Password not set: set APP_PASSWORD.",
+  // Allergen picker
+  "Nessun allergene: clicca per sceglierli": "No allergens: click to choose",
+  "Aggiungi gli allergeni in Impostazioni → Allergeni.": "Add allergens in Settings → Allergens.",
+  "Nessun allergene": "No allergens"
 };
