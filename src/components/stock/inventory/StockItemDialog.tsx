@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { AllergenPicker } from "@/components/ui/AllergenPicker";
+import { recipesUsing } from "@/lib/recipes/catalog";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { newId, num } from "@/lib/num";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
@@ -25,7 +26,7 @@ function toForm(item: Partial<StockItem>): Form {
 
 /** Create or edit a stock product: price, measure and conversion to recipe units. */
 export function StockItemDialog({ id }: { id?: string }) {
-  const { data, closeDialog, notify, f, t } = useApp();
+  const { data, closeDialog, notify, f, t, fmt } = useApp();
   const guard = useGuard();
   const { saveStockItem } = useStockActions();
   const existing = id ? data.stockItems.find((item) => item.id === id) : undefined;
@@ -70,6 +71,16 @@ export function StockItemDialog({ id }: { id?: string }) {
             <FieldShell label={t("Allergeni")} htmlFor="field-allergens" wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
             <TextAreaField label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />
           </div>
+          {existing ? (() => {
+            const users = recipesUsing(existing.id, data.recipes);
+            return (
+              <div className="product-usage">
+                <strong>{fmt(t("Usato in {0} ricette"), users.length)}</strong>
+                <span>{users.length ? users.map((recipe) => recipe.name).join(", ") : t("Non è ancora in nessuna ricetta.")}</span>
+                {users.length ? <small className="field-hint">{t("Prezzo, allergeni e kcal salvati qui si aggiornano da soli in queste ricette.")}</small> : null}
+              </div>
+            );
+          })() : null}
           <Datalist id="stockSuppliers" values={suppliers} />
           <Datalist id="stockGroups" values={groups} />
         </div>

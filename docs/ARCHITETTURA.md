@@ -37,6 +37,7 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `i18n/` | `en.ts` contiene i testi inglesi; la chiave è il testo italiano. `index.ts` crea la funzione `t`. |
 | `recipes/math.ts` | Costo, costo per porzione, allergeni, kcal, margine, prezzo suggerito, righe senza costo. |
 | `recipes/form.ts` | Conversione ricetta ↔ modulo dell'editor (i numeri restano testo mentre si scrive). |
+| `recipes/catalog.ts` | Catalogo ingredienti: una riga di ricetta prende nome, fornitore, costo, allergeni e kcal dal prodotto o dalla ricetta base collegata; ricette da sincronizzare; ricette che usano un prodotto. |
 | `recipes/filter.ts` | Filtri e ordinamento della libreria, compreso il filtro per menu. |
 | `menus/menus.ts` | Piatti in menu, piatti di più menu, numeri del menu (costo medio, food cost, margine), assegnazione di un piatto ai menu, passaggio dal vecchio "menu attuale". |
 | `performance/waste.ts` | Costo di uno spreco (dal prodotto o dalla ricetta), totali per motivo e per voce. |
@@ -143,5 +144,5 @@ Il testo italiano è la chiave: scrivi `t("Salva bozza")` e aggiungi `"Salva boz
 - **Turni.** Si possono modificare la settimana corrente e le tre successive; le settimane prima sono storico in sola lettura. Le modifiche si salvano da sole 0,7 secondi dopo l'ultima battuta, una alla volta in coda (`useRotaActions`). L'esportazione Excel carica `public/vendor/xlsx.full.min.js` (SheetJS, preso dalla vecchia app) solo al primo clic. La stampa crea il foglio fuori da `.app-shell`, che le regole di stampa nascondono.
 - **Report inviati.** All'invio il report salva le regole GP in `gpRules` e da lì in poi usa quelle. Riaprirlo le toglie.
 - **Celle dell'inventario.** Si salvano all'uscita dalla cella o con Invio, una alla volta in coda.
-- **Allineamento dei costi.** All'avvio e dopo ogni modifica a prodotti o consegne, le ricette con ingredienti collegati vengono risalvate se il prezzo è cambiato.
+- **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni e kcal.
 - **Rispetto alla prima versione.** Le funzioni sono le stesse; sono sparite solo le cose che React rende inutili: niente `innerHTML`, niente aggiornamenti manuali della pagina, niente escape a mano dei testi.

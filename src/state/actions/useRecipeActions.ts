@@ -2,7 +2,7 @@
 
 import { clone, newId, upsert } from "@/lib/num";
 import { assignRecipeToMenus } from "@/lib/menus/menus";
-import { recipesWithStaleCosts } from "@/lib/stock/sources";
+import { recipesOutOfSync } from "@/lib/recipes/catalog";
 import type { Recipe } from "@/lib/types";
 import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
@@ -50,9 +50,12 @@ export function useRecipeActions() {
     notify(recipe.archivedBatch ? t("Rimossa dalle basi.") : t("Aggiunta a basi e preparazioni."));
   }
 
-  /** Saves every recipe whose linked ingredients changed price. Returns true when any did. */
+  /**
+   * Brings every recipe in line with the ingredient catalogue: name, supplier, cost, allergens and
+   * kcal of linked rows follow their product or base recipe. Returns true when any recipe changed.
+   */
   async function syncRecipeCosts(): Promise<boolean> {
-    const stale = recipesWithStaleCosts(current().recipes, current().stockItems);
+    const stale = recipesOutOfSync(current().recipes, current().stockItems);
     for (const recipe of stale) await saveRecipe(recipe);
     return stale.length > 0;
   }

@@ -9,8 +9,18 @@ Tutte le formule sono in `src/lib/` e coperte dai test (`npm test`).
 - Margine teorico = (prezzo netto − costo per porzione) ÷ prezzo netto. Il prezzo netto è il prezzo di vendita diviso per (1 + IVA), oppure il prezzo così com'è se nelle impostazioni è disattivato **Margine sul prezzo al netto dell'IVA**.
 - Prezzo suggerito = costo per porzione ÷ (1 − margine obiettivo), più IVA se il margine è sul netto.
 - Un ingrediente collegato a un prodotto costa: prezzo del prodotto ÷ contenuto per unità di vendita, convertito nell'unità della ricetta.
-- Peso e volume usano la stessa scala: 1 g = 1 ml, tsp = 5, tbsp = 15. Le unità che non si convertono (per esempio pz verso kg) mantengono il costo scritto a mano, e la scheda segnala il costo incompleto.
+- Peso e volume usano la stessa scala: 1 g = 1 ml, cl = 10, tsp = 5, tbsp = 15, oz = 28,35 g, lb = 453,6 g, fl oz = 28,41 ml, pint = 568,3 ml (misure UK). Le unità che non si convertono (per esempio pz verso kg) mantengono il costo scritto a mano, e la scheda segnala il costo incompleto.
 - L'acqua non conta mai come costo mancante.
+
+## Catalogo ingredienti — `lib/recipes/catalog.ts`
+
+Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ricetta dice solo quale prodotto o quale ricetta base usa, la quantità e l'unità.
+
+- **Riga collegata a un prodotto:** nome, fornitore, allergeni, costo per unità e kcal vengono dal prodotto. Costo e kcal sono convertiti nell'unità della riga (un prodotto a £4/kg usato in g costa £0,004/g). Se le unità non si convertono, la riga tiene il costo e le kcal che aveva.
+- **Riga collegata a una ricetta base:** con unità `porz`, il costo è il costo per porzione della base e le kcal quelle per porzione. Gli allergeni sono quelli della base.
+- **Voce libera** (tipo Esterno, o un nome che non è a magazzino): costo, allergeni e kcal sono quelli scritti nella riga e valgono solo per quella ricetta. "+ Aggiungi al magazzino" la trasforma in un prodotto con gli stessi valori e la collega.
+- **Sincronizzazione:** all'apertura dell'app e dopo ogni modifica di prodotti, consegne o ricette base, le ricette che non corrispondono al catalogo vengono aggiornate e salvate. Una riga vecchia senza collegamento, il cui nome coincide con un prodotto, viene collegata a quel prodotto.
+- **Prodotto eliminato:** nelle ricette che lo usavano resta come voce libera con gli ultimi valori.
 
 ## Report Food Stock — `lib/stock/report.ts`
 

@@ -1006,5 +1006,21 @@ export const EN: Record<string, string> = {
   "Nome della nuova ricetta": "New recipe name",
   "+ Nuova ricetta": "+ New recipe",
   "Crea la ricetta “{0}”": "Create the recipe “{0}”",
-  "Solo il nome: il resto lo completi dopo": "Name only: fill in the rest later"
+  "Solo il nome: il resto lo completi dopo": "Name only: fill in the rest later",
+  // Ingredient catalogue
+  "Collegato a un prodotto del magazzino": "Linked to a stock product",
+  "Collegato a una ricetta base": "Linked to a base recipe",
+  "Cerca o scrivi un ingrediente": "Search or type an ingredient",
+  "Prezzo del magazzino convertito nell'unità della riga": "Stock price converted to this row's unit",
+  "Dal magazzino: fornitore, prezzo, allergeni e kcal si cambiano in Food Stock → Inventario e valgono per tutte le ricette.": "From stock: supplier, price, allergens and kcal are changed in Food Stock → Inventory and apply to every recipe.",
+  "Dalla ricetta base: costo per porzione e allergeni seguono la base.": "From the base recipe: cost per portion and allergens follow the base.",
+  "Non è nel magazzino: costo e allergeni valgono solo per questa ricetta.": "Not in stock: cost and allergens apply to this recipe only.",
+  "+ Aggiungi al magazzino": "+ Add to stock",
+  "Scegli gli ingredienti dal magazzino: prezzo, allergeni e kcal arrivano dal prodotto e restano aggiornati in tutte le ricette. Se un ingrediente manca, scrivilo e premi \"+ Aggiungi al magazzino\".": "Pick ingredients from stock: price, allergens and kcal come from the product and stay up to date in every recipe. If an ingredient is missing, type it and press \"+ Add to stock\".",
+  "“{0}” è usato in {1} ricette ({2}). Eliminandolo, in quelle ricette resta come voce libera con gli ultimi valori e non segue più il magazzino. Continuare?": "“{0}” is used in {1} recipes ({2}). If you delete it, it stays in those recipes as a free row with its last values and no longer follows stock. Continue?",
+  "“{0}” aggiunto agli ingredienti del magazzino.": "“{0}” added to the stock ingredients.",
+  // Product usage
+  "Usato in {0} ricette": "Used in {0} recipes",
+  "Non è ancora in nessuna ricetta.": "Not used in any recipe yet.",
+  "Prezzo, allergeni e kcal salvati qui si aggiornano da soli in queste ricette.": "Price, allergens and kcal saved here update these recipes automatically."
 };

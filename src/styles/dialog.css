@@ -76,3 +76,14 @@
 .allergen-picker-menu label:hover, .allergen-picker-menu label.checked { background: var(--sage); }
 .allergen-picker-menu input { accent-color: var(--green); }
 .allergen-picker-clear { grid-column: 1 / -1; justify-self: start; margin-top: 4px; padding: 4px 8px; border: 0; border-radius: 6px; color: #a3593f; background: none; font-size: 11px; cursor: pointer; }
+
+/* Ingredient rows linked to the stock catalogue. */
+.ingredient-entry.linked { border-color: #d7e2c9; background: #fbfcf8; }
+.ingredient-type-badge { display: grid; place-items: center; min-height: 30px; padding: 0 8px; border-radius: 7px; color: var(--green-dark); background: var(--sage); font-size: 10px; font-weight: 650; }
+.ingredient-readonly { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-height: 30px; padding: 0 8px; overflow: hidden; border: 1px dashed #dfe4d6; border-radius: 7px; color: #5d6857; background: #f7f8f3; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+.ingredient-allergens { white-space: normal; }
+.ingredient-source { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+.ingredient-source small { color: #8f968a; font-size: 10px; }
+.ingredient-source .ingredient-source-free { color: #a3593f; }
+.ingredient-add-catalog { padding: 3px 10px; border: 1px dashed #c9d1bd; border-radius: 999px; color: var(--green-dark); background: #fff; font-size: 10px; font-weight: 600; cursor: pointer; }
+.ingredient-add-catalog:hover { border-color: var(--green); background: var(--sage); }

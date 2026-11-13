@@ -9,6 +9,8 @@ export function currencyCode(value: string | undefined): string {
 /** Formatters bound to one locale and currency, created once per settings change. */
 export function makeFormatters(locale: string, currency: string) {
   const moneyFormat = new Intl.NumberFormat(locale, { style: "currency", currency });
+  // Costs per gram or millilitre are fractions of a penny, so they keep up to four decimals.
+  const unitMoneyFormat = new Intl.NumberFormat(locale, { style: "currency", currency, minimumFractionDigits: 2, maximumFractionDigits: 4 });
   const quantityFormat = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 3 });
   const percentFormat = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const shortDate = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short" });
@@ -18,6 +20,7 @@ export function makeFormatters(locale: string, currency: string) {
     locale,
     currency,
     money: (value: unknown) => moneyFormat.format(num(value)),
+    unitMoney: (value: unknown) => unitMoneyFormat.format(num(value)),
     quantity: (value: unknown) => quantityFormat.format(num(value)),
     percent: (value: number | null) => (value === null ? "—" : percentFormat.format(value) + "%"),
     /** Labels are written with "€" and show the chosen currency instead. */

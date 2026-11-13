@@ -7,7 +7,7 @@ import { IngredientsPanel } from "@/components/recipes/editor/IngredientsPanel";
 import { KitchenPanel } from "@/components/recipes/editor/KitchenPanel";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { fromForm, toForm, type RecipeForm } from "@/lib/recipes/form";
-import { withStockCost } from "@/lib/stock/sources";
+import { resolveRecipe } from "@/lib/recipes/catalog";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useMenuActions } from "@/state/actions/useMenuActions";
@@ -22,7 +22,7 @@ const TABS: [EditorTab, string][] = [["general", "Panoramica"], ["ingredients", 
 /** Create or edit a recipe. Opening it with a partial recipe (no id) prefills a new one. */
 export function RecipeEditorDialog({ initial }: { initial?: Partial<Recipe> }) {
   const { data, gpRules, t, notify, closeDialog, current } = useApp();
-  const { saveRecipe, deleteRecipe } = useRecipeActions();
+  const { saveRecipe, deleteRecipe, syncRecipeCosts } = useRecipeActions();
   const { setRecipeMenus } = useMenuActions();
   const recipe = initial?.id ? data.recipes.find((item) => item.id === initial.id) ?? initial : initial ?? {};
   const isNew = !recipe.id;
@@ -46,8 +46,11 @@ export function RecipeEditorDialog({ initial }: { initial?: Partial<Recipe> }) {
     try {
       const old = current().recipes.find((item) => item.id === form.id);
       const draft = fromForm(form, old);
-      const saved = await saveRecipe({ ...draft, ingredients: draft.ingredients.map((row) => withStockCost(row, current().stockItems)) });
+      // Linked rows are saved as the catalogue describes them, whatever the form showed.
+      const saved = await saveRecipe(resolveRecipe(draft, current().stockItems, current().recipes));
       await setRecipeMenus(saved.id, form.menuIds);
+      // A base recipe passes its new cost and allergens to the dishes that use it.
+      if (saved.archivedBatch) await syncRecipeCosts();
       closeDialog();
       notify(isNew ? t("Ricetta creata.") : t("Modifiche salvate."));
     } catch (error) {

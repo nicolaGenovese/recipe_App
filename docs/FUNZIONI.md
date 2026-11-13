@@ -8,7 +8,8 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 
 - Catalogo con ricerca su nome, descrizione, ingredienti, fornitori e allergeni; filtri per categoria, ordinamento, pagine, vista a schede o a elenco.
 - Scheda ricetta: ingredienti (prodotto, base o esterno) con quantità, unità, costo, allergeni e kcal; foto, metodo, MEP, impiattamento, note nutrizionali, controlli di sicurezza, attrezzature, giorni di conservazione.
-- Costi: costo totale e per porzione, margine teorico, prezzo suggerito. Gli ingredienti collegati a un prodotto seguono il suo prezzo.
+- Costi: costo totale e per porzione, margine teorico, prezzo suggerito.
+- Catalogo unico degli ingredienti: il magazzino. Gli ingredienti collegati a un prodotto prendono da lì prezzo, fornitore, allergeni e kcal, e si aggiornano in tutte le ricette quando il prodotto cambia. Un ingrediente che manca si aggiunge al magazzino dalla ricetta; la scheda prodotto mostra in quali ricette è usato.
 - Basi e preparazioni riutilizzabili, collegabili come ingrediente di altre ricette.
 - Creazione, modifica, duplicazione, eliminazione; ricetta creata dal magazzino scegliendo i prodotti.
 

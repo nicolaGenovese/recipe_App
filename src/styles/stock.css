@@ -70,3 +70,7 @@
 .metric-tile .stock-gp-ok, .stock-gp-ok { color: #3f7a3a; }
 .metric-tile .stock-gp-low, .stock-gp-low { color: #b0453a; }
 #stockSumTarget { display: block; margin-top: 3px; }
+
+/* Recipes that use a product. */
+.product-usage { display: grid; gap: 3px; margin-top: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fafaf6; color: #4d5a46; font-size: 12px; }
+.product-usage strong { font-size: 12px; }

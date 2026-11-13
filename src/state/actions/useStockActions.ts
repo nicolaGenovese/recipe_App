@@ -7,6 +7,7 @@ import { newDraftReport, periodError, syncDraftLines } from "@/lib/stock/draft";
 import { inventoryRow, nextStockCode } from "@/lib/stock/inventory";
 import { draftReport, latestSubmitted } from "@/lib/stock/report";
 import { findStockItemByName, stockSources } from "@/lib/stock/sources";
+import { FREE, recipesUsing } from "@/lib/recipes/catalog";
 import type { StockDelivery, StockItem, StockReport } from "@/lib/types";
 import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
@@ -28,7 +29,7 @@ export interface DeliveryInput {
 export function useStockActions() {
   const app = useApp();
   const { current, update, notify, t, fmt, gpRules, openDialog, closeDialog, setStockView } = app;
-  const { syncRecipeCosts } = useRecipeActions();
+  const { syncRecipeCosts, saveRecipe } = useRecipeActions();
   const inventoryQueue = useRef<Promise<unknown>>(Promise.resolve());
 
   const sources = () => stockSources(current().stockItems, current().recipes);
@@ -106,10 +107,35 @@ export function useStockActions() {
 
   async function deleteStockItem(id: string) {
     const item = current().stockItems.find((row) => row.id === id);
-    if (!item || !window.confirm(fmt(t("Eliminare “{0}”? Questa azione non si può annullare."), item.name))) return;
+    if (!item) return;
+    const users = recipesUsing(id, current().recipes);
+    const question = users.length
+      ? fmt(t("“{0}” è usato in {1} ricette ({2}). Eliminandolo, in quelle ricette resta come voce libera con gli ultimi valori e non segue più il magazzino. Continuare?"), item.name, users.length, users.map((recipe) => recipe.name).join(", "))
+      : fmt(t("Eliminare “{0}”? Questa azione non si può annullare."), item.name);
+    if (!window.confirm(question)) return;
     await api.deleteStockItem(id);
     update((data) => ({ ...data, stockItems: data.stockItems.filter((row) => row.id !== id) }));
+    // The rows keep their last values as free rows, so the recipes stay correct.
+    for (const recipe of users) {
+      await saveRecipe({ ...recipe, ingredients: recipe.ingredients.map((row) => (row.stockItemId === id ? { ...row, type: FREE, stockItemId: undefined } : row)) });
+    }
     notify(t("Prodotto eliminato."));
+  }
+
+  /**
+   * Adds a product to the catalogue straight from a recipe row, without leaving the recipe.
+   * The price is the cost per unit typed in the row, so 1 unit of sale = 1 recipe unit.
+   */
+  async function createProduct(input: { name: string; supplier: string; unit: string; unitCost: number; allergens: string[]; kcal: number }): Promise<StockItem> {
+    const existing = findStockItemByName(current().stockItems, input.name);
+    if (existing) return existing;
+    const saved = await saveItem({
+      id: newId(), code: nextStockCode(current().stockItems), name: input.name.trim(), supplier: input.supplier.trim(), group: "",
+      measurement: input.unit === "kg" ? "Kilo" : input.unit === "l" ? "Litre" : "Each", unitOfSale: input.unit, unitsPerPack: 1,
+      price: Math.max(0, input.unitCost), initialStock: 0, recipeContent: 1, recipeUnit: input.unit || "kg", allergens: input.allergens, kcal: Math.max(0, input.kcal), parLevel: 0
+    });
+    notify(fmt(t("“{0}” aggiunto agli ingredienti del magazzino."), saved.name));
+    return saved;
   }
 
   /** Products created before the inventory existed get a code the first time it is opened. */
@@ -210,6 +236,6 @@ export function useStockActions() {
 
   return {
     prepareReport, generateReport, saveDraft, submitReport, reopenReport, deleteDraft,
-    saveStockItem, deleteStockItem, ensureStockCodes, saveInventoryCell, saveDelivery, deleteDelivery
+    saveStockItem, deleteStockItem, createProduct, ensureStockCodes, saveInventoryCell, saveDelivery, deleteDelivery
   };
 }
