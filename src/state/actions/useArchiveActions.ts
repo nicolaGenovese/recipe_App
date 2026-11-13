@@ -4,7 +4,7 @@ import { margin, portionCost, totalCost, allergens } from "@/lib/recipes/math";
 import { newId, num } from "@/lib/num";
 import { menusOfRecipe } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
-import type { Menu, PrepList, Recipe, Settings } from "@/lib/types";
+import type { Menu, PrepList, Recipe, RotaWeek, SafetyLog, SalesWeek, Settings, WasteLog } from "@/lib/types";
 import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
 import { useSettingsActions } from "@/state/actions/useSettingsActions";
@@ -50,9 +50,16 @@ export function useArchiveActions() {
       const stock = [["items", list("stockItems")], ["reports", list("stockReports")], ["deliveries", list("stockDeliveries")]] as const;
       const menus = list("menus") as Menu[];
       const prepLists = list("prepLists") as PrepList[];
+      const rotaWeeks = list("rotaWeeks") as RotaWeek[];
+      const safetyLogs = list("safetyLogs") as SafetyLog[];
+      const wasteLogs = list("wasteLogs") as WasteLog[];
+      const salesWeeks = list("salesWeeks") as SalesWeek[];
       const counts = stock.map(([, rows]) => rows.length);
       const hasStock = counts.some(Boolean);
-      const extra = menus.length || prepLists.length ? " " + fmt(t("Inclusi {0} menu e {1} prep list."), menus.length, prepLists.length) : "";
+      const others = [menus, prepLists, rotaWeeks, safetyLogs, wasteLogs, salesWeeks].map((rows) => rows.length);
+      const extra = others.some(Boolean)
+        ? " " + fmt(t("Inclusi {0} menu, {1} prep list, {2} settimane di turni, {3} registrazioni di sicurezza, {4} sprechi e {5} settimane di vendite."), ...others)
+        : "";
       const question = (hasStock
         ? fmt(t("Importare {0} ricette, {1} prodotti, {2} report e {3} consegne? Gli ID già presenti verranno aggiornati."), recipes.length, ...counts)
         : fmt(t("Importare {0} ricette? Gli ID già presenti verranno aggiornati."), recipes.length)) + extra;
@@ -68,6 +75,10 @@ export function useArchiveActions() {
       }
       for (const menu of menus) await api.saveMenu(menu);
       for (const prepList of prepLists) await api.savePrepList(prepList);
+      for (const week of rotaWeeks) await api.saveRotaWeek(week);
+      for (const log of safetyLogs) await api.saveSafetyLog(log);
+      for (const log of wasteLogs) await api.saveWasteLog(log);
+      for (const week of salesWeeks) await api.saveSalesWeek(week);
       await reload();
       notify(hasStock ? fmt(t("Importati: {0} ricette, {1} prodotti, {2} report, {3} consegne."), recipes.length, ...counts) : fmt(t("{0} ricette importate."), recipes.length));
     } catch (error) {

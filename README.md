@@ -7,6 +7,7 @@ Gestione di ricette, costi, Food Stock e GP per la cucina, con Next.js e TypeScr
 - Regole di calcolo (costi, Food Stock, GP): [docs/CALCOLI.md](docs/CALCOLI.md)
 - Funzioni fatte, da fare e limiti noti: [docs/FUNZIONI.md](docs/FUNZIONI.md)
 - Proposta per più compagnie, sedi, account e permessi: [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md)
+- Esempio completo da importare (una Margherita in tutte le pagine): [docs/esempi/README.md](docs/esempi/README.md)
 
 ## Avvio rapido
 

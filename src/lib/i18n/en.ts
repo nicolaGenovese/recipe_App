@@ -1022,5 +1022,7 @@ export const EN: Record<string, string> = {
   // Product usage
   "Usato in {0} ricette": "Used in {0} recipes",
   "Non è ancora in nessuna ricetta.": "Not used in any recipe yet.",
-  "Prezzo, allergeni e kcal salvati qui si aggiornano da soli in queste ricette.": "Price, allergens and kcal saved here update these recipes automatically."
+  "Prezzo, allergeni e kcal salvati qui si aggiornano da soli in queste ricette.": "Price, allergens and kcal saved here update these recipes automatically.",
+  // Import
+  "Inclusi {0} menu, {1} prep list, {2} settimane di turni, {3} registrazioni di sicurezza, {4} sprechi e {5} settimane di vendite.": "Includes {0} menus, {1} prep lists, {2} rota weeks, {3} food safety records, {4} waste records and {5} weeks of sales."
 };

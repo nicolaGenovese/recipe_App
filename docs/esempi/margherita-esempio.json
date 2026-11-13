@@ -1,0 +1,679 @@
+{
+  "exportedAt": "2026-11-13T09:00:00.000Z",
+  "note": "Recipe Studio example: one Margherita followed through every part of the app. Import it from Recipes → Import.",
+  "settings": {
+    "currency": "GBP",
+    "language": "en",
+    "categories": [
+      "Pizza",
+      "Antipasti",
+      "Secondi",
+      "Contorni",
+      "Dessert",
+      "Bevande",
+      "Basi e preparazioni"
+    ],
+    "gp": {
+      "target": 70,
+      "includeTransfers": true,
+      "salesIncludeVat": false,
+      "salesVatRate": 20,
+      "recipeMarginOnNet": true,
+      "defaultVat": 20,
+      "defaultMarginTarget": 70
+    },
+    "labour": {
+      "onCostPercent": 13
+    },
+    "staff": [
+      {
+        "id": "staff-marco",
+        "name": "Marco",
+        "role": "Head chef",
+        "hourlyRate": 15,
+        "active": true
+      },
+      {
+        "id": "staff-sara",
+        "name": "Sara",
+        "role": "Pizza chef",
+        "hourlyRate": 12.5,
+        "active": true
+      },
+      {
+        "id": "staff-luca",
+        "name": "Luca",
+        "role": "KP",
+        "hourlyRate": 11.44,
+        "active": true
+      }
+    ],
+    "foodSafety": {
+      "equipment": [
+        {
+          "id": "fridge-1",
+          "name": "Walk-in fridge",
+          "kind": "fridge",
+          "min": 0,
+          "max": 5
+        },
+        {
+          "id": "pizza-fridge",
+          "name": "Pizza counter fridge",
+          "kind": "fridge",
+          "min": 0,
+          "max": 5
+        },
+        {
+          "id": "freezer-1",
+          "name": "Freezer",
+          "kind": "freezer",
+          "min": null,
+          "max": -18
+        }
+      ]
+    }
+  },
+  "stockItems": [
+    {
+      "id": "ex-dough",
+      "code": "ING01",
+      "name": "Pizza dough ball 250 g",
+      "supplier": "Italian Foods Ltd",
+      "group": "Pizza",
+      "measurement": "Pack",
+      "unitOfSale": "box of 20",
+      "unitsPerPack": 1,
+      "price": 12,
+      "initialStock": 0,
+      "recipeContent": 20,
+      "recipeUnit": "pz",
+      "kcal": 640,
+      "allergens": [
+        "Glutine"
+      ],
+      "parLevel": 2
+    },
+    {
+      "id": "ex-tomato",
+      "code": "ING02",
+      "name": "Peeled tomatoes 2.5 kg tin",
+      "supplier": "Italian Foods Ltd",
+      "group": "Pizza",
+      "measurement": "Pack",
+      "unitOfSale": "tin",
+      "unitsPerPack": 1,
+      "price": 3.2,
+      "initialStock": 0,
+      "recipeContent": 2.5,
+      "recipeUnit": "kg",
+      "kcal": 200,
+      "allergens": [],
+      "parLevel": 4
+    },
+    {
+      "id": "ex-mozzarella",
+      "code": "ING03",
+      "name": "Mozzarella fior di latte",
+      "supplier": "Dairy Co",
+      "group": "Pizza",
+      "measurement": "Kilo",
+      "unitOfSale": "kg",
+      "unitsPerPack": 1,
+      "price": 8,
+      "initialStock": 0,
+      "recipeContent": 1,
+      "recipeUnit": "kg",
+      "kcal": 2800,
+      "allergens": [
+        "Latte"
+      ],
+      "parLevel": 5
+    },
+    {
+      "id": "ex-basil",
+      "code": "ING04",
+      "name": "Fresh basil",
+      "supplier": "Green Market",
+      "group": "Pizza",
+      "measurement": "Each",
+      "unitOfSale": "bunch 30 g",
+      "unitsPerPack": 1,
+      "price": 1.2,
+      "initialStock": 0,
+      "recipeContent": 0.03,
+      "recipeUnit": "kg",
+      "kcal": 230,
+      "allergens": [],
+      "parLevel": 3
+    },
+    {
+      "id": "ex-oil",
+      "code": "ING05",
+      "name": "Extra virgin olive oil 5 l",
+      "supplier": "Italian Foods Ltd",
+      "group": "Pizza",
+      "measurement": "Pack",
+      "unitOfSale": "5 l tin",
+      "unitsPerPack": 1,
+      "price": 35,
+      "initialStock": 0,
+      "recipeContent": 5,
+      "recipeUnit": "l",
+      "kcal": 8840,
+      "allergens": [],
+      "parLevel": 1
+    },
+    {
+      "id": "ex-salt",
+      "code": "ING06",
+      "name": "Fine sea salt 1 kg",
+      "supplier": "Italian Foods Ltd",
+      "group": "Pizza",
+      "measurement": "Pack",
+      "unitOfSale": "1 kg bag",
+      "unitsPerPack": 1,
+      "price": 0.8,
+      "initialStock": 0,
+      "recipeContent": 1,
+      "recipeUnit": "kg",
+      "kcal": 0,
+      "allergens": [],
+      "parLevel": 1
+    }
+  ],
+  "recipes": [
+    {
+      "id": "ex-tomato-sauce",
+      "name": "Tomato sauce (pizza)",
+      "category": "Basi e preparazioni",
+      "description": "Raw Neapolitan-style sauce, 36 portions of 70 g.",
+      "portions": 36,
+      "archivedBatch": true,
+      "shelfLifeDays": 3,
+      "sellingPrice": 0,
+      "vat": 20,
+      "marginTarget": 70,
+      "creator": "Marco",
+      "cookingMethod": "A freddo",
+      "ingredients": [
+        {
+          "type": "Prodotto",
+          "name": "Peeled tomatoes 2.5 kg tin",
+          "supplier": "Italian Foods Ltd",
+          "quantity": 2.5,
+          "unit": "kg",
+          "unitCost": 1.28,
+          "allergens": [],
+          "kcal": 200,
+          "stockItemId": "ex-tomato"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Fine sea salt 1 kg",
+          "supplier": "Italian Foods Ltd",
+          "quantity": 0.025,
+          "unit": "kg",
+          "unitCost": 0.8,
+          "allergens": [],
+          "kcal": 0,
+          "stockItemId": "ex-salt"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Fresh basil",
+          "supplier": "Green Market",
+          "quantity": 0.01,
+          "unit": "kg",
+          "unitCost": 40,
+          "allergens": [],
+          "kcal": 230,
+          "stockItemId": "ex-basil"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Extra virgin olive oil 5 l",
+          "supplier": "Italian Foods Ltd",
+          "quantity": 0.05,
+          "unit": "l",
+          "unitCost": 7,
+          "allergens": [],
+          "kcal": 8840,
+          "stockItemId": "ex-oil"
+        }
+      ],
+      "mep": "Open the tins\nBlend tomatoes with salt, oil and basil",
+      "method": "1. Crush the tomatoes by hand or with a stick blender, keeping some texture.\n2. Stir in salt, oil and torn basil.\n3. Portion into 70 g ladles, cover, label and chill.",
+      "plating": "",
+      "allergenGuidance": "",
+      "nutritionInfo": "",
+      "ccpChecks": [
+        "Etichettare e conservare secondo le procedure della cucina"
+      ],
+      "prepChecks": [],
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    },
+    {
+      "id": "ex-margherita",
+      "name": "Margherita",
+      "category": "Pizza",
+      "description": "Tomato sauce, fior di latte mozzarella, fresh basil, extra virgin olive oil.",
+      "portions": 1,
+      "archivedBatch": false,
+      "sellingPrice": 11,
+      "vat": 20,
+      "marginTarget": 70,
+      "creator": "Sara",
+      "cookingMethod": "Forno",
+      "ingredients": [
+        {
+          "type": "Prodotto",
+          "name": "Pizza dough ball 250 g",
+          "supplier": "Italian Foods Ltd",
+          "quantity": 1,
+          "unit": "pz",
+          "unitCost": 0.6,
+          "allergens": [
+            "Glutine"
+          ],
+          "kcal": 640,
+          "stockItemId": "ex-dough"
+        },
+        {
+          "type": "Base / preparazione",
+          "name": "Tomato sauce (pizza)",
+          "supplier": "",
+          "quantity": 1,
+          "unit": "porz",
+          "unitCost": 0.1103,
+          "allergens": [],
+          "kcal": 0,
+          "stockItemId": "recipe:ex-tomato-sauce"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Mozzarella fior di latte",
+          "supplier": "Dairy Co",
+          "quantity": 0.09,
+          "unit": "kg",
+          "unitCost": 8,
+          "allergens": [
+            "Latte"
+          ],
+          "kcal": 2800,
+          "stockItemId": "ex-mozzarella"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Fresh basil",
+          "supplier": "Green Market",
+          "quantity": 0.002,
+          "unit": "kg",
+          "unitCost": 40,
+          "allergens": [],
+          "kcal": 230,
+          "stockItemId": "ex-basil"
+        },
+        {
+          "type": "Prodotto",
+          "name": "Extra virgin olive oil 5 l",
+          "supplier": "Italian Foods Ltd",
+          "quantity": 0.006,
+          "unit": "l",
+          "unitCost": 7,
+          "allergens": [],
+          "kcal": 8840,
+          "stockItemId": "ex-oil"
+        }
+      ],
+      "mep": "Take the dough balls out of the fridge 2 hours before service\nPick basil leaves",
+      "method": "1. Stretch the 250 g dough ball by hand to 30 cm, leaving a 2 cm rim.\n2. Spread one 70 g portion of tomato sauce.\n3. Add 90 g torn mozzarella.\n4. Bake at 430 °C for 60–90 seconds, turning once.\n5. Finish with basil and a drizzle of oil.",
+      "plating": "Serve whole on a 33 cm plate, cut in six on request.",
+      "allergenGuidance": "Gluten from the dough, milk from the mozzarella.",
+      "nutritionInfo": "",
+      "ccpChecks": [
+        "Verificare e registrare cottura o mantenimento"
+      ],
+      "prepChecks": [],
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    }
+  ],
+  "menus": [
+    {
+      "id": "ex-pizza-menu",
+      "name": "Pizza menu",
+      "description": "Example menu with one pizza.",
+      "active": true,
+      "recipeIds": [
+        "ex-margherita"
+      ],
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    }
+  ],
+  "prepLists": [
+    {
+      "id": "ex-prep-friday",
+      "name": "Friday pizza prep",
+      "date": "2026-11-13",
+      "menuIds": [
+        "ex-pizza-menu"
+      ],
+      "portions": {
+        "ex-margherita": 40
+      },
+      "tasks": [
+        {
+          "id": "ex-task-sauce",
+          "name": "Tomato sauce (pizza)",
+          "quantity": 40,
+          "onHand": 12,
+          "unit": "porz",
+          "recipeIds": [
+            "ex-margherita"
+          ],
+          "baseRecipeId": "ex-tomato-sauce",
+          "notes": "One batch makes 36",
+          "done": false,
+          "auto": "base:ex-tomato-sauce|porz"
+        },
+        {
+          "id": "ex-task-dough",
+          "name": "Take the dough balls out of the fridge 2 hours before service",
+          "quantity": 0,
+          "onHand": 0,
+          "unit": "",
+          "recipeIds": [
+            "ex-margherita"
+          ],
+          "notes": "",
+          "done": true,
+          "auto": "mep:take the dough balls out of the fridge 2 hours before service"
+        },
+        {
+          "id": "ex-task-basil",
+          "name": "Pick basil leaves",
+          "quantity": 0,
+          "onHand": 0,
+          "unit": "",
+          "recipeIds": [
+            "ex-margherita"
+          ],
+          "notes": "",
+          "done": false,
+          "auto": "mep:pick basil leaves"
+        },
+        {
+          "id": "ex-task-oven",
+          "name": "Brush the oven floor",
+          "quantity": 0,
+          "onHand": 0,
+          "unit": "",
+          "recipeIds": [],
+          "notes": "Before lighting",
+          "done": true
+        }
+      ],
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    }
+  ],
+  "rotaWeeks": [
+    {
+      "id": "2026-11-09",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z",
+      "rows": [
+        {
+          "name": "Marco",
+          "shifts": [
+            "__DAY_OFF__",
+            "10:00-18:00",
+            "10:00-18:00",
+            "10:00-18:00",
+            "12:00-22:00",
+            "12:00-22:00",
+            "__DAY_OFF__"
+          ]
+        },
+        {
+          "name": "Sara",
+          "shifts": [
+            "__DAY_OFF__",
+            "__DAY_OFF__",
+            "16:00-23:00",
+            "16:00-23:00",
+            "16:00-23:00",
+            "12:00-23:00",
+            "12:00-21:00"
+          ]
+        },
+        {
+          "name": "Luca",
+          "shifts": [
+            "__DAY_OFF__",
+            "__DAY_OFF__",
+            "__DAY_OFF__",
+            "17:00-23:00",
+            "17:00-23:00",
+            "12:00-16:00, 18:00-23:00",
+            "12:00-20:00"
+          ]
+        }
+      ]
+    }
+  ],
+  "stockReports": [],
+  "stockDeliveries": [
+    {
+      "id": "ex-del-dairy",
+      "invoiceNumber": "DC-2041",
+      "date": "2026-11-12",
+      "supplier": "Dairy Co",
+      "invoiceAmount": 40,
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "lines": [
+        {
+          "itemId": "ex-mozzarella",
+          "name": "Mozzarella fior di latte",
+          "quantity": 5,
+          "price": 8
+        }
+      ]
+    },
+    {
+      "id": "ex-del-italian",
+      "invoiceNumber": "IF-7781",
+      "date": "2026-11-12",
+      "supplier": "Italian Foods Ltd",
+      "invoiceAmount": null,
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "lines": [
+        {
+          "itemId": "ex-dough",
+          "name": "Pizza dough ball 250 g",
+          "quantity": 3,
+          "price": 12
+        },
+        {
+          "itemId": "ex-tomato",
+          "name": "Peeled tomatoes 2.5 kg tin",
+          "quantity": 6,
+          "price": 3.2
+        },
+        {
+          "itemId": "ex-oil",
+          "name": "Extra virgin olive oil 5 l",
+          "quantity": 1,
+          "price": 35
+        }
+      ]
+    }
+  ],
+  "safetyLogs": [
+    {
+      "id": "ex-safe-temp",
+      "date": "2026-11-13",
+      "ok": true,
+      "action": "",
+      "notes": "",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z",
+      "kind": "temperature",
+      "time": "09:05",
+      "by": "Marco",
+      "slot": "am",
+      "readings": [
+        {
+          "equipmentId": "fridge-1",
+          "name": "Walk-in fridge",
+          "value": 3,
+          "ok": true
+        },
+        {
+          "equipmentId": "pizza-fridge",
+          "name": "Pizza counter fridge",
+          "value": 4,
+          "ok": true
+        },
+        {
+          "equipmentId": "freezer-1",
+          "name": "Freezer",
+          "value": -19,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ex-safe-delivery",
+      "date": "2026-11-12",
+      "ok": true,
+      "action": "",
+      "notes": "",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z",
+      "kind": "delivery",
+      "time": "08:40",
+      "by": "Luca",
+      "deliveryId": "ex-del-dairy",
+      "supplier": "Dairy Co",
+      "invoiceNumber": "DC-2041",
+      "chilledTemperature": 4,
+      "frozenTemperature": null,
+      "packagingOk": true,
+      "datesOk": true,
+      "rejected": ""
+    },
+    {
+      "id": "ex-safe-cook",
+      "date": "2026-11-13",
+      "ok": true,
+      "action": "",
+      "notes": "",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z",
+      "kind": "cooking",
+      "time": "19:30",
+      "by": "Sara",
+      "process": "cook",
+      "item": "Margherita",
+      "recipeId": "ex-margherita",
+      "temperature": 92
+    },
+    {
+      "id": "ex-safe-open",
+      "date": "2026-11-13",
+      "ok": true,
+      "action": "",
+      "notes": "",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z",
+      "kind": "checklist",
+      "time": "09:00",
+      "by": "Marco",
+      "list": "opening",
+      "items": [
+        {
+          "label": "Frigoriferi e congelatori in temperatura",
+          "done": true,
+          "by": "Marco",
+          "at": "09:00"
+        },
+        {
+          "label": "Superfici di lavoro pulite e disinfettate",
+          "done": true,
+          "by": "Marco",
+          "at": "09:00"
+        },
+        {
+          "label": "Lavamani con sapone e carta",
+          "done": true,
+          "by": "Marco",
+          "at": "09:00"
+        },
+        {
+          "label": "Personale in salute e in divisa pulita",
+          "done": true,
+          "by": "Marco",
+          "at": "09:00"
+        },
+        {
+          "label": "Prodotti scaduti tolti dal servizio",
+          "done": true,
+          "by": "Marco",
+          "at": "09:00"
+        }
+      ]
+    }
+  ],
+  "wasteLogs": [
+    {
+      "id": "ex-waste-dough",
+      "date": "2026-11-12",
+      "source": "product",
+      "itemId": "ex-dough",
+      "name": "Pizza dough ball 250 g",
+      "quantity": 2,
+      "unit": "pz",
+      "unitCost": 0.6,
+      "reason": "error",
+      "by": "Sara",
+      "notes": "Torn while stretching",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    },
+    {
+      "id": "ex-waste-mozz",
+      "date": "2026-11-13",
+      "source": "product",
+      "itemId": "ex-mozzarella",
+      "name": "Mozzarella fior di latte",
+      "quantity": 0.3,
+      "unit": "kg",
+      "unitCost": 8,
+      "reason": "expired",
+      "by": "Marco",
+      "notes": "",
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    }
+  ],
+  "salesWeeks": [
+    {
+      "id": "2026-11-09",
+      "lines": [
+        {
+          "recipeId": "ex-margherita",
+          "name": "Margherita",
+          "quantity": 650,
+          "revenue": null
+        }
+      ],
+      "netSales": null,
+      "createdAt": "2026-11-13T09:00:00.000Z",
+      "updatedAt": "2026-11-13T09:00:00.000Z"
+    }
+  ]
+}
