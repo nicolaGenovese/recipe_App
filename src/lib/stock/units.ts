@@ -38,6 +38,20 @@ export function unitFactor(from: unknown, to: unknown): number | null {
   return UNIT_SCALE[a] && UNIT_SCALE[b] ? UNIT_SCALE[a] / UNIT_SCALE[b] : null;
 }
 
+/** Recipes are written in grams and millilitres: a product counted in kg or l is used in g or ml. */
+const RECIPE_UNIT: Record<string, string> = { kg: "g", l: "ml" };
+
+export function recipeUnitFor(unit: unknown): string {
+  const key = unitKey(unit);
+  return RECIPE_UNIT[key] ?? String(unit || "").trim();
+}
+
+/** A quantity moved to another unit (0.09 kg → 90 g), or null when the units cannot convert. */
+export function convertQuantity(quantity: number, from: unknown, to: unknown): number | null {
+  const factor = unitFactor(from, to);
+  return factor === null ? null : Math.round(quantity * factor * 10000) / 10000;
+}
+
 /** Cost of one recipe unit, or null when the product has no price or the units cannot convert. */
 export function ingredientUnitCost(item: Pick<StockItem, "price" | "recipeContent" | "recipeUnit">, unit: string): number | null {
   const factor = unitFactor(unit, item.recipeUnit);

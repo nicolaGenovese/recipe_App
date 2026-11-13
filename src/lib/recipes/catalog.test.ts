@@ -40,3 +40,29 @@ describe("ingredient catalogue", () => {
     expect(recipesUsing("p1", [dish, sauce]).map((recipe) => recipe.id)).toEqual(["d", "sauce"]);
   });
 });
+
+import { toRecipeUnits } from "@/lib/recipes/catalog";
+import { changeUnit, ingredientDraft, matchIngredient } from "@/lib/recipes/form";
+import { ingredientFromSource } from "@/lib/stock/sources";
+
+describe("grams and millilitres in recipes", () => {
+  it("moves kg and l rows to g and ml at the same cost", () => {
+    const moved = toRecipeUnits(row({ unit: "kg", quantity: 0.09, unitCost: 8, kcal: 2800 }));
+    expect(moved).toMatchObject({ unit: "g", quantity: 90, unitCost: 0.008, kcal: 2.8 });
+    expect(toRecipeUnits(row({ unit: "l", quantity: 0.006 })).quantity).toBe(6);
+    const pieces = row({ unit: "pz", quantity: 1 });
+    expect(toRecipeUnits(pieces)).toBe(pieces);
+  });
+
+  it("links a kg product as grams and converts when the unit changes", () => {
+    const linked = matchIngredient(ingredientDraft({ name: "Butter" }), [{ ...butter, batch: false }]);
+    expect(linked).toMatchObject({ unit: "g", unitCost: "0.004", stockItemId: "p1" });
+    const typed = { ...ingredientDraft({ name: "Flour", unitCost: 1.2 }), unit: "kg", quantity: "0.5" };
+    expect(changeUnit(typed, "g")).toMatchObject({ unit: "g", quantity: "500", unitCost: "0.0012" });
+    expect(changeUnit(typed, "pz")).toMatchObject({ unit: "pz", quantity: "0.5" });
+  });
+
+  it("builds rows from the stock picker in grams", () => {
+    expect(ingredientFromSource({ ...butter, batch: false }, 0.25)).toMatchObject({ unit: "g", quantity: 250, unitCost: 0.004 });
+  });
+});

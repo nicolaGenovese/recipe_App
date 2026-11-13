@@ -1,6 +1,6 @@
 import { num } from "@/lib/num";
 import { allergens, calories, portionCost, portionsOf } from "@/lib/recipes/math";
-import { unitFactor } from "@/lib/stock/units";
+import { recipeUnitFor, unitFactor } from "@/lib/stock/units";
 import type { Ingredient, Recipe, StockItem } from "@/lib/types";
 
 // The stock catalogue is the one place where an ingredient is described. A recipe row only says
@@ -42,7 +42,8 @@ export function resolveIngredient(row: Ingredient, stockItems: StockItem[], reci
     const perUnit = num(product.price) / (num(product.recipeContent) || 1);
     return {
       ...row, type: PRODUCT, name: product.name, supplier: product.supplier || "", allergens: [...(product.allergens || [])],
-      unitCost: factor === null ? num(row.unitCost) : round4(perUnit * factor),
+      // Six decimals: a product at £1.28/kg costs £0.00128 per gram.
+      unitCost: factor === null ? num(row.unitCost) : Math.round(perUnit * factor * 1e6) / 1e6,
       kcal: factor === null ? num(row.kcal) : round4(num(product.kcal) * factor)
     };
   }
@@ -69,8 +70,19 @@ export function linkByName(row: Ingredient, stockItems: StockItem[]): Ingredient
   return product ? { ...row, stockItemId: product.id } : row;
 }
 
+/**
+ * Recipes are written in grams and millilitres. A row in kg or l moves to g or ml with the same
+ * amount (0.09 kg → 90 g); cost and kcal per unit move the other way, so the row costs the same.
+ */
+export function toRecipeUnits(row: Ingredient): Ingredient {
+  const unit = recipeUnitFor(row.unit);
+  const factor = unit === row.unit ? null : unitFactor(row.unit, unit);
+  if (!factor) return row;
+  return { ...row, unit, quantity: round4(num(row.quantity) * factor), unitCost: Math.round((num(row.unitCost) / factor) * 1e6) / 1e6, kcal: round4(num(row.kcal) / factor) };
+}
+
 export function resolveRecipe(recipe: Recipe, stockItems: StockItem[], recipes: Recipe[]): Recipe {
-  return { ...recipe, ingredients: (recipe.ingredients || []).map((row) => resolveIngredient(linkByName(row, stockItems), stockItems, recipes)) };
+  return { ...recipe, ingredients: (recipe.ingredients || []).map((row) => resolveIngredient(toRecipeUnits(linkByName(row, stockItems)), stockItems, recipes)) };
 }
 
 /** Recipes whose rows no longer match the catalogue, already brought up to date, ready to save. */

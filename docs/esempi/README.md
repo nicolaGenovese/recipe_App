@@ -19,7 +19,7 @@ Food Stock → **Inventory**: 6 prodotti.
 | Extra virgin olive oil 5 l | 5 l tin | £35,00 | 5 l | £7,00 / l | — |
 | Fine sea salt 1 kg | 1 kg bag | £0,80 | 1 kg | £0,80 / kg | — |
 
-Costo per unità ricetta = prezzo ÷ contenuto. Le ricette leggono **solo** da qui prezzo, fornitore, allergeni e kcal.
+Costo per unità ricetta = prezzo ÷ contenuto. Le ricette leggono **solo** da qui prezzo, fornitore, allergeni e kcal. Nelle ricette i prodotti a kg o a litro si usano in **grammi** e **millilitri**: la mozzarella a £8/kg costa £0,008/g, e il cambio di unità è automatico.
 
 ## 2. La base: Tomato sauce
 
@@ -27,10 +27,10 @@ Recipes → **Tomato sauce (pizza)**: è una base (Base / preparazione), resa 36
 
 | Ingrediente | Quantità | Costo |
 | --- | --- | --- |
-| Peeled tomatoes | 2,5 kg × £1,28 | £3,20 |
-| Fine sea salt | 0,025 kg × £0,80 | £0,02 |
-| Fresh basil | 0,01 kg × £40 | £0,40 |
-| Extra virgin olive oil | 0,05 l × £7 | £0,35 |
+| Peeled tomatoes | 2.500 g × £0,00128 | £3,20 |
+| Fine sea salt | 25 g × £0,0008 | £0,02 |
+| Fresh basil | 10 g × £0,04 | £0,40 |
+| Extra virgin olive oil | 50 ml × £0,007 | £0,35 |
 | **Totale** | | **£3,97 → £0,11 a porzione** |
 
 ## 3. Il piatto: Margherita
@@ -41,9 +41,9 @@ Recipes → **Margherita**: 1 porzione, prezzo £11, IVA 20%.
 | --- | --- | --- | --- |
 | Pizza dough ball | prodotto | 1 pz × £0,60 | £0,60 |
 | Tomato sauce | **base** | 1 porz × £0,11 | £0,11 |
-| Mozzarella | prodotto | 0,09 kg × £8 | £0,72 |
-| Fresh basil | prodotto | 0,002 kg × £40 | £0,08 |
-| Olive oil | prodotto | 0,006 l × £7 | £0,04 |
+| Mozzarella | prodotto | 90 g × £0,008 | £0,72 |
+| Fresh basil | prodotto | 2 g × £0,04 | £0,08 |
+| Olive oil | prodotto | 6 ml × £0,007 | £0,04 |
 | **Costo porzione** | | | **£1,55** |
 
 - Prezzo netto = £11 ÷ 1,20 = £9,17.

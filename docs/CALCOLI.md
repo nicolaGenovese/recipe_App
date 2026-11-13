@@ -16,6 +16,7 @@ Tutte le formule sono in `src/lib/` e coperte dai test (`npm test`).
 
 Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ricetta dice solo quale prodotto o quale ricetta base usa, la quantità e l'unità.
 
+- **Grammi e millilitri:** le ricette si scrivono in g e ml. Un prodotto contato in kg o l, collegato a una riga, entra in g o ml (90 g di mozzarella, non 0,09 kg). Cambiare l'unità di una riga converte la quantità (0,09 kg → 90 g); una riga vecchia in kg o l viene portata in g o ml alla prima sincronizzazione, con lo stesso costo.
 - **Riga collegata a un prodotto:** nome, fornitore, allergeni, costo per unità e kcal vengono dal prodotto. Costo e kcal sono convertiti nell'unità della riga (un prodotto a £4/kg usato in g costa £0,004/g). Se le unità non si convertono, la riga tiene il costo e le kcal che aveva.
 - **Riga collegata a una ricetta base:** con unità `porz`, il costo è il costo per porzione della base e le kcal quelle per porzione. Gli allergeni sono quelli della base.
 - **Voce libera** (tipo Esterno, o un nome che non è a magazzino): costo, allergeni e kcal sono quelli scritti nella riga e valgono solo per quella ricetta. "+ Aggiungi al magazzino" la trasforma in un prodotto con gli stessi valori e la collega.

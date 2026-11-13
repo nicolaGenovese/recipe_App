@@ -1,6 +1,7 @@
 import { num } from "@/lib/num";
 import { allergens, calories, portionCost, portionsOf } from "@/lib/recipes/math";
 import { BATCH_SUPPLIER } from "@/lib/stock/report";
+import { convertQuantity, recipeUnitFor, unitFactor } from "@/lib/stock/units";
 import type { Ingredient, Recipe, StockItem, StockSource } from "@/lib/types";
 
 /** Products plus base recipes, which are counted in portions as internal batch preparations. */
@@ -18,11 +19,18 @@ export function sourceUnitCost(source: Pick<StockItem, "price" | "recipeContent"
   return Math.round((num(source.price) / (num(source.recipeContent) || 1)) * 10000) / 10000;
 }
 
-/** An ingredient row prefilled from a product or base recipe. */
+/**
+ * An ingredient row prefilled from a product or base recipe. A quantity given in the product's unit
+ * moves to grams or millilitres (0.09 kg of mozzarella becomes 90 g), with cost and kcal per g or ml.
+ */
 export function ingredientFromSource(source: StockSource, quantity = 0): Ingredient {
+  const unit = recipeUnitFor(source.recipeUnit);
+  const perUnit = unitFactor(unit, source.recipeUnit) ?? 1;
   return {
     type: source.batch ? "Base / preparazione" : "Prodotto", name: source.name, supplier: source.batch ? "" : source.supplier || "",
-    quantity, unit: source.recipeUnit, unitCost: sourceUnitCost(source), allergens: source.allergens || [], kcal: num(source.kcal), stockItemId: source.id
+    quantity: convertQuantity(quantity, source.recipeUnit, unit) ?? quantity, unit,
+    unitCost: Math.round(sourceUnitCost(source) * perUnit * 1e6) / 1e6, allergens: source.allergens || [],
+    kcal: Math.round(num(source.kcal) * perUnit * 1e4) / 1e4, stockItemId: source.id
   };
 }
 

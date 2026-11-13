@@ -1,6 +1,7 @@
 import { newId, num } from "@/lib/num";
 import type { GpRules, Ingredient, Recipe, StockSource } from "@/lib/types";
 import { sourceUnitCost } from "@/lib/stock/sources";
+import { convertQuantity, recipeUnitFor, unitFactor } from "@/lib/stock/units";
 
 // The editor keeps numbers as text while typing, so an empty field stays empty instead of jumping to 0.
 
@@ -52,7 +53,7 @@ const numberText = (value: unknown) => (num(value) ? String(num(value)) : "");
 export function ingredientDraft(row: Partial<Ingredient> = {}): IngredientDraft {
   return {
     key: newId(), type: row.type || "Prodotto", name: text(row.name), supplier: text(row.supplier), quantity: numberText(row.quantity),
-    unit: row.unit || "kg", unitCost: numberText(row.unitCost), allergens: (row.allergens || []).join(", "), kcal: numberText(row.kcal), stockItemId: text(row.stockItemId)
+    unit: row.unit || "g", unitCost: numberText(row.unitCost), allergens: (row.allergens || []).join(", "), kcal: numberText(row.kcal), stockItemId: text(row.stockItemId)
   };
 }
 
@@ -69,9 +70,28 @@ export function matchIngredient(row: IngredientDraft, sources: StockSource[]): I
   const source = sources.find((item) => item.name.toLocaleLowerCase() === name);
   if (!source) return row.stockItemId ? { ...row, stockItemId: "" } : row;
   if (row.stockItemId === source.id) return row;
+  // Products counted in kg or l are used in g or ml.
+  const unit = recipeUnitFor(source.recipeUnit);
+  const perUnit = unitFactor(unit, source.recipeUnit) ?? 1;
   return {
     ...row, stockItemId: source.id, type: source.batch ? "Base / preparazione" : "Prodotto", supplier: source.batch ? "" : source.supplier || "",
-    unit: source.recipeUnit, unitCost: String(sourceUnitCost(source)), allergens: (source.allergens || []).join(", "), kcal: numberText(source.kcal)
+    unit, unitCost: String(Math.round(sourceUnitCost(source) * perUnit * 1e6) / 1e6), allergens: (source.allergens || []).join(", "),
+    kcal: numberText(Math.round(num(source.kcal) * perUnit * 1e4) / 1e4)
+  };
+}
+
+/**
+ * Changing the unit keeps the same amount: 0.09 kg becomes 90 g. A row's own cost and kcal per unit
+ * move the other way. Units that cannot convert (g to pz) only change the label.
+ */
+export function changeUnit(row: IngredientDraft, unit: string): IngredientDraft {
+  const quantity = convertQuantity(num(row.quantity), row.unit, unit);
+  const factor = unitFactor(row.unit, unit);
+  if (quantity === null || !factor) return { ...row, unit };
+  return {
+    ...row, unit, quantity: row.quantity.trim() === "" ? "" : String(quantity),
+    unitCost: row.unitCost.trim() === "" ? "" : String(Math.round((num(row.unitCost) / factor) * 1e6) / 1e6),
+    kcal: row.kcal.trim() === "" ? "" : String(Math.round((num(row.kcal) / factor) * 1e4) / 1e4)
   };
 }
 

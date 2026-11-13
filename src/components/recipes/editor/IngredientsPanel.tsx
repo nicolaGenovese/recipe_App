@@ -4,7 +4,7 @@ import { IngredientRow } from "@/components/recipes/editor/IngredientRow";
 import type { FormPatch } from "@/components/recipes/editor/RecipeEditorDialog";
 import { Callout } from "@/components/ui/bits";
 import { Datalist } from "@/components/ui/Field";
-import { ingredientDraft, ingredientFromDraft, matchIngredient, type IngredientDraft, type RecipeForm } from "@/lib/recipes/form";
+import { changeUnit, ingredientDraft, ingredientFromDraft, matchIngredient, type IngredientDraft, type RecipeForm } from "@/lib/recipes/form";
 import { resolveIngredient } from "@/lib/recipes/catalog";
 import { totalCost } from "@/lib/recipes/math";
 import { stockSources } from "@/lib/stock/sources";
@@ -24,6 +24,7 @@ export function IngredientsPanel({ form, patch }: { form: RecipeForm; patch: For
   const change = (key: string, update: Partial<IngredientDraft>) => patch((old) => ({
     ingredients: old.ingredients.map((row) => {
       if (row.key !== key) return row;
+      if (update.unit !== undefined && update.unit !== row.unit) return changeUnit(row, update.unit);
       const next = { ...row, ...update };
       return update.name !== undefined ? matchIngredient(next, sources) : next;
     })
