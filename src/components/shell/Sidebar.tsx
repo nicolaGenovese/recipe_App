@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon } from "@/components/ui/icons";
 import { sortMenus } from "@/lib/menus/menus";
 import { useApp } from "@/state/AppProvider";
@@ -21,6 +21,11 @@ export function Sidebar() {
   ];
   // Each active menu gets a shortcut under "Menu" that shows its dishes.
   const menuLinks = sortMenus(data.menus).filter((menu) => menu.active);
+  // With more than one menu the shortcuts sit in a dropdown under "Menu", open while one of them is shown.
+  const dropdown = menuLinks.length > 1;
+  // null until the arrow is used: then it opens by itself while a menu is shown.
+  const [menusOpen, setMenusOpen] = useState<boolean | null>(null);
+  const showMenus = !dropdown || (menusOpen ?? view.filter === "menu");
   const go = (change: Partial<ViewState>) => setView({ menuId: null, category: ALL_CATEGORIES, page: 1, ...change });
   const storageLabel = health?.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
 
@@ -41,16 +46,23 @@ export function Sidebar() {
       <nav className="side-nav">
         {items.map(([filter, label, icon, count]) => (
           <div key={filter} className="nav-group">
-            <button className={"nav-item" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
-              <span className="nav-icon" aria-hidden="true">{icon}</span>
-              <span>{label}</span><span className="nav-count">{count}</span>
-            </button>
-            {filter === "menus" ? menuLinks.map((menu) => (
+            <div className={"nav-row" + (filter === "menus" && dropdown ? " has-toggle" : "")}>
+              <button className={"nav-item" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
+                <span className="nav-icon" aria-hidden="true">{icon}</span>
+                <span>{label}</span><span className="nav-count">{count}</span>
+              </button>
+              {filter === "menus" && dropdown ? (
+                <button type="button" className={"nav-toggle" + (showMenus ? " open" : "")} aria-expanded={showMenus} aria-controls="sidebarMenus"
+                  aria-label={t(showMenus ? "Nascondi i menu" : "Mostra i menu")} title={t(showMenus ? "Nascondi i menu" : "Mostra i menu")}
+                  onClick={() => setMenusOpen(!showMenus)}>⌄</button>
+              ) : null}
+            </div>
+            {filter === "menus" && showMenus ? <div id="sidebarMenus" className="nav-submenu">{menuLinks.map((menu) => (
               <button key={menu.id} className={"nav-item nav-sub" + (view.filter === "menu" && view.menuId === menu.id ? " active" : "")} type="button" onClick={() => go({ filter: "menu", menuId: menu.id })}>
                 <span className="nav-icon" aria-hidden="true">·</span>
                 <span>{menu.name}</span><span className="nav-count">{menu.recipeIds.filter((id) => recipes.some((recipe) => recipe.id === id)).length}</span>
               </button>
-            )) : null}
+            ))}</div> : null}
           </div>
         ))}
       </nav>

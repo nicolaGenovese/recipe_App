@@ -30,7 +30,7 @@ export interface StockViewState {
   inventorySort: { key: InventorySortKey; dir: 1 | -1 };
 }
 
-export const INITIAL_VIEW: ViewState = { filter: "all", menuId: null, category: ALL_CATEGORIES, query: "", sort: "updated", page: 1, pageSize: 9, layout: "grid" };
+export const INITIAL_VIEW: ViewState = { filter: "all", menuId: null, category: ALL_CATEGORIES, query: "", sort: "updated", page: 1, pageSize: 9, layout: "list" };
 
 export const INITIAL_STOCK_VIEW: StockViewState = {
   tab: "reports", open: [], page: 1, deliveryQuery: "", inventoryQuery: "", inventoryGroup: "", inventoryReorderOnly: false,

@@ -6,7 +6,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 
 ### Ricette
 
-- Catalogo con ricerca su nome, descrizione, ingredienti, fornitori e allergeni; filtri per categoria, ordinamento, pagine, vista a schede o a elenco.
+- Catalogo con ricerca su nome, descrizione, ingredienti, fornitori e allergeni; filtri per categoria, ordinamento, pagine, vista a elenco (predefinita) o a schede.
 - Scheda ricetta: ingredienti (prodotto, base o esterno) con quantità, unità, costo, allergeni e kcal; foto, metodo, MEP, impiattamento, note nutrizionali, controlli di sicurezza, attrezzature, giorni di conservazione.
 - Costi: costo totale e per porzione, margine teorico, prezzo suggerito.
 - Catalogo unico degli ingredienti: il magazzino. Gli ingredienti collegati a un prodotto prendono da lì prezzo, fornitore, allergeni e kcal, e si aggiornano in tutte le ricette quando il prodotto cambia. Un ingrediente che manca si aggiunge al magazzino dalla ricetta compilando la scheda prodotto completa (fornitore, misura, prezzo, contenuto, kcal, allergeni, livello minimo) senza uscire dalla ricetta; la ricetta si può salvare anche senza, e gli ingredienti non in magazzino restano nella campanella in alto a destra, da cui si aggiungono. La scheda prodotto mostra in quali ricette è usato.
@@ -18,7 +18,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Più menu nella stessa cucina (oggi: Main menu, Pizza menu, Sunday Roast Menu), ognuno con nome, descrizione, stato attivo o sospeso e piatti in ordine di servizio.
 - Lo stesso piatto può stare in più menu; la scelta si fa dal menu o dalla scheda del piatto.
 - Per ogni menu: piatti, costo e prezzo medi, food cost, margine medio, piatti senza prezzo.
-- Scorciatoia nella barra laterale per ogni menu attivo; stampe e prezzi per un menu o per tutti i menu attivi.
+- Scorciatoia nella barra laterale per ogni menu attivo (con più menu, in un elenco a tendina sotto "Menu"); stampe e prezzi per un menu o per tutti i menu attivi.
 
 ### Prep list
 

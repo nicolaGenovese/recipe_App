@@ -110,3 +110,18 @@
 .menu-editor-pane .menu-quick-add input { width: 200px; }
 .menu-pick .menu-pick-create { border-color: #cfd8c2; border-style: dashed; background: #f6f8f1; }
 .menu-pick .menu-pick-create span:first-child { color: var(--green-dark); }
+
+/* "Menu" in the sidebar: with more than one menu, the shortcuts open as a dropdown. */
+.nav-row { position: relative; }
+.nav-row.has-toggle > .nav-item { padding-right: 34px; }
+.nav-toggle { position: absolute; top: 50%; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; color: inherit; background: transparent; font-size: 13px; line-height: 1; cursor: pointer; transform: translateY(-50%); transition: transform .15s ease, background .15s ease; }
+.nav-row:has(.nav-item.active) .nav-toggle { color: #fff; }
+.nav-toggle:hover { background: rgba(0,0,0,.07); }
+.nav-toggle.open { transform: translateY(-50%) rotate(180deg); }
+.nav-submenu { display: grid; gap: 2px; }
+.nav-row.has-toggle .nav-count { margin-right: 2px; }
+@media (max-width: 780px) {
+  .nav-row, .nav-submenu { display: contents; }
+  .nav-toggle { display: none; }
+  .nav-row.has-toggle > .nav-item { padding-right: 5px; }
+}

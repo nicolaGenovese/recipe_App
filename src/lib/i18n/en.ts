@@ -1050,5 +1050,7 @@ export const EN: Record<string, string> = {
   "Prodotti non in magazzino": "Products not in stock",
   "Ingredienti scritti a mano nelle ricette: costo e allergeni non seguono il magazzino finché non li aggiungi.": "Ingredients typed by hand in recipes: cost and allergens do not follow the stock until you add them.",
   "In:": "In:",
-  "Tutti gli ingredienti delle ricette sono nel magazzino.": "Every recipe ingredient is in stock."
+  "Tutti gli ingredienti delle ricette sono nel magazzino.": "Every recipe ingredient is in stock.",
+  "Nascondi i menu": "Hide menus",
+  "Mostra i menu": "Show menus"
 };
