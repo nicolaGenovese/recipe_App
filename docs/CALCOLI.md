@@ -12,6 +12,14 @@ Tutte le formule sono in `src/lib/` e coperte dai test (`npm test`).
 - Peso e volume usano la stessa scala: 1 g = 1 ml, cl = 10, tsp = 5, tbsp = 15, oz = 28,35 g, lb = 453,6 g, fl oz = 28,41 ml, pint = 568,3 ml (misure UK). Le unità che non si convertono (per esempio pz verso kg) mantengono il costo scritto a mano, e la scheda segnala il costo incompleto.
 - L'acqua non conta mai come costo mancante.
 
+## Scheda prodotto: costo nelle ricette — `lib/stock/preview.ts`
+
+- Costo per unità ricetta = prezzo per unità di vendita ÷ contenuto per unità di vendita, espresso nell'unità ricetta del prodotto. In ricetta i kg diventano g e i litri ml.
+- La scheda mostra mentre scrivi: "1 unità di vendita = prezzo, contiene N unità → 1 unità = costo" e "In ricetta: 1 g = costo · 100 g = costo".
+- **Avvisi:**
+  - Measurement Kilo o Litre con unità ricetta g o ml e contenuto sotto 100: probabilmente doveva essere 1000. Il pulsante "Imposta contenuto 1000" lo corregge.
+  - Più di £200 al kg o al litro: quasi sempre un errore di contenuto o di unità. Non blocca il salvataggio, perché zafferano o tartufo possono costare tanto.
+
 ## Catalogo ingredienti — `lib/recipes/catalog.ts`
 
 Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ricetta dice solo quale prodotto o quale ricetta base usa, la quantità e l'unità.

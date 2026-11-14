@@ -1024,5 +1024,16 @@ export const EN: Record<string, string> = {
   "Non è ancora in nessuna ricetta.": "Not used in any recipe yet.",
   "Prezzo, allergeni e kcal salvati qui si aggiornano da soli in queste ricette.": "Price, allergens and kcal saved here update these recipes automatically.",
   // Import
-  "Inclusi {0} menu, {1} prep list, {2} settimane di turni, {3} registrazioni di sicurezza, {4} sprechi e {5} settimane di vendite.": "Includes {0} menus, {1} prep lists, {2} rota weeks, {3} food safety records, {4} waste records and {5} weeks of sales."
+  "Inclusi {0} menu, {1} prep list, {2} settimane di turni, {3} registrazioni di sicurezza, {4} sprechi e {5} settimane di vendite.": "Includes {0} menus, {1} prep lists, {2} rota weeks, {3} food safety records, {4} waste records and {5} weeks of sales.",
+  // Product cost preview
+  "Costo nelle ricette": "Cost in recipes",
+  "unità di vendita": "unit of sale",
+  "1 {0} = {1}, contiene {2} {3}": "1 {0} = {1}, contains {2} {3}",
+  "1 {0} = {1}": "1 {0} = {1}",
+  "In ricetta: 1 {0} = {1} · {2} {0} = {3}": "In recipes: 1 {0} = {1} · {2} {0} = {3}",
+  "Attenzione: con Measurement a {0} e unità nelle ricette {1}, il contenuto di 1 {0} è {2} {1}, non {3}. Così 1 {1} costerebbe quanto 1 {0}.": "Careful: with Measurement in {0} and recipe unit {1}, 1 {0} contains {2} {1}, not {3}. As it is, 1 {1} would cost as much as 1 {0}.",
+  "Imposta contenuto {0}": "Set content to {0}",
+  "Attenzione: {0} al {1} è un prezzo molto alto. Controlla Contenuto e Unità nelle ricette.": "Careful: {0} per {1} is a very high price. Check Content and Unit in recipes.",
+  "Il contenuto deve essere maggiore di zero.": "Content must be greater than zero.",
+  "Senza prezzo il prodotto costa zero nelle ricette.": "Without a price the product costs nothing in recipes."
 };

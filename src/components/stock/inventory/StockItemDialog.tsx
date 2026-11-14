@@ -5,6 +5,7 @@ import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { AllergenPicker } from "@/components/ui/AllergenPicker";
 import { recipesUsing } from "@/lib/recipes/catalog";
+import { productCostPreview } from "@/lib/stock/preview";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { newId, num } from "@/lib/num";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
@@ -22,6 +23,45 @@ function toForm(item: Partial<StockItem>): Form {
     initialStock: String(item.initialStock || 0), recipeContent: String(item.recipeContent || 1), recipeUnit: item.recipeUnit || "kg",
     kcal: String(item.kcal || 0), allergens: (item.allergens || []).join(", "), note: item.note ?? ""
   };
+}
+
+/**
+ * Live check of the product sheet: what one unit of sale contains, what a recipe unit costs and what
+ * 100 g (or ml, or one piece) costs in a recipe, with a warning for set-ups that are almost surely wrong.
+ */
+function CostPreview({ form, onFix }: { form: Form; onFix: (content: number) => void }) {
+  const { f, t, fmt } = useApp();
+  const preview = productCostPreview({ measurement: form.measurement, price: form.price, recipeContent: form.recipeContent, recipeUnit: form.recipeUnit });
+  const unitOfSale = form.unitOfSale.trim() || t("unità di vendita");
+  const bad = preview.warnings.some((warning) => warning.kind === "kiloAsGrams" || warning.kind === "tooExpensive");
+  return (
+    <div className={"product-preview" + (bad ? " bad" : "")} aria-live="polite">
+      <strong>{t("Costo nelle ricette")}</strong>
+      <span>
+        {fmt(t("1 {0} = {1}, contiene {2} {3}"), unitOfSale, f.money(form.price), num(form.recipeContent) || 0, form.recipeUnit)}
+        {" → "}{fmt(t("1 {0} = {1}"), form.recipeUnit, f.unitMoney(preview.perRecipeUnit))}
+      </span>
+      <span className="product-preview-main">
+        {fmt(t("In ricetta: 1 {0} = {1} · {2} {0} = {3}"), preview.rowUnit, f.unitMoney(preview.perRowUnit), preview.sampleAmount, f.money(preview.sampleCost))}
+      </span>
+      {preview.warnings.map((warning) => {
+        if (warning.kind === "kiloAsGrams") {
+          return (
+            <span key={warning.kind} className="product-preview-warning">
+              {fmt(t("Attenzione: con Measurement a {0} e unità nelle ricette {1}, il contenuto di 1 {0} è {2} {1}, non {3}. Così 1 {1} costerebbe quanto 1 {0}."),
+                warning.bigUnit, warning.smallUnit, warning.suggestedContent, num(form.recipeContent))}
+              {" "}<button type="button" onClick={() => onFix(warning.suggestedContent)}>{fmt(t("Imposta contenuto {0}"), warning.suggestedContent)}</button>
+            </span>
+          );
+        }
+        if (warning.kind === "tooExpensive") {
+          return <span key={warning.kind} className="product-preview-warning">{fmt(t("Attenzione: {0} al {1} è un prezzo molto alto. Controlla Contenuto e Unità nelle ricette."), f.money(warning.perKilo), warning.unit)}</span>;
+        }
+        if (warning.kind === "noContent") return <span key={warning.kind} className="product-preview-warning">{t("Il contenuto deve essere maggiore di zero.")}</span>;
+        return <span key={warning.kind} className="field-hint">{t("Senza prezzo il prodotto costa zero nelle ricette.")}</span>;
+      })}
+    </div>
+  );
 }
 
 /** Create or edit a stock product: price, measure and conversion to recipe units. */
@@ -68,6 +108,7 @@ export function StockItemDialog({ id }: { id?: string }) {
             <TextField label={t("Contenuto per unità di vendita")} name="recipeContent" type="number" step="0.001" value={form.recipeContent} onChange={set("recipeContent")} hint={t("Es. un cartone da 10 kg = 10.")} />
             <FieldShell label={t("Unità nelle ricette")} htmlFor="field-recipeUnit"><UnitSelect id="field-recipeUnit" value={form.recipeUnit} onChange={set("recipeUnit")} /></FieldShell>
             <TextField label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
+            <CostPreview form={form} onFix={(content) => setForm((old) => ({ ...old, recipeContent: String(content) }))} />
             <FieldShell label={t("Allergeni")} htmlFor="field-allergens" wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
             <TextAreaField label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />
           </div>

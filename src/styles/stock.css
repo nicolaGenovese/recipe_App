@@ -74,3 +74,12 @@
 /* Recipes that use a product. */
 .product-usage { display: grid; gap: 3px; margin-top: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fafaf6; color: #4d5a46; font-size: 12px; }
 .product-usage strong { font-size: 12px; }
+
+/* Live cost check in the product sheet. */
+.product-preview { grid-column: 1 / -1; display: grid; gap: 4px; padding: 10px 12px; border: 1px solid #cfdcc0; border-radius: 9px; background: #f4f7ee; color: #4d5a46; font-size: 12px; }
+.product-preview strong { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.product-preview-main { color: var(--green-dark); font-size: 13px; font-weight: 650; }
+.product-preview.bad { border-color: #f0c4b6; background: #fcf2ef; }
+.product-preview.bad .product-preview-main { color: #a3412b; }
+.product-preview-warning { color: #7a2a18; }
+.product-preview-warning button { margin-left: 4px; padding: 2px 8px; border: 1px solid #e8a493; border-radius: 999px; color: #7a2a18; background: #fff; font-size: 11px; cursor: pointer; }
