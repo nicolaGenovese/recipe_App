@@ -1035,5 +1035,20 @@ export const EN: Record<string, string> = {
   "Imposta contenuto {0}": "Set content to {0}",
   "Attenzione: {0} al {1} è un prezzo molto alto. Controlla Contenuto e Unità nelle ricette.": "Careful: {0} per {1} is a very high price. Check Content and Unit in recipes.",
   "Il contenuto deve essere maggiore di zero.": "Content must be greater than zero.",
-  "Senza prezzo il prodotto costa zero nelle ricette.": "Without a price the product costs nothing in recipes."
+  "Senza prezzo il prodotto costa zero nelle ricette.": "Without a price the product costs nothing in recipes.",
+  "“{0}” è già nel magazzino: la riga è stata collegata.": "“{0}” is already in stock: the row is now linked to it.",
+  "Nuovo prodotto di magazzino": "New stock product",
+  "Compila la scheda come in Food Stock → Inventario: la riga verrà collegata al prodotto.": "Fill in the sheet as in Food Stock → Inventory: the row will be linked to the product.",
+  "Crea prodotto e collega": "Create product and link",
+  "Chiudi la scheda": "Close the sheet",
+  "Non è nel magazzino: costo e allergeni valgono solo per questa ricetta. Puoi salvare lo stesso.": "Not in stock: cost and allergens apply to this recipe only. You can still save.",
+  "Scegli gli ingredienti dal magazzino: prezzo, allergeni e kcal arrivano dal prodotto e restano aggiornati in tutte le ricette. Se un ingrediente manca, scrivilo e premi \"+ Aggiungi al magazzino\" per compilarne la scheda completa. Puoi anche salvare senza: resterà tra gli avvisi in alto a destra.": "Pick ingredients from stock: price, allergens and kcal come from the product and stay up to date in every recipe. If an ingredient is missing, type it and press \"+ Add to stock\" to fill in its full sheet. You can also save without it: it will stay in the notifications at the top right.",
+  "Non nel magazzino: {0}.": "Not in stock: {0}.",
+  "{0} ingredienti non nel magazzino": "{0} ingredients not in stock",
+  "Nessun avviso": "No notifications",
+  "Avvisi": "Notifications",
+  "Prodotti non in magazzino": "Products not in stock",
+  "Ingredienti scritti a mano nelle ricette: costo e allergeni non seguono il magazzino finché non li aggiungi.": "Ingredients typed by hand in recipes: cost and allergens do not follow the stock until you add them.",
+  "In:": "In:",
+  "Tutti gli ingredienti delle ricette sono nel magazzino.": "Every recipe ingredient is in stock."
 };

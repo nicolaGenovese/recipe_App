@@ -97,3 +97,34 @@ export function recipesOutOfSync(recipes: Recipe[], stockItems: StockItem[]): Re
 export function recipesUsing(productId: string, recipes: Recipe[]): Recipe[] {
   return recipes.filter((recipe) => (recipe.ingredients || []).some((row) => row.stockItemId === productId));
 }
+
+/** True for a row that should come from the stock but is not linked to any product. */
+export function isMissingFromStock(row: Ingredient, stockItems: StockItem[], recipes: Recipe[]): boolean {
+  if (row.type === FREE || row.type === BASE || !row.name.trim()) return false;
+  return !isLinked(row, stockItems, recipes);
+}
+
+export interface MissingIngredient {
+  name: string;
+  /** The first row found, to prefill the product sheet. */
+  row: Ingredient;
+  recipes: { id: string; name: string }[];
+}
+
+/**
+ * Ingredients written in recipes that are not in the stock, one entry per name (case and spaces
+ * ignored), with the recipes that use them. Shown in the notification at the top right.
+ */
+export function missingIngredients(recipes: Recipe[], stockItems: StockItem[]): MissingIngredient[] {
+  const found = new Map<string, MissingIngredient>();
+  for (const recipe of recipes) {
+    for (const row of recipe.ingredients || []) {
+      if (!isMissingFromStock(row, stockItems, recipes)) continue;
+      const key = row.name.trim().toLocaleLowerCase();
+      const entry = found.get(key) ?? { name: row.name.trim(), row, recipes: [] };
+      if (!entry.recipes.some((item) => item.id === recipe.id)) entry.recipes.push({ id: recipe.id, name: recipe.name });
+      found.set(key, entry);
+    }
+  }
+  return Array.from(found.values()).sort((a, b) => a.name.localeCompare(b.name));
+}

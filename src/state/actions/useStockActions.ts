@@ -123,17 +123,18 @@ export function useStockActions() {
   }
 
   /**
-   * Adds a product to the catalogue straight from a recipe row, without leaving the recipe.
-   * The price is the cost per unit typed in the row, so 1 unit of sale = 1 recipe unit.
+   * Adds a product to the catalogue from the full sheet filled inside the recipe editor, without
+   * closing it. A product with the same name is reused instead of doubled.
    */
-  async function createProduct(input: { name: string; supplier: string; unit: string; unitCost: number; allergens: string[]; kcal: number }): Promise<StockItem> {
-    const existing = findStockItemByName(current().stockItems, input.name);
-    if (existing) return existing;
-    const saved = await saveItem({
-      id: newId(), code: nextStockCode(current().stockItems), name: input.name.trim(), supplier: input.supplier.trim(), group: "",
-      measurement: input.unit === "kg" ? "Kilo" : input.unit === "l" ? "Litre" : "Each", unitOfSale: input.unit, unitsPerPack: 1,
-      price: Math.max(0, input.unitCost), initialStock: 0, recipeContent: 1, recipeUnit: input.unit || "kg", allergens: input.allergens, kcal: Math.max(0, input.kcal), parLevel: 0
-    });
+  async function createProduct(item: StockItem): Promise<StockItem> {
+    const existing = findStockItemByName(current().stockItems, item.name);
+    if (existing) {
+      notify(fmt(t("“{0}” è già nel magazzino: la riga è stata collegata."), existing.name));
+      return existing;
+    }
+    const saved = await saveItem({ ...item, code: item.code || nextStockCode(current().stockItems) });
+    // Other recipes that wrote the same name by hand link to it now.
+    await syncRecipeCosts();
     notify(fmt(t("“{0}” aggiunto agli ingredienti del magazzino."), saved.name));
     return saved;
   }

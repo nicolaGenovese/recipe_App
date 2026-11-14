@@ -1,8 +1,8 @@
-import type { ChecklistKind, Recipe } from "@/lib/types";
+import type { ChecklistKind, Recipe, StockItem } from "@/lib/types";
 
 /** Every dialog the app can open, with the data it needs. One dialog is open at a time. */
 export type DialogState =
-  | { kind: "recipeEditor"; recipe?: Partial<Recipe> }
+  | { kind: "recipeEditor"; recipe?: Partial<Recipe>; tab?: "general" | "ingredients" | "kitchen" | "costs" }
   | { kind: "recipeDetail"; id: string }
   | { kind: "recipeActions"; id: string }
   | { kind: "print"; mode?: PrintMode; recipeId?: string; menuId?: string }
@@ -18,7 +18,7 @@ export type DialogState =
   | { kind: "waste"; id?: string }
   | { kind: "settings"; tab?: "general" | "gp" | "staff" }
   | { kind: "stockReport"; id: string }
-  | { kind: "stockItem"; id?: string }
+  | { kind: "stockItem"; id?: string; preset?: Partial<StockItem> }
   | { kind: "stockDelivery"; id?: string }
   | { kind: "stockPicker" };
 

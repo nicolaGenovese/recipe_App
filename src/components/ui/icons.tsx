@@ -59,3 +59,6 @@ export function ShieldIcon() {
 export function ChartIcon() {
   return <svg viewBox="0 0 20 20" fill="none"><path d="M3.5 16.5h13M5.5 14V9.5M9 14V6M12.5 14v-5M16 14V4" /></svg>;
 }
+export function BellIcon() {
+  return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 13.5V9a5 5 0 0 1 10 0v4.5l1.5 1.5h-13zM8.2 17a2 2 0 0 0 3.6 0" /></svg>;
+}

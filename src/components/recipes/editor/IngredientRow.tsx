@@ -11,8 +11,10 @@ interface Props {
   row: IngredientDraft;
   onChange: (change: Partial<IngredientDraft>) => void;
   onRemove: () => void;
-  /** Adds this free row to the stock catalogue and links it. */
+  /** Opens (or closes) the full product sheet for this row. */
   onAddToCatalog: () => void;
+  /** The product sheet is open under the row. */
+  adding?: boolean;
 }
 
 /**
@@ -20,7 +22,7 @@ interface Props {
  * and unit: supplier, cost, allergens and kcal come from the catalogue and are changed there.
  * A free row keeps its own values and can be added to the catalogue with one click.
  */
-export function IngredientRow({ row, onChange, onRemove, onAddToCatalog }: Props) {
+export function IngredientRow({ row, onChange, onRemove, onAddToCatalog, adding = false }: Props) {
   const { data, f, t } = useApp();
   const product = linkedProduct(row, data.stockItems);
   const base = linkedBase(row, data.recipes);
@@ -69,8 +71,8 @@ export function IngredientRow({ row, onChange, onRemove, onAddToCatalog }: Props
         {base ? <small>{t("Dalla ricetta base: costo per porzione e allergeni seguono la base.")}</small> : null}
         {canAdd ? (
           <>
-            <small className="ingredient-source-free">{t("Non è nel magazzino: costo e allergeni valgono solo per questa ricetta.")}</small>
-            <button type="button" className="ingredient-add-catalog" onClick={onAddToCatalog}>{t("+ Aggiungi al magazzino")}</button>
+            <small className="ingredient-source-free">{t("Non è nel magazzino: costo e allergeni valgono solo per questa ricetta. Puoi salvare lo stesso.")}</small>
+            <button type="button" className="ingredient-add-catalog" aria-expanded={adding} onClick={onAddToCatalog}>{t(adding ? "Chiudi la scheda" : "+ Aggiungi al magazzino")}</button>
           </>
         ) : null}
       </div>

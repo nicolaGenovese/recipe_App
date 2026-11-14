@@ -1,5 +1,6 @@
 "use client";
 
+import { StockAlerts } from "@/components/shell/StockAlerts";
 import { DownloadIcon, SearchIcon } from "@/components/ui/icons";
 import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
@@ -25,6 +26,7 @@ export function Topbar() {
           />
           <kbd>⌘ K</kbd>
         </label>
+        <StockAlerts />
         <button className="topbar-icon" type="button" onClick={exportJson} aria-label={t("Esporta archivio")} title={t("Esporta archivio")}><DownloadIcon /></button>
         <span className="topbar-avatar" title={t("Team cucina")}>C</span>
       </div>

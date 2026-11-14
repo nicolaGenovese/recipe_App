@@ -66,3 +66,27 @@ describe("grams and millilitres in recipes", () => {
     expect(ingredientFromSource({ ...butter, batch: false }, 0.25)).toMatchObject({ unit: "g", quantity: 250, unitCost: 0.004 });
   });
 });
+
+import { isMissingFromStock, missingIngredients } from "@/lib/recipes/catalog";
+import { productFormFromRow, productFromForm } from "@/lib/stock/productForm";
+
+describe("ingredients not in stock", () => {
+  it("lists product rows without a link once per name, with their recipes", () => {
+    const a: Recipe = { id: "a", name: "Pizza", category: "", portions: 1, archivedBatch: false, sellingPrice: 0, ingredients: [
+      row({ name: "Basil" }), row({ name: "Water", type: "Esterno" }), row({ name: "Butter", stockItemId: "p1" }), row({ name: "" })
+    ] };
+    const b: Recipe = { ...a, id: "b", name: "Pasta", ingredients: [row({ name: " basil " }), row({ name: "Basil" })] };
+    const missing = missingIngredients([a, b], [butter]);
+    expect(missing).toHaveLength(1);
+    expect(missing[0]).toMatchObject({ name: "Basil", recipes: [{ id: "a", name: "Pizza" }, { id: "b", name: "Pasta" }] });
+    expect(isMissingFromStock(row({ name: "Thyme", type: "Base / preparazione" }), [butter], [])).toBe(false);
+  });
+
+  it("fills a product sheet from a row in grams as a product bought by the kilo", () => {
+    const form = productFormFromRow({ name: "Basil ", supplier: "Farm", unit: "g", unitCost: 0.02, allergens: ["Sedano"], kcal: 0.23 });
+    expect(form).toMatchObject({ name: "Basil", supplier: "Farm", measurement: "Kilo", unitOfSale: "kg", price: "20", recipeContent: "1", recipeUnit: "kg", kcal: "230", allergens: "Sedano" });
+    const product = productFromForm(form, "new");
+    expect(resolveIngredient(row({ stockItemId: "new", unit: "g" }), [product], []).unitCost).toBe(0.02);
+    expect(productFormFromRow({ name: "Egg", supplier: "", unit: "pz", unitCost: 0.3, allergens: [], kcal: 70 })).toMatchObject({ measurement: "Each", recipeUnit: "pz", price: "0.3" });
+  });
+});

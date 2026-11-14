@@ -87,3 +87,9 @@
 .ingredient-source .ingredient-source-free { color: #a3593f; }
 .ingredient-add-catalog { padding: 3px 10px; border: 1px dashed #c9d1bd; border-radius: 999px; color: var(--green-dark); background: #fff; font-size: 10px; font-weight: 600; cursor: pointer; }
 .ingredient-add-catalog:hover { border-color: var(--green); background: var(--sage); }
+
+/* Full product sheet opened under a recipe row that is not in stock. */
+.new-product-panel { margin-top: 6px; padding: 12px; border: 1px dashed #c9d1bd; border-radius: 9px; background: #fbfcf8; }
+.new-product-head { display: grid; gap: 2px; margin-bottom: 10px; }
+.new-product-head strong { font-size: 12px; }
+.new-product-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }

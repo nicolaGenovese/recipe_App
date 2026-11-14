@@ -7,7 +7,7 @@ import { IngredientsPanel } from "@/components/recipes/editor/IngredientsPanel";
 import { KitchenPanel } from "@/components/recipes/editor/KitchenPanel";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { fromForm, toForm, type RecipeForm } from "@/lib/recipes/form";
-import { resolveRecipe } from "@/lib/recipes/catalog";
+import { isMissingFromStock, resolveRecipe } from "@/lib/recipes/catalog";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useMenuActions } from "@/state/actions/useMenuActions";
@@ -20,8 +20,8 @@ export type FormPatch = (change: Partial<RecipeForm> | ((form: RecipeForm) => Pa
 const TABS: [EditorTab, string][] = [["general", "Panoramica"], ["ingredients", "Ingredienti"], ["kitchen", "Cucina & allergeni"], ["costs", "Costi & prezzo"]];
 
 /** Create or edit a recipe. Opening it with a partial recipe (no id) prefills a new one. */
-export function RecipeEditorDialog({ initial }: { initial?: Partial<Recipe> }) {
-  const { data, gpRules, t, notify, closeDialog, current } = useApp();
+export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?: Partial<Recipe>; startTab?: EditorTab }) {
+  const { data, gpRules, t, fmt, notify, closeDialog, current } = useApp();
   const { saveRecipe, deleteRecipe, syncRecipeCosts } = useRecipeActions();
   const { setRecipeMenus } = useMenuActions();
   const recipe = initial?.id ? data.recipes.find((item) => item.id === initial.id) ?? initial : initial ?? {};
@@ -30,7 +30,7 @@ export function RecipeEditorDialog({ initial }: { initial?: Partial<Recipe> }) {
     category: data.settings.categories[0] || "Senza categoria", cookingMethod: data.settings.cookingMethods[0] || "", creator: t("Team cucina"), rules: gpRules,
     menuIds: recipe.id ? menusOfRecipe(data.menus, recipe.id).map((menu) => menu.id) : []
   }));
-  const [tab, setTab] = useState<EditorTab>("general");
+  const [tab, setTab] = useState<EditorTab>(startTab);
   const [saving, setSaving] = useState<"idle" | "saving" | "failed">("idle");
   const patch: FormPatch = (change) => setForm((old) => ({ ...old, ...(typeof change === "function" ? change(old) : change) }));
 
@@ -52,7 +52,10 @@ export function RecipeEditorDialog({ initial }: { initial?: Partial<Recipe> }) {
       // A base recipe passes its new cost and allergens to the dishes that use it.
       if (saved.archivedBatch) await syncRecipeCosts();
       closeDialog();
-      notify(isNew ? t("Ricetta creata.") : t("Modifiche salvate."));
+      // Saving is allowed with ingredients not in stock; they stay in the notifications at the top right.
+      const missing = saved.ingredients.filter((row) => isMissingFromStock(row, current().stockItems, current().recipes)).map((row) => row.name.trim());
+      const done = isNew ? t("Ricetta creata.") : t("Modifiche salvate.");
+      notify(missing.length ? done + " " + fmt(t("Non nel magazzino: {0}."), missing.join(", ")) : done, missing.length > 0);
     } catch (error) {
       setSaving("failed");
       notify(t(error instanceof Error ? error.message : "Operazione non riuscita."), true);

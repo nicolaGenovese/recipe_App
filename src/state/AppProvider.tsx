@@ -91,7 +91,8 @@ export function AppProvider({ initialState, accessProtected = false, children }:
   const notify = useCallback((message: string, error = false) => {
     clearTimeout(toastTimer.current);
     setToast({ message, error, id: Date.now() });
-    toastTimer.current = setTimeout(() => setToast(null), 2800);
+    // Longer messages stay longer, so they can be read.
+    toastTimer.current = setTimeout(() => setToast(null), Math.min(8000, Math.max(2800, message.length * 55)));
   }, []);
 
   const setLanguage = useCallback((next: Language) => {

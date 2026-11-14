@@ -26,7 +26,7 @@ export function DialogHost() {
   const { dialog, data } = useApp();
   if (!dialog) return null;
   switch (dialog.kind) {
-    case "recipeEditor": return <RecipeEditorDialog key={"editor:" + (dialog.recipe?.id ?? "new")} initial={dialog.recipe} />;
+    case "recipeEditor": return <RecipeEditorDialog key={"editor:" + (dialog.recipe?.id ?? "new")} initial={dialog.recipe} startTab={dialog.tab} />;
     case "recipeDetail": return <RecipeDetailDialog key={"detail:" + dialog.id} id={dialog.id} />;
     case "recipeActions": return <RecipeActionsDialog key={"actions:" + dialog.id} id={dialog.id} />;
     case "print": return <PrintDialog key={"print:" + (dialog.recipeId ?? dialog.menuId ?? "menu")} mode={dialog.mode} recipeId={dialog.recipeId} menuId={dialog.menuId} />;
@@ -46,7 +46,7 @@ export function DialogHost() {
       const status = data.stockReports.find((report) => report.id === dialog.id)?.status;
       return <StockReportDialog key={"report:" + dialog.id + ":" + status} id={dialog.id} />;
     }
-    case "stockItem": return <StockItemDialog key={"item:" + (dialog.id ?? "new")} id={dialog.id} />;
+    case "stockItem": return <StockItemDialog key={"item:" + (dialog.id ?? "new")} id={dialog.id} preset={dialog.preset} />;
     case "stockDelivery": return <StockDeliveryDialog key={"delivery:" + (dialog.id ?? "new")} id={dialog.id} />;
     case "stockPicker": return <RecipePickerDialog />;
   }

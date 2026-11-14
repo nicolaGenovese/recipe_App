@@ -47,18 +47,18 @@ export function TextField({ label, name, hint, wide, id, value, onChange, type =
   );
 }
 
-export function TextAreaField({ label, name, hint, wide, value, onChange, placeholder }: BaseProps & { value: string; onChange: (value: string) => void; placeholder?: string }) {
+export function TextAreaField({ label, name, hint, wide, id, value, onChange, placeholder }: BaseProps & { value: string; onChange: (value: string) => void; placeholder?: string }) {
   return (
-    <FieldShell label={label} htmlFor={"field-" + name} hint={hint} wide={wide}>
-      <textarea id={"field-" + name} name={name} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+    <FieldShell label={label} htmlFor={id ?? "field-" + name} hint={hint} wide={wide}>
+      <textarea id={id ?? "field-" + name} name={name} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
     </FieldShell>
   );
 }
 
-export function SelectField({ label, name, hint, wide, value, onChange, options }: BaseProps & { value: string; onChange: (value: string) => void; options: { value: string; label: string }[] }) {
+export function SelectField({ label, name, hint, wide, id, value, onChange, options }: BaseProps & { value: string; onChange: (value: string) => void; options: { value: string; label: string }[] }) {
   return (
-    <FieldShell label={label} htmlFor={"field-" + name} hint={hint} wide={wide}>
-      <select id={"field-" + name} name={name} value={value} onChange={(event) => onChange(event.target.value)}>
+    <FieldShell label={label} htmlFor={id ?? "field-" + name} hint={hint} wide={wide}>
+      <select id={id ?? "field-" + name} name={name} value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
     </FieldShell>

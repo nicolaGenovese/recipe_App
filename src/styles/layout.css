@@ -81,3 +81,21 @@ h1 { color: #293229; font-size: clamp(27px, 3vw, 34px); font-weight: 640; letter
 .login-card label { margin-top: 6px; color: #5d6857; font-size: 11px; font-weight: 600; }
 .login-card input { min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; }
 .login-card .login-error { color: #a3412b; }
+
+/* Notifications at the top right: ingredients not in stock. */
+.stock-alerts { position: relative; }
+.stock-alerts .topbar-icon { position: relative; }
+.stock-alerts .topbar-icon.has-alerts { color: #a2622a; }
+.alert-badge { position: absolute; top: -3px; right: -4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; color: #fff; background: #c2552d; font-size: 9px; font-weight: 700; line-height: 16px; text-align: center; }
+.alerts-panel { position: absolute; z-index: 10; top: calc(100% + 8px); right: 0; width: min(360px, calc(100vw - 32px)); max-height: min(440px, 70vh); overflow: auto; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: var(--shadow); }
+.alerts-head { display: grid; gap: 3px; padding: 12px 14px; border-bottom: 1px solid #efefe9; }
+.alerts-head strong { font-size: 12px; }
+.alerts-head small, .alerts-empty { color: #7a7f73; font-size: 10px; }
+.alerts-empty { margin: 0; padding: 12px 14px; }
+.alerts-list { margin: 0; padding: 0; list-style: none; }
+.alerts-list li { display: grid; gap: 4px; padding: 10px 14px; border-bottom: 1px solid #f2f2ec; }
+.alerts-list li:last-child { border-bottom: 0; }
+.alerts-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.alerts-item-top strong { font-size: 11px; }
+.alerts-recipes { color: #7a7f73; font-size: 10px; }
+.link-button { padding: 0; border: 0; color: var(--green-dark); background: none; font: inherit; text-decoration: underline; cursor: pointer; }
