@@ -3,7 +3,8 @@
 import { AllergenTags, Callout, MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { PlateIcon } from "@/components/ui/icons";
-import { allergens, calories, coverType, hasImage, margin, portionCost, portionsOf, recipeCostGaps, totalCost } from "@/lib/recipes/math";
+import { allergenStatus } from "@/lib/recipes/allergens";
+import { calories, coverType, hasImage, margin, portionCost, portionsOf, recipeCostGaps, totalCost } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
@@ -42,6 +43,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
   if (!recipe) return null;
   const gaps = recipeCostGaps(recipe);
   const kcal = calories(recipe);
+  const allergenInfo = allergenStatus(recipe, data.stockItems, data.recipes);
 
   return (
     <Dialog>
@@ -81,7 +83,14 @@ export function RecipeDetailDialog({ id }: { id: string }) {
           </div>
           <div>
             <Block title={t("Allergeni")}>
-              <AllergenTags items={allergens(recipe)} empty={t("Nessun allergene indicato.")} />
+              <AllergenTags items={allergenInfo.contains} empty={t("Nessun allergene indicato.")} />
+              {allergenInfo.mayContain.length ? <p className="detail-text" style={{ marginTop: 6 }}>{t("Può contenere")}: {allergenInfo.mayContain.map(t).join(", ")}</p> : null}
+              <p className={"allergen-state " + allergenInfo.state}>
+                {allergenInfo.state === "ok" && allergenInfo.check ? fmt(t("Controllati il {0}"), f.dateLabel(allergenInfo.check.at)) + (allergenInfo.check.by ? " · " + allergenInfo.check.by : "")
+                  : allergenInfo.state === "changed" ? t("Cambiati dall'ultimo controllo: da ricontrollare.")
+                  : allergenInfo.state === "empty" ? t("Senza ingredienti: allergeni non noti.")
+                  : t("Non ancora controllati.")}
+              </p>
               <p className="detail-text" style={{ marginTop: 8 }}>{recipe.allergenGuidance || ""}</p>
             </Block>
             <Block title={t("Controlli di sicurezza")}><Checks items={recipe.ccpChecks} /></Block>

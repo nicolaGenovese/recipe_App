@@ -1,6 +1,7 @@
 "use client";
 
 import { menuDishes, menuStats } from "@/lib/menus/menus";
+import { menuAllergenSummary } from "@/lib/recipes/allergens";
 import type { Menu } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -14,6 +15,7 @@ export function MenuCard({ menu }: { menu: Menu }) {
   const { toggleActive } = useMenuActions();
   const dishes = menuDishes(menu, data.recipes);
   const stats = menuStats(menu, data.recipes, gpRules);
+  const allergenCheck = menuAllergenSummary(dishes, data.stockItems, data.recipes);
   const lowMargin = stats.dishes > stats.unpriced && stats.averageMargin < gpRules.defaultMarginTarget;
 
   return (
@@ -33,6 +35,13 @@ export function MenuCard({ menu }: { menu: Menu }) {
         <div><span>{t("Food cost")}</span><strong>{stats.foodCostPercent ? stats.foodCostPercent.toFixed(1) + "%" : "—"}</strong></div>
         <div className={lowMargin ? "warn" : ""}><span>{t("Margine medio")}</span><strong>{stats.dishes > stats.unpriced ? stats.averageMargin.toFixed(1) + "%" : "—"}</strong></div>
       </div>
+      {dishes.length ? (
+        <p className={"menu-note menu-allergens" + (allergenCheck.toCheck.length ? " warn" : " ok")}>
+          {allergenCheck.toCheck.length
+            ? fmt(t("Allergeni da controllare: {0} piatti su {1}"), allergenCheck.toCheck.length, allergenCheck.dishes) + " (" + allergenCheck.toCheck.slice(0, 3).map((dish) => dish.name).join(", ") + (allergenCheck.toCheck.length > 3 ? "…" : "") + ")"
+            : t("Allergeni controllati su tutti i piatti.")}
+        </p>
+      ) : null}
       {stats.unpriced ? <p className="menu-note">{fmt(stats.unpriced === 1 ? t("{0} piatto senza prezzo di vendita.") : t("{0} piatti senza prezzo di vendita."), stats.unpriced)}</p> : null}
       <ul className="menu-dishes">
         {dishes.slice(0, PREVIEW).map((dish) => (
@@ -48,6 +57,7 @@ export function MenuCard({ menu }: { menu: Menu }) {
         <button className="button button-secondary button-small" type="button" onClick={() => setView({ filter: "menu", menuId: menu.id, page: 1 })}>{t("Vedi piatti")}</button>
         <button className="button button-quiet button-small" type="button" onClick={() => openDialog({ kind: "prepList", menuId: menu.id })}>{t("Nuova prep list")}</button>
         <button className="button button-quiet button-small" type="button" onClick={() => openDialog({ kind: "print", menuId: menu.id })}>{t("Stampa")}</button>
+        <button className="button button-quiet button-small" type="button" onClick={() => openDialog({ kind: "print", menuId: menu.id, mode: "matrix" })}>{t("Matrice allergeni")}</button>
         <button className="button button-quiet button-small" type="button" onClick={guard(() => toggleActive(menu.id))}>{t(menu.active ? "Sospendi" : "Attiva")}</button>
       </footer>
     </article>

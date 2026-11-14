@@ -14,6 +14,13 @@ export interface Ingredient {
   stockItemId?: string;
 }
 
+export interface AllergenCheck {
+  at: string;
+  by: string;
+  contains: string[];
+  mayContain: string[];
+}
+
 export interface Recipe {
   id: string;
   name: string;
@@ -33,6 +40,10 @@ export interface Recipe {
   marginTarget?: number;
   vat?: number;
   allergenGuidance?: string;
+  /** Allergens the dish may contain as traces (shared fryer, same surface); shown as ○ in the matrix. */
+  mayContain?: string[];
+  /** The kitchen's confirmation of the dish allergens, with a copy of what was confirmed. */
+  allergenCheck?: AllergenCheck;
   mep?: string;
   method?: string;
   plating?: string;

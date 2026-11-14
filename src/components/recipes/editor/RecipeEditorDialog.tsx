@@ -8,6 +8,7 @@ import { KitchenPanel } from "@/components/recipes/editor/KitchenPanel";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { fromForm, toForm, type RecipeForm } from "@/lib/recipes/form";
 import { isMissingFromStock, resolveRecipe } from "@/lib/recipes/catalog";
+import { nextAllergenCheck } from "@/lib/recipes/allergens";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useMenuActions } from "@/state/actions/useMenuActions";
@@ -47,7 +48,10 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
       const old = current().recipes.find((item) => item.id === form.id);
       const draft = fromForm(form, old);
       // Linked rows are saved as the catalogue describes them, whatever the form showed.
-      const saved = await saveRecipe(resolveRecipe(draft, current().stockItems, current().recipes));
+      const resolved = resolveRecipe(draft, current().stockItems, current().recipes);
+      const check = nextAllergenCheck(resolved, { confirmed: form.allergensConfirmed, touched: form.allergensTouched, by: form.allergensCheckedBy });
+      const { allergenCheck: _old, ...rest } = resolved;
+      const saved = await saveRecipe(check ? { ...rest, allergenCheck: check } : rest);
       await setRecipeMenus(saved.id, form.menuIds);
       // A base recipe passes its new cost and allergens to the dishes that use it.
       if (saved.archivedBatch) await syncRecipeCosts();

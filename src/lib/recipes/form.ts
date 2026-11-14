@@ -37,6 +37,12 @@ export interface RecipeForm {
   plating: string;
   nutritionInfo: string;
   allergenGuidance: string;
+  /** Traces, as a comma list like the ingredient allergens. */
+  mayContain: string;
+  /** The "allergens checked" box, and whether it was ticked in this edit. */
+  allergensConfirmed: boolean;
+  allergensTouched: boolean;
+  allergensCheckedBy: string;
   sellingPrice: string;
   vat: string;
   marginTarget: string;
@@ -101,6 +107,7 @@ export function toForm(recipe: Partial<Recipe>, defaults: { category: string; co
     creator: recipe.creator || defaults.creator, cookingMethod: recipe.cookingMethod || defaults.cookingMethod, description: text(recipe.description),
     menuIds: defaults.menuIds ?? [], shelfLifeDays: recipe.shelfLifeDays ? String(recipe.shelfLifeDays) : "", archivedBatch: Boolean(recipe.archivedBatch), image: text(recipe.image),
     mep: text(recipe.mep), method: text(recipe.method), plating: text(recipe.plating), nutritionInfo: text(recipe.nutritionInfo), allergenGuidance: text(recipe.allergenGuidance),
+    mayContain: (recipe.mayContain || []).join(", "), allergensConfirmed: Boolean(recipe.allergenCheck), allergensTouched: false, allergensCheckedBy: text(recipe.allergenCheck?.by),
     sellingPrice: String(recipe.sellingPrice || 0), vat: String(recipe.vat ?? defaults.rules.defaultVat), marginTarget: String(recipe.marginTarget ?? defaults.rules.defaultMarginTarget),
     ccpChecks: recipe.ccpChecks || [], prepChecks: recipe.prepChecks || [], ingredients: (recipe.ingredients || []).map(ingredientDraft)
   };
@@ -116,6 +123,7 @@ export function fromForm(form: RecipeForm, old: Recipe | undefined): Recipe {
     portions: Math.max(1, num(form.portions) || 1), shelfLifeDays: form.shelfLifeDays.trim() ? Math.max(0, Math.round(num(form.shelfLifeDays))) : undefined, archivedBatch: form.archivedBatch, creator: form.creator,
     image: form.image, cookingMethod: form.cookingMethod, ingredients: form.ingredients.map(ingredientFromDraft).filter((row) => row.name),
     sellingPrice: num(form.sellingPrice), marginTarget: num(form.marginTarget), vat: num(form.vat), allergenGuidance: form.allergenGuidance,
+    mayContain: form.mayContain.split(",").map((value) => value.trim()).filter(Boolean),
     mep: form.mep, method: form.method, plating: form.plating, nutritionInfo: form.nutritionInfo, ccpChecks: form.ccpChecks, prepChecks: form.prepChecks,
     createdAt: old?.createdAt || now, updatedAt: now
   };

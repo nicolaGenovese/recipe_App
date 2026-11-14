@@ -125,3 +125,4 @@
   .nav-toggle { display: none; }
   .nav-row.has-toggle > .nav-item { padding-right: 5px; }
 }
+.menu-note.menu-allergens.ok { color: var(--green-dark); }

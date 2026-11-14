@@ -11,8 +11,8 @@ import type { PrintMode } from "@/state/dialogs";
 
 const DESCRIPTIONS: Record<PrintMode, string> = {
   recipes: "Ingredienti, porzioni e prezzo.",
-  allergens: "Riepilogo degli allergeni indicati.",
-  matrix: "Griglia ricetta per ricetta.",
+  allergens: "Allergeni e tracce piatto per piatto.",
+  matrix: "Griglia dei piatti del menu per i 14 allergeni, da esporre.",
   folder: "Metodo, ingredienti, allergeni e costi.",
   till: "Nomi e prezzi di vendita."
 };

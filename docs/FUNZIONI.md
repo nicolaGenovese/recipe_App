@@ -10,6 +10,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Scheda ricetta: ingredienti (prodotto, base o esterno) con quantità, unità, costo, allergeni e kcal; foto, metodo, MEP, impiattamento, note nutrizionali, controlli di sicurezza, attrezzature, giorni di conservazione.
 - Costi: costo totale e per porzione, margine teorico, prezzo suggerito.
 - Catalogo unico degli ingredienti: il magazzino. Gli ingredienti collegati a un prodotto prendono da lì prezzo, fornitore, allergeni e kcal, e si aggiornano in tutte le ricette quando il prodotto cambia. Un ingrediente che manca si aggiunge al magazzino dalla ricetta compilando la scheda prodotto completa (fornitore, misura, prezzo, contenuto, kcal, allergeni, livello minimo) senza uscire dalla ricetta; la ricetta si può salvare anche senza, e gli ingredienti non in magazzino restano nella campanella in alto a destra, da cui si aggiungono. La scheda prodotto mostra in quali ricette è usato.
+- Allergeni del piatto: arrivano dagli ingredienti e dalle basi (la scheda Cucina & allergeni mostra quale ingrediente porta ogni allergene), più le tracce ("può contenere") scelte sul piatto. La cucina conferma il controllo con nome e data; se poi gli allergeni cambiano (ingrediente nuovo, prodotto o base modificati) il piatto torna "da ricontrollare". Le righe scritte a mano, non dal magazzino, sono segnalate.
 - Basi e preparazioni riutilizzabili, collegabili come ingrediente di altre ricette.
 - Creazione, modifica, duplicazione, eliminazione; ricetta creata dal magazzino scegliendo i prodotti.
 
@@ -18,6 +19,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Più menu nella stessa cucina (oggi: Main menu, Pizza menu, Sunday Roast Menu), ognuno con nome, descrizione, stato attivo o sospeso e piatti in ordine di servizio.
 - Lo stesso piatto può stare in più menu; la scelta si fa dal menu o dalla scheda del piatto.
 - Per ogni menu: piatti, costo e prezzo medi, food cost, margine medio, piatti senza prezzo.
+- Per ogni menu: quanti piatti hanno gli allergeni da controllare, e la matrice allergeni da stampare (A4 orizzontale): un piatto per riga, i 14 allergeni in colonna, ● contiene, ○ può contenere, stato del controllo e avviso se qualche piatto non è controllato.
 - Scorciatoia nella barra laterale per ogni menu attivo (con più menu, in un elenco a tendina sotto "Menu"); stampe e prezzi per un menu o per tutti i menu attivi.
 
 ### Prep list
@@ -83,7 +85,6 @@ In ordine di utilità, secondo quanto discusso finora.
 7. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
 8. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
 9. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana.
-10. **Allergeni completi sui piatti del Main menu** e matrice allergeni per menu da stampare.
 
 ## Dati da inserire
 

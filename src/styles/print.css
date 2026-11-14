@@ -12,3 +12,28 @@
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.error { border-color: #f0d4cc; color: #944d3e; background: #fcf2ef; }
 .print-images { margin-top: 12px; }
+
+/* Allergen matrix: dishes down, allergens across, printed in landscape. */
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+.matrix-table th, .matrix-table td { padding: 4px 3px; border: 1px solid #dfe3d8; text-align: center; vertical-align: middle; }
+.matrix-table th.matrix-dish { min-width: 120px; text-align: left; font-weight: 600; }
+.matrix-table th.matrix-dish small { display: block; color: #92978d; font-size: 7px; font-weight: 400; }
+.matrix-col { height: 92px; vertical-align: bottom !important; }
+.matrix-col span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-size: 8px; font-weight: 600; }
+.matrix-table td.has { font-size: 11px; font-weight: 700; color: #30392e; }
+.matrix-table td.may { font-size: 11px; color: #6c7466; }
+.matrix-table td.matrix-check, .matrix-table th.matrix-check { min-width: 64px; font-size: 7px; white-space: nowrap; }
+.matrix-table tr.unchecked td.matrix-check { color: #a3593f; font-weight: 600; }
+.matrix-table tbody tr:nth-child(even) { background: #fafbf8; }
+.matrix-legend { margin: 8px 0 0 !important; color: #6c7466 !important; font-size: 8px; }
+.matrix-warning { margin: 8px 0 0 !important; padding: 6px 8px; border: 1px solid #e8c9bd; border-radius: 6px; color: #a3593f !important; background: #fdf5f1; font-size: 8px; }
+.preview-allergens small { display: block; margin-top: 2px; color: #7a7f73; font-size: 7px; }
+
+@page allergen-matrix { size: A4 landscape; margin: 10mm; }
+@media print {
+  .allergen-sheet { page: allergen-matrix; }
+  .matrix-table { font-size: 10px; }
+  .matrix-table thead { display: table-header-group; }
+  .matrix-table tr { break-inside: avoid; }
+  .print-menu-pick, .print-images { display: none !important; }
+}
