@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { GridIcon, ListIcon, PrintIcon, UploadIcon } from "@/components/ui/icons";
-import { categoryList, visibleRecipes } from "@/lib/recipes/filter";
+import { categoryChips, scopedRecipes, visibleRecipes } from "@/lib/recipes/filter";
 import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import { ALL_CATEGORIES, type RecipeSort, type ViewFilter } from "@/state/view";
@@ -17,6 +17,8 @@ export function RecipeLibrary() {
   const recipes = data.recipes;
 
   const rows = visibleRecipes(recipes, view, data.menus);
+  // Chips count what the view shows: one menu's dishes inside a menu, every recipe under "All recipes".
+  const chips = categoryChips(data.settings.categories, scopedRecipes(recipes, view, data.menus), view.filter === "all", view.category);
   const pickedMenu = view.filter === "menu" && view.menuId ? data.menus.find((menu) => menu.id === view.menuId) : undefined;
   const size = view.pageSize === "all" ? Math.max(1, rows.length) : view.pageSize;
   const pages = Math.max(1, Math.ceil(rows.length / size));
@@ -44,9 +46,8 @@ export function RecipeLibrary() {
 
       <div className="category-strip-wrap">
         <div className="category-strip" role="tablist" aria-label={t("Filtra per categoria")}>
-          {categoryList(data.settings.categories, recipes).map((category) => {
+          {chips.map(({ category, count: total }) => {
             const active = view.category === category;
-            const total = category === ALL_CATEGORIES ? recipes.length : recipes.filter((item) => item.category === category).length;
             return (
               <button key={category} type="button" role="tab" aria-selected={active} className={"category-chip" + (active ? " active" : "")} onClick={() => setView({ category, page: 1 })}>
                 {t(category)}<span className="chip-count">{total}</span>
