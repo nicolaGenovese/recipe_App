@@ -60,7 +60,7 @@ export function KitchenTemp({ label, hint, value, onChange, ok, photoId, onPhoto
       <span className="kitchen-reading-name">{label}{hint ? <small>{hint}</small> : null}</span>
       <span className="kitchen-reading-input">
         <button type="button" className="kitchen-sign" aria-label={t("Cambia segno") + " · " + label} onClick={() => onChange(flipSign(value))}>±</button>
-        <input type="text" inputMode="decimal" value={value} aria-label={label + " °C"} onChange={(event) => onChange(event.target.value.replace(",", "."))} />
+        <input type="text" inputMode="decimal" size={4} value={value} aria-label={label + " °C"} onChange={(event) => onChange(event.target.value.replace(",", "."))} />
         <span aria-hidden="true">°C</span>
         <PhotoButton big value={photoId} onChange={onPhoto} label={label} needed={requirePhoto && written && !photoId} />
       </span>

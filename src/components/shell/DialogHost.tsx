@@ -47,7 +47,7 @@ export function DialogHost() {
       return <StockReportDialog key={"report:" + dialog.id + ":" + status} id={dialog.id} />;
     }
     case "stockItem": return <StockItemDialog key={"item:" + (dialog.id ?? "new")} id={dialog.id} preset={dialog.preset} />;
-    case "stockDelivery": return <StockDeliveryDialog key={"delivery:" + (dialog.id ?? "new")} id={dialog.id} />;
+    case "stockDelivery": return <StockDeliveryDialog key={"delivery:" + (dialog.id ?? "new")} id={dialog.id} scan={dialog.scan} />;
     case "stockPicker": return <RecipePickerDialog />;
   }
 }

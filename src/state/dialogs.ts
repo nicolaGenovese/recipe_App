@@ -19,7 +19,7 @@ export type DialogState =
   | { kind: "settings"; tab?: "general" | "gp" | "staff" }
   | { kind: "stockReport"; id: string }
   | { kind: "stockItem"; id?: string; preset?: Partial<StockItem> }
-  | { kind: "stockDelivery"; id?: string }
+  | { kind: "stockDelivery"; id?: string; scan?: boolean }
   | { kind: "stockPicker" };
 
 export type PrintMode = "recipes" | "allergens" | "matrix" | "folder" | "till";

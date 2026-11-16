@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill, Datalist, TextField } from "@/components/ui/Field";
@@ -22,7 +22,7 @@ interface Row { key: string; name: string; quantity: string; price: string; scan
 const blankRow = (): Row => ({ key: newId(), name: "", quantity: "", price: "" });
 
 /** Goods received with an invoice. Quantities add to the open report and to stock on hand. */
-export function StockDeliveryDialog({ id }: { id?: string }) {
+export function StockDeliveryDialog({ id, scan: startWithScan }: { id?: string; scan?: boolean }) {
   const { data, closeDialog, openDialog, notify, health, f, t, fmt } = useApp();
   const guard = useGuard();
   const { saveDelivery, deleteDelivery } = useStockActions();
@@ -42,6 +42,13 @@ export function StockDeliveryDialog({ id }: { id?: string }) {
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState("");
   const canScan = Boolean(health?.invoiceReader) && !closed;
+
+  // Opened from "Scan invoice" (kitchen mode): the camera opens straight away, still within the tap that opened the window.
+  useEffect(() => {
+    if (startWithScan && canScan) fileInput.current?.click();
+    // Only when the window opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const suppliers = Array.from(new Set(data.stockItems.map((row) => row.supplier).filter(Boolean)));
   // Suggest the supplier's products first, or everything when the supplier has none yet.

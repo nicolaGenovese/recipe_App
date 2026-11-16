@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KitchenAction, KitchenSave, KitchenTemp, KitchenToday, KitchenToggle, type TodayItem } from "@/components/kitchen/parts";
 import { nowTime, tempText, tempValue } from "@/components/safety/fields";
 import { uncheckedDeliveries } from "@/lib/kitchen/today";
@@ -16,7 +16,7 @@ const temp = (value: number | null) => (value === null ? "—" : value + " °C")
 
 /** Goods arriving: temperatures with photos, packaging, dates and anything sent back. */
 export function KitchenDeliveries({ today, by }: { today: string; by: string }) {
-  const { data, t, fmt, f } = useApp();
+  const { data, health, openDialog, t, fmt, f } = useApp();
   const guard = useGuard();
   const { saveLog } = useSafetyActions();
   const rules = data.settings.foodSafety;
@@ -39,6 +39,16 @@ export function KitchenDeliveries({ today, by }: { today: string; by: string }) 
   const todays = data.safetyLogs.filter((log): log is DeliveryCheckLog => log.kind === "delivery" && log.date === today).sort((a, b) => b.time.localeCompare(a.time));
   const pending = uncheckedDeliveries(data.stockDeliveries, data.safetyLogs, today);
   const suppliers = Array.from(new Set([...data.stockItems.map((item) => item.supplier), ...data.stockDeliveries.map((delivery) => delivery.supplier)].map((name) => (name || "").trim()).filter(Boolean))).sort();
+
+  // A delivery just registered with the invoice scan is picked for its check straight away.
+  const seen = useRef(new Set(pending.map((delivery) => delivery.id)));
+  useEffect(() => {
+    const fresh = pending.find((delivery) => !seen.current.has(delivery.id));
+    pending.forEach((delivery) => seen.current.add(delivery.id));
+    if (fresh && !editing) pick(fresh);
+    // pick and editing are read at the moment a new delivery shows up.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending.map((delivery) => delivery.id).join(",")]);
 
   const draft = { chilledTemperature: tempValue(chilled), frozenTemperature: tempValue(frozen), packagingOk, datesOk };
   const failing = !deliveryOk(draft, rules);
@@ -85,6 +95,14 @@ export function KitchenDeliveries({ today, by }: { today: string; by: string }) 
 
   return (
     <div className="kitchen-deliveries">
+      <div className="kitchen-scan">
+        <button className="kitchen-button" type="button" onClick={() => openDialog({ kind: "stockDelivery", scan: Boolean(health?.invoiceReader) })}>
+          {health?.invoiceReader ? t("📷 Scansiona fattura") : t("Registra consegna")}
+        </button>
+        <span>{t(health?.invoiceReader
+          ? "Fotografa la fattura: righe e prezzi vanno in Food Stock dopo il tuo controllo, poi qui fai il controllo all'arrivo."
+          : "Registra la fattura in Food Stock, poi qui fai il controllo all'arrivo.")}</span>
+      </div>
       {pending.length && !editing ? (
         <section className="kitchen-pending">
           <h3>{t("Consegne senza controllo")}</h3>
