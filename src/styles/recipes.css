@@ -93,6 +93,7 @@
 .page-button { display: grid; place-items: center; min-width: 27px; height: 27px; padding: 0 7px; border: 1px solid transparent; border-radius: 6px; color: #848a7f; background: transparent; font-size: 9px; cursor: pointer; }
 .page-button:hover { border-color: #e3e6dd; background: #fff; }
 .page-button.active { border-color: #dbe2d2; color: #4f6543; background: #edf1e7; font-weight: 700; }
+.page-gap { min-width: 16px; color: #b0b4aa; text-align: center; }
 .page-button:disabled { opacity: .4; cursor: default; }
 .pagination select { margin-left: 5px; padding: 4px 6px; border: 1px solid #e5e7df; border-radius: 5px; color: #747b70; background: #fff; font-size: 9px; }
 .page-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 21px; padding-top: 15px; border-top: 1px solid #edeee8; color: #a1a59c; font-size: 9px; }

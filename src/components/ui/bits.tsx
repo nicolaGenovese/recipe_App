@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useApp } from "@/state/AppProvider";
+import { pageWindow } from "@/lib/pages";
 
 export function MetricTile({ label, children, foot, id }: { label: string; children: ReactNode; foot?: ReactNode; id?: string }) {
   return (
@@ -33,9 +34,9 @@ export function Pager({ pages, page, onPage }: { pages: number; page: number; on
     <div className="pagination">
       <span />
       <div className="pagination-controls">
-        {Array.from({ length: pages }, (_, index) => (
-          <button key={index} type="button" className={"page-button" + (index + 1 === page ? " active" : "")} onClick={() => onPage(index + 1)}>{index + 1}</button>
-        ))}
+        {pageWindow(page, pages).map((number, index) => number === null
+          ? <span key={"gap" + index} className="page-gap" aria-hidden="true">…</span>
+          : <button key={number} type="button" className={"page-button" + (number === page ? " active" : "")} aria-current={number === page ? "page" : undefined} onClick={() => onPage(number)}>{number}</button>)}
       </div>
     </div>
   );

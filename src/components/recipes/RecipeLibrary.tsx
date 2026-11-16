@@ -6,6 +6,7 @@ import { GridIcon, ListIcon, PrintIcon, UploadIcon } from "@/components/ui/icons
 import { categoryChips, scopedRecipes, visibleRecipes } from "@/lib/recipes/filter";
 import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
+import { pageWindow } from "@/lib/pages";
 import { ALL_CATEGORIES, type RecipeSort, type ViewFilter } from "@/state/view";
 
 const SECTION_TITLES: Record<ViewFilter, string> = { all: "Esplora le ricette", menu: "Piatti nel menu", archive: "Basi e preparazioni", stock: "", menus: "", prep: "", rota: "", safety: "", performance: "", kitchen: "" };
@@ -94,9 +95,9 @@ export function RecipeLibrary() {
           <span>{fmt(t("Mostrate {0}–{1} di {2} ricette"), from + 1, Math.min(from + size, rows.length), rows.length)}</span>
           <div className="pagination-controls">
             <button className="page-button" type="button" disabled={page === 1} onClick={() => setView({ page: page - 1 })}>‹</button>
-            {Array.from({ length: pages }, (_, index) => (
-              <button key={index} type="button" className={"page-button" + (index + 1 === page ? " active" : "")} onClick={() => setView({ page: index + 1 })}>{index + 1}</button>
-            ))}
+            {pageWindow(page, pages).map((number, index) => number === null
+              ? <span key={"gap" + index} className="page-gap" aria-hidden="true">…</span>
+              : <button key={number} type="button" className={"page-button" + (number === page ? " active" : "")} aria-current={number === page ? "page" : undefined} onClick={() => setView({ page: number })}>{number}</button>)}
             <button className="page-button" type="button" disabled={page === pages} onClick={() => setView({ page: page + 1 })}>›</button>
             <select aria-label={t("Ricette per pagina")} value={String(view.pageSize)} onChange={(event) => setView({ pageSize: event.target.value === "all" ? "all" : Number(event.target.value), page: 1 })}>
               <option value="9">{t("9 per pagina")}</option><option value="18">{t("18 per pagina")}</option><option value="36">{t("36 per pagina")}</option><option value="all">{t("Tutte")}</option>
