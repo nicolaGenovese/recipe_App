@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon } from "@/components/ui/icons";
+import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon, PlateIcon } from "@/components/ui/icons";
 import { availabilityLabel, dayNames } from "@/lib/menus/availability";
 import { sortMenus } from "@/lib/menus/menus";
 import { localeFor } from "@/lib/i18n";
+import { KITCHEN_KEY } from "@/lib/kitchen/today";
 import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
@@ -30,9 +31,21 @@ export function Sidebar() {
   const [menusOpen, setMenusOpen] = useState<boolean | null>(null);
   const showMenus = !dropdown || (menusOpen ?? view.filter === "menu");
   const go = (change: Partial<ViewState>) => setView({ menuId: null, category: ALL_CATEGORIES, page: 1, ...change });
+  // Phones: a tab bar at the bottom with the pages used most, everything else under "Altro".
+  const [moreOpen, setMoreOpen] = useState(false);
+  const tabs: ViewFilter[] = ["all", "menus", "prep", "safety"];
+  const inMore = !tabs.includes(view.filter) && view.filter !== "menu";
+  const goFromSheet = (change: Partial<ViewState>) => { setMoreOpen(false); go(change); };
+  const enterKitchen = () => {
+    setMoreOpen(false);
+    try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
+    setView({ filter: "kitchen" });
+  };
+  const logout = async () => { await fetch("/api/logout", { method: "POST" }); window.location.assign("/login"); };
   const storageLabel = health?.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
 
   return (
+    <>
     <aside className="sidebar" aria-label={t("Navigazione principale")}>
       <a className="brand" href="#" aria-label={t("Recipe Studio, ricette")} onClick={(event) => { event.preventDefault(); go({ filter: "all" }); }}>
         <span className="brand-mark" aria-hidden="true"><BrandIcon /></span>
@@ -76,12 +89,16 @@ export function Sidebar() {
           <span className="status-dot" />
           <span>{storageLabel}{health && !health.connected ? " · " + t("non collegato") : ""}</span>
         </div>
+        <button className="nav-item settings-link kitchen-link" type="button" onClick={enterKitchen}>
+          <span className="nav-icon" aria-hidden="true"><PlateIcon /></span>
+          <span>{t("Modalità cucina")}</span>
+        </button>
         <button className="nav-item settings-link" type="button" onClick={() => openDialog({ kind: "settings" })}>
           <span className="nav-icon" aria-hidden="true"><GearIcon /></span>
           <span>{t("Impostazioni")}</span>
         </button>
         {accessProtected ? (
-          <button className="nav-item settings-link" type="button" onClick={async () => { await fetch("/api/logout", { method: "POST" }); window.location.assign("/login"); }}>
+          <button className="nav-item settings-link" type="button" onClick={logout}>
             <span className="nav-icon" aria-hidden="true">⎋</span>
             <span>{t("Esci")}</span>
           </button>
@@ -89,5 +106,39 @@ export function Sidebar() {
         <div className="sidebar-user"><span className="user-avatar">C</span><span><strong>{t("Team cucina")}</strong><small>{t("Workspace personale")}</small></span><span className="user-more">···</span></div>
       </div>
     </aside>
+
+    <nav className="mobile-tabbar" aria-label={t("Navigazione principale")}>
+      {items.filter(([filter]) => tabs.includes(filter)).map(([filter, label, icon]) => (
+        <button key={filter} type="button" className={view.filter === filter || (filter === "menus" && view.filter === "menu") ? "active" : ""} onClick={() => { setMoreOpen(false); go({ filter }); }}>
+          {icon}<span>{filter === "all" ? t("Ricette") : filter === "safety" ? t("Sicurezza") : label}</span>
+        </button>
+      ))}
+      <button type="button" className={inMore || moreOpen ? "active" : ""} aria-expanded={moreOpen} aria-controls="mobileMore" onClick={() => setMoreOpen(!moreOpen)}>
+        <span className="tabbar-dots" aria-hidden="true">···</span><span>{t("Altro")}</span>
+      </button>
+    </nav>
+    {moreOpen ? (
+      <div className="mobile-sheet-backdrop" onClick={() => setMoreOpen(false)}>
+        <div id="mobileMore" className="mobile-sheet" role="dialog" aria-label={t("Altro")} onClick={(event) => event.stopPropagation()}>
+          <button className="mobile-sheet-kitchen" type="button" onClick={enterKitchen}><PlateIcon /><span><strong>{t("Modalità cucina")}</strong><small>{t("Prep list, temperature e checklist con pulsanti grandi")}</small></span></button>
+          <div className="mobile-sheet-grid">
+            {items.map(([filter, label, icon, count]) => (
+              <button key={filter} type="button" className={view.filter === filter ? "active" : ""} onClick={() => goFromSheet({ filter })}>{icon}<span>{label}</span><small>{count}</small></button>
+            ))}
+          </div>
+          {menuLinks.length ? (
+            <div className="mobile-sheet-menus">
+              <span>{t("Menu")}</span>
+              {menuLinks.map((menu) => <button key={menu.id} type="button" className={view.filter === "menu" && view.menuId === menu.id ? "active" : ""} onClick={() => goFromSheet({ filter: "menu", menuId: menu.id })}>{menu.name}</button>)}
+            </div>
+          ) : null}
+          <div className="mobile-sheet-foot">
+            <button type="button" onClick={() => { setMoreOpen(false); openDialog({ kind: "settings" }); }}><GearIcon /> {t("Impostazioni")}</button>
+            {accessProtected ? <button type="button" onClick={logout}>⎋ {t("Esci")}</button> : null}
+          </div>
+        </div>
+      </div>
+    ) : null}
+    </>
   );
 }

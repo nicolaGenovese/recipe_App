@@ -72,7 +72,8 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Impostazioni: valuta, lingua (italiano, inglese), regole del calcolo GP, personale, liste personalizzabili.
 - Online su Vercel con database Neon; in locale anche su file JSON. Backup e importazione JSON, CSV delle ricette.
 - Accesso protetto da una password condivisa.
-- Interfaccia in italiano e inglese, utilizzabile anche da telefono (barra laterale a icone).
+- Interfaccia in italiano e inglese, pensata anche per il telefono: barra in basso con Ricette, Menu, Prep list, Sicurezza e "Altro" (tutte le altre pagine, i menu, la modalità cucina e le impostazioni), finestre a tutto schermo, testi e pulsanti più grandi, tabelle che scorrono nel loro riquadro. Si può aggiungere alla schermata Home del telefono o del tablet.
+- Modalità cucina per tablet (barra laterale → Modalità cucina, oppure l'indirizzo con `?cucina`): schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Tre schede con il conteggio di cosa manca: prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
 
 ## Da implementare
 
@@ -80,13 +81,12 @@ In ordine di utilità, secondo quanto discusso finora.
 
 1. **Ordini ai fornitori.** Ordine suggerito per fornitore (sotto il livello minimo più il fabbisogno delle prossime prep list); scheda fornitore con contatti, giorni di consegna e orario limite; invio per email o WhatsApp; confronto tra ordinato e consegnato.
 2. **Più compagnie e sedi, utenti e ruoli.** Compagnie con più ristoranti o pub, login, gerarchia dal head office al kitchen porter e permessi per sede. Necessario prima di usare l'app fuori dalla rete del locale. Proposta completa in [MULTI-AZIENDA.md](MULTI-AZIENDA.md).
-3. **Modalità cucina per tablet.** Pulsanti grandi, solo prep list, temperature e checklist del giorno.
-4. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
-5. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
-6. **Storico dei prezzi** di prodotti e piatti.
-7. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
-8. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
-9. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana.
+3. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
+4. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
+5. **Storico dei prezzi** di prodotti e piatti.
+6. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
+7. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
+8. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana.
 
 ## Dati da inserire
 

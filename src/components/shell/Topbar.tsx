@@ -1,12 +1,12 @@
 "use client";
 
 import { StockAlerts } from "@/components/shell/StockAlerts";
-import { DownloadIcon, SearchIcon } from "@/components/ui/icons";
+import { BrandIcon, DownloadIcon, SearchIcon } from "@/components/ui/icons";
 import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import type { ViewFilter } from "@/state/view";
 
-const CRUMBS: Record<ViewFilter, string> = { all: "Ricette", menu: "In menu", archive: "Basi e archivio", stock: "Food Stock", menus: "Menu", prep: "Prep list", rota: "Turni", safety: "Sicurezza alimentare", performance: "Andamento" };
+const CRUMBS: Record<ViewFilter, string> = { all: "Ricette", menu: "In menu", archive: "Basi e archivio", stock: "Food Stock", menus: "Menu", prep: "Prep list", rota: "Turni", safety: "Sicurezza alimentare", performance: "Andamento", kitchen: "Modalità cucina" };
 
 export function Topbar() {
   const { data, view, setView, t } = useApp();
@@ -15,6 +15,9 @@ export function Topbar() {
 
   return (
     <header className="topbar">
+      <a className="topbar-brand" href="#" aria-label={t("Recipe Studio, ricette")} onClick={(event) => { event.preventDefault(); setView({ filter: "all", menuId: null, page: 1 }); }}>
+        <span className="brand-mark" aria-hidden="true"><BrandIcon /></span>
+      </a>
       <div className="breadcrumbs"><span>{t("La mia cucina")}</span><span className="crumb-slash">/</span><strong>{menu ? menu.name : t(CRUMBS[view.filter])}</strong></div>
       <div className="topbar-actions">
         <label className="global-search" htmlFor="searchInput">

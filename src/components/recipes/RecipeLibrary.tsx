@@ -8,7 +8,7 @@ import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import { ALL_CATEGORIES, type RecipeSort, type ViewFilter } from "@/state/view";
 
-const SECTION_TITLES: Record<ViewFilter, string> = { all: "Esplora le ricette", menu: "Piatti nel menu", archive: "Basi e preparazioni", stock: "", menus: "", prep: "", rota: "", safety: "", performance: "" };
+const SECTION_TITLES: Record<ViewFilter, string> = { all: "Esplora le ricette", menu: "Piatti nel menu", archive: "Basi e preparazioni", stock: "", menus: "", prep: "", rota: "", safety: "", performance: "", kitchen: "" };
 
 export function RecipeLibrary() {
   const { data, view, setView, openDialog, onMenu, t, fmt } = useApp();

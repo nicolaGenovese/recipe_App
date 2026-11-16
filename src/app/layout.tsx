@@ -4,10 +4,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ricette · Recipe Studio",
-  description: "Uno spazio semplice e flessibile per organizzare le ricette della tua cucina."
+  description: "Uno spazio semplice e flessibile per organizzare le ricette della tua cucina.",
+  // Added to a tablet's home screen, the app opens full screen like an app.
+  appleWebApp: { capable: true, title: "Recipe Studio", statusBarStyle: "default" },
+  manifest: "/manifest.webmanifest"
 };
 
-export const viewport: Viewport = { themeColor: "#f7f7f3", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f7f7f3", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

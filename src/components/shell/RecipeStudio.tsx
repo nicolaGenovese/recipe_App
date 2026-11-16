@@ -13,13 +13,15 @@ import { PrepView } from "@/components/prep/PrepView";
 import { RotaView } from "@/components/rota/RotaView";
 import { SafetyView } from "@/components/safety/SafetyView";
 import { PerformanceView } from "@/components/performance/PerformanceView";
+import { KitchenMode } from "@/components/kitchen/KitchenMode";
+import { KITCHEN_KEY } from "@/lib/kitchen/today";
 import { Toast } from "@/components/ui/bits";
 import { useApp } from "@/state/AppProvider";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** The whole page: sidebar, top bar and either the recipe library or Food Stock. */
 export function RecipeStudio() {
-  const { view, openDialog, t, notify, loaded } = useApp();
+  const { view, setView, openDialog, t, notify, loaded } = useApp();
   const { syncRecipeCosts } = useRecipeActions();
 
   // Product prices may have changed since recipes were last saved.
@@ -28,6 +30,19 @@ export function RecipeStudio() {
     // Runs once the archive is in.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
+
+  // A tablet left in kitchen mode, or opened from a link ending in ?cucina, starts there.
+  useEffect(() => {
+    let stored = "";
+    try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; } catch { /* No storage: start normally. */ }
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("cucina") || params.has("kitchen")) {
+      try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* No storage: kitchen mode lasts until reload. */ }
+      // Drop ?cucina from the address, so leaving kitchen mode and reloading does not bring it back.
+      window.history.replaceState(null, "", window.location.pathname);
+      setView({ filter: "kitchen" });
+    } else if (stored === "1") setView({ filter: "kitchen" });
+  }, [setView]);
 
   // ⌘K / Ctrl+K jumps to the search box.
   useEffect(() => {
@@ -40,6 +55,16 @@ export function RecipeStudio() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
+
+  if (view.filter === "kitchen") {
+    return (
+      <>
+        <KitchenMode />
+        <DialogHost />
+        <Toast />
+      </>
+    );
+  }
 
   return (
     <>

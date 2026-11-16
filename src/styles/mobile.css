@@ -1,0 +1,120 @@
+/* Phones and touch screens. Imported after responsive.css, so it overrides the compact sizes there. */
+.topbar-brand, .mobile-tabbar, .mobile-sheet-backdrop { display: none; }
+.kitchen-link .nav-icon { color: var(--green); }
+
+@media (max-width: 780px) {
+  /* The side bar gives way to a tab bar at the bottom, within reach of the thumb. */
+  .sidebar { display: none; }
+  .topbar { position: sticky; top: 0; gap: 10px; height: 56px; padding: 0 14px; padding-top: env(safe-area-inset-top); }
+  .topbar-brand { display: flex; flex: 0 0 auto; text-decoration: none; }
+  .topbar-brand .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; color: #fff; background: var(--green-dark); }
+  .topbar-brand svg { width: 22px; height: 22px; }
+  .breadcrumbs { flex: 0 1 auto; min-width: 0; font-size: 13px; }
+  .breadcrumbs > span:not(.crumb-slash):first-child, .breadcrumbs .crumb-slash { display: none; }
+  .breadcrumbs strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar-actions { flex: 1; justify-content: flex-end; gap: 6px; min-width: 0; }
+  .global-search { flex: 1; width: auto; max-width: 260px; height: 40px; }
+  .global-search input { font-size: 16px; }
+  .topbar-icon { width: 40px; height: 40px; }
+  .topbar-avatar { display: none; }
+  .main-area { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .content-wrap { padding: 20px 14px 24px; }
+
+  .mobile-tabbar { position: fixed; z-index: 9; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid #e3e6dc; background: rgba(250,250,247,.97); backdrop-filter: blur(12px); }
+  .mobile-tabbar button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border: 0; border-radius: 12px; color: #757c70; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mobile-tabbar button svg { width: 22px; height: 22px; }
+  .mobile-tabbar button.active { color: var(--green-dark); background: var(--sage); }
+  .tabbar-dots { height: 22px; font-size: 20px; font-weight: 800; line-height: 18px; letter-spacing: 1px; }
+  .mobile-sheet-backdrop { position: fixed; z-index: 8; inset: 0; display: block; background: rgba(30,38,29,.35); }
+  .mobile-sheet { position: absolute; inset: auto 0 calc(64px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 140px); overflow: auto; padding: 16px 14px 14px; border-radius: 20px 20px 0 0; background: #fbfbf8; box-shadow: 0 -12px 40px rgba(24,34,22,.18); }
+  .mobile-sheet-kitchen { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; margin-bottom: 14px; padding: 10px 14px; border: 0; border-radius: 14px; color: #fff; background: var(--green-dark); text-align: left; cursor: pointer; }
+  .mobile-sheet-kitchen svg { flex: 0 0 auto; width: 26px; height: 26px; }
+  .mobile-sheet-kitchen span { display: grid; gap: 2px; }
+  .mobile-sheet-kitchen strong { font-size: 16px; }
+  .mobile-sheet-kitchen small { color: #d7e1c8; font-size: 12px; }
+  .mobile-sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .mobile-sheet-grid button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: #4d5a46; background: #fff; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+  .mobile-sheet-grid button span { flex: 1; min-width: 0; }
+  .mobile-sheet-grid button small { color: #9ca194; font-size: 12px; }
+  .mobile-sheet-grid button.active { border-color: var(--green); background: var(--sage); }
+  .mobile-sheet-menus { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; }
+  .mobile-sheet-menus > span { width: 100%; color: #8b9086; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+  .mobile-sheet-menus button { min-height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: #4d5a46; background: #fff; font-size: 13px; cursor: pointer; }
+  .mobile-sheet-menus button.active { border-color: var(--green); background: var(--sage); }
+  .mobile-sheet-foot { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .mobile-sheet-foot button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; color: #5d6857; background: #fff; font-size: 14px; cursor: pointer; }
+  .toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; max-width: none; font-size: 14px; }
+
+  /* Readable text: nothing below 11px on a phone. */
+  .page-subtitle { font-size: 13px; }
+  .eyebrow, .dialog-kicker { font-size: 10px; }
+  .filter-tab { font-size: 12px; }
+  .sort-tools select { max-width: 140px; min-height: 36px; font-size: 13px; }
+  .overview-label, .overview-foot { font-size: 10px; }
+  .card-title { font-size: 14px; }
+  .card-description { font-size: 12px; }
+  .card-stat, .card-cost small { font-size: 11px; }
+  .card-cost { font-size: 13px; }
+  .list-layout .card-flag { font-size: 10px; }
+  .card-action { width: 34px; height: 34px; }
+  .page-footer { font-size: 11px; }
+  .button { min-height: 42px; padding: 0 14px; font-size: 13px; }
+  .button-small, .button-quiet { min-height: 38px; font-size: 12px; }
+  .field-hint { font-size: 11px; }
+  .form-field > label, .field-label { font-size: 12px; }
+  .form-field input:not([type=checkbox]):not([type=file]), .form-field select, .form-field textarea { min-height: 44px; font-size: 16px; }
+  .form-check, .check-option { min-height: 40px; font-size: 13px; }
+  .menu-stats { grid-template-columns: repeat(3, 1fr); }
+  .menu-stats span { font-size: 10px; }
+  .menu-dishes li, .menu-note { font-size: 12px; }
+  .prep-card-tasks label { min-height: 40px; }
+  .stock-table th, .stock-table td { font-size: 12px; }
+  .stock-table input, .stock-table select { min-height: 40px; font-size: 16px; }
+}
+
+/* Dialogs fill the phone screen, with header and buttons always in view. */
+@media (max-width: 600px) {
+  .app-dialog, .app-dialog.dialog-narrow { width: 100%; max-width: none; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .dialog-header { padding: calc(12px + env(safe-area-inset-top)) 14px 12px; }
+  .dialog-header h2 { font-size: 19px; }
+  .dialog-header p { font-size: 12px; }
+  .dialog-close { width: 42px; height: 42px; font-size: 22px; }
+  .dialog-body { padding: 14px; }
+  .dialog-footer { flex-wrap: wrap; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); }
+  .dialog-footer-right { flex: 1; justify-content: flex-end; }
+  .dialog-footer .button-primary { flex: 1; min-height: 48px; font-size: 15px; }
+  .form-grid, .form-grid.cols-3, .form-grid.cols-4 { grid-template-columns: 1fr; }
+  .form-field.span-2, .form-field.span-3 { grid-column: auto; }
+  .editor-tabs { overflow-x: auto; }
+}
+
+/* Fingers, not mouse pointers: inputs at 16px so phones do not zoom in when one is tapped. */
+@media (pointer: coarse) {
+  input:not([type=checkbox]):not([type=radio]), select, textarea { font-size: max(16px, 1em); }
+  input[type=checkbox], input[type=radio] { width: 20px; height: 20px; }
+}
+
+/* Recipe list on a phone: the full name on up to two lines, then portions, allergens and cost. */
+@media (max-width: 600px) {
+  .category-chip { min-height: 36px; font-size: 13px; }
+  .list-layout .recipe-card { min-height: 0; }
+  .list-layout .card-cover { flex: 0 0 64px; min-height: 0; }
+  .list-layout .card-cover .cover-label, .list-layout .card-flag, .list-layout .cover-spot { display: none; }
+  .list-layout .card-menu { top: auto; right: auto; bottom: 8px; left: 50%; transform: translateX(-50%); }
+  .list-layout .card-more { width: 34px; height: 34px; }
+  .list-layout .card-cover .cover-art { margin-top: -18px; }
+  .list-layout .card-body { grid-template-columns: 1fr; gap: 4px; padding: 10px 12px; }
+  .list-layout .card-meta, .list-layout .card-title, .list-layout .card-footer { grid-column: 1; grid-row: auto; }
+  .list-layout .updated-label { display: none; }
+  .list-layout .card-title { display: -webkit-box; overflow: hidden; font-size: 15px; white-space: normal; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .list-layout .card-footer { justify-content: space-between; gap: 10px; }
+  .list-layout .card-stat { white-space: nowrap; }
+  .list-layout .card-cost { min-width: 0; white-space: nowrap; }
+}
+
+/* Wide tables scroll inside their own box instead of widening the page. */
+@media (max-width: 780px) {
+  .content-wrap > *, .content-wrap section, .content-wrap section > *, .content-wrap section > * > * { min-width: 0; }
+  .perf-columns section, .safety-view .stock-table-wrap { overflow-x: auto; }
+  .category-strip { max-width: 100%; }
+}

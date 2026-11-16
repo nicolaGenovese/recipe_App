@@ -13,7 +13,8 @@ const TITLES: Record<ViewFilter, [string, string]> = {
   prep: ["Prep list", "Cosa preparare prima del servizio, piatto per piatto."],
   rota: ["Turni del personale", "Chi lavora e quando, settimana per settimana, con le ore calcolate da sole."],
   performance: ["Andamento della cucina", "Vendite, GP teorico e reale, sprechi e costo del personale, settimana per settimana."],
-  safety: ["Sicurezza alimentare", "Temperature, cotture, consegne e checklist: i registri da mostrare all'ispettore sanitario."]
+  safety: ["Sicurezza alimentare", "Temperature, cotture, consegne e checklist: i registri da mostrare all'ispettore sanitario."],
+  kitchen: ["Modalità cucina", ""]
 };
 
 export function PageIntro() {

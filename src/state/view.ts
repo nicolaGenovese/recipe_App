@@ -1,7 +1,7 @@
 // What the user is looking at. Kept apart from the data so filters survive saves and reloads of data.
 
 /** "menu" shows the dishes of one menu (`menuId`) or of every active menu; "menus" and "prep" are their own pages. */
-export type ViewFilter = "all" | "menu" | "archive" | "stock" | "menus" | "prep" | "rota" | "safety" | "performance";
+export type ViewFilter = "all" | "menu" | "archive" | "stock" | "menus" | "prep" | "rota" | "safety" | "performance" | "kitchen";
 export type RecipeSort = "updated" | "name" | "cost-high" | "cost-low" | "category";
 export type StockTab = "reports" | "deliveries" | "inventory";
 export type InventorySortKey = "code" | "name" | "supplier" | "unit" | "par" | "stock" | "reorder" | "status" | "cost" | "value";
