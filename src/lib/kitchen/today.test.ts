@@ -38,12 +38,12 @@ describe("kitchen screen", () => {
     expect(uncheckedDeliveries(rows, [checkOf("done")], "2026-11-16").map((row) => row.id)).toEqual(["b", "a"]);
   });
 
-  it("opens in kitchen mode on touch screens unless left in this session", () => {
-    const start = { link: false, stored: false, touch: false, leftThisSession: false };
-    expect(opensInKitchen(start)).toBe(false);
-    expect(opensInKitchen({ ...start, touch: true })).toBe(true);
-    expect(opensInKitchen({ ...start, touch: true, leftThisSession: true })).toBe(false);
-    expect(opensInKitchen({ ...start, stored: true })).toBe(true);
-    expect(opensInKitchen({ ...start, link: true, leftThisSession: true })).toBe(true);
+  it("opens in kitchen mode on touch screens until the device chooses otherwise", () => {
+    expect(opensInKitchen({ link: false, stored: "", touch: false })).toBe(false);
+    expect(opensInKitchen({ link: false, stored: "", touch: true })).toBe(true);
+    expect(opensInKitchen({ link: false, stored: "0", touch: true })).toBe(false);
+    expect(opensInKitchen({ link: false, stored: "1", touch: false })).toBe(true);
+    expect(opensInKitchen({ link: true, stored: "0", touch: false })).toBe(true);
   });
+
 });

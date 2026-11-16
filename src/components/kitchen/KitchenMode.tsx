@@ -7,7 +7,7 @@ import { KitchenDeliveries } from "@/components/kitchen/KitchenDeliveries";
 import { KitchenPrep } from "@/components/kitchen/KitchenPrep";
 import { KitchenTemperatures } from "@/components/kitchen/KitchenTemperatures";
 import { readStored, store, useNow, useWakeLock } from "@/components/kitchen/parts";
-import { KITCHEN_KEY, KITCHEN_LEFT_KEY, kitchenPrepLists, slotOf, uncheckedDeliveries } from "@/lib/kitchen/today";
+import { KITCHEN_KEY, kitchenPrepLists, slotOf, uncheckedDeliveries } from "@/lib/kitchen/today";
 import { dateKey } from "@/lib/num";
 import { missingToday } from "@/lib/safety/rules";
 import { staffNames } from "@/lib/safety/staff";
@@ -41,11 +41,8 @@ export function KitchenMode() {
   const pending = uncheckedDeliveries(data.stockDeliveries, data.safetyLogs, today).length;
 
   const pickBy = (name: string) => { setBy(name); store(BY_KEY, name); };
-  // Leaving keeps a phone out of kitchen mode until the app is closed; it opens there again next time.
-  const leave = () => {
-    store(KITCHEN_KEY, null);
-    try { window.sessionStorage.setItem(KITCHEN_LEFT_KEY, "1"); } catch { /* No storage: the next reload opens kitchen mode again. */ }
-  };
+  // Leaving is remembered on this device: it opens in the normal app until kitchen mode is chosen again.
+  const leave = () => store(KITCHEN_KEY, "0");
   const exit = () => { leave(); setView({ filter: "all", menuId: null }); };
 
   const todo = (count: number): Badge => ({ count, tone: count ? "todo" : "done" });

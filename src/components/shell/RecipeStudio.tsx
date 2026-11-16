@@ -14,7 +14,7 @@ import { RotaView } from "@/components/rota/RotaView";
 import { SafetyView } from "@/components/safety/SafetyView";
 import { PerformanceView } from "@/components/performance/PerformanceView";
 import { KitchenMode } from "@/components/kitchen/KitchenMode";
-import { KITCHEN_KEY, KITCHEN_LEFT_KEY, opensInKitchen } from "@/lib/kitchen/today";
+import { KITCHEN_KEY, opensInKitchen } from "@/lib/kitchen/today";
 import { Toast } from "@/components/ui/bits";
 import { useApp } from "@/state/AppProvider";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
@@ -31,11 +31,10 @@ export function RecipeStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
-  // Phones and tablets open in kitchen mode, as do a tablet left in it and links ending in ?cucina.
+  // Phones and tablets open in kitchen mode until someone leaves it on that device; links ending in ?cucina always do.
   useEffect(() => {
     let stored = "";
-    let left = "";
-    try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; left = window.sessionStorage.getItem(KITCHEN_LEFT_KEY) ?? ""; } catch { /* No storage: decide from the device. */ }
+    try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; } catch { /* No storage: decide from the device. */ }
     const params = new URLSearchParams(window.location.search);
     const link = params.has("cucina") || params.has("kitchen");
     if (link) {
@@ -44,7 +43,7 @@ export function RecipeStudio() {
       window.history.replaceState(null, "", window.location.pathname);
     }
     const touch = window.matchMedia("(pointer: coarse) and (hover: none)").matches;
-    if (opensInKitchen({ link, stored: stored === "1", touch, leftThisSession: left === "1" })) setView({ filter: "kitchen" });
+    if (opensInKitchen({ link, stored, touch })) setView({ filter: "kitchen" });
   }, [setView]);
 
   // ⌘K / Ctrl+K jumps to the search box.

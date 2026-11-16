@@ -5,7 +5,7 @@ import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon
 import { availabilityLabel, dayNames } from "@/lib/menus/availability";
 import { sortMenus } from "@/lib/menus/menus";
 import { localeFor } from "@/lib/i18n";
-import { KITCHEN_KEY, KITCHEN_LEFT_KEY } from "@/lib/kitchen/today";
+import { KITCHEN_KEY } from "@/lib/kitchen/today";
 import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
@@ -38,7 +38,7 @@ export function Sidebar() {
   const goFromSheet = (change: Partial<ViewState>) => { setMoreOpen(false); go(change); };
   const enterKitchen = () => {
     setMoreOpen(false);
-    try { window.localStorage.setItem(KITCHEN_KEY, "1"); window.sessionStorage.removeItem(KITCHEN_LEFT_KEY); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
+    try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
     setView({ filter: "kitchen" });
   };
   const logout = async () => { await fetch("/api/logout", { method: "POST" }); window.location.assign("/login"); };

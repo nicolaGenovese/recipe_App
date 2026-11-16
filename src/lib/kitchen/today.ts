@@ -1,17 +1,17 @@
 import { addDays } from "@/lib/num";
 import type { ChecklistKind, ChecklistLog, PrepList, SafetyLog, StockDelivery, TemperatureLog } from "@/lib/types";
 
-/** Browser storage key: set while a tablet stays in kitchen mode, so a reload opens it again. */
-export const KITCHEN_KEY = "recipe-studio:kitchen";
-/** Session storage key: set when someone leaves kitchen mode, so a phone stays out of it until the app is closed. */
-export const KITCHEN_LEFT_KEY = "recipe-studio:kitchen-left";
-
 /**
- * Whether the app opens in kitchen mode: from a ?cucina link, on a tablet left in kitchen mode, or
- * by default on phones and tablets (touch screens), unless kitchen mode was left in this session.
+ * Browser storage key for the device's choice: "1" after entering kitchen mode, "0" after leaving it.
+ * Without a choice, phones and tablets start in kitchen mode and computers do not.
  */
-export function opensInKitchen(start: { link: boolean; stored: boolean; touch: boolean; leftThisSession: boolean }): boolean {
-  return start.link || start.stored || (start.touch && !start.leftThisSession);
+export const KITCHEN_KEY = "recipe-studio:kitchen";
+
+/** Whether the app opens in kitchen mode: a ?cucina link always does, then the device's choice, then the kind of screen. */
+export function opensInKitchen(start: { link: boolean; stored: string; touch: boolean }): boolean {
+  if (start.link) return true;
+  if (start.stored === "1" || start.stored === "0") return start.stored === "1";
+  return start.touch;
 }
 
 
