@@ -114,7 +114,14 @@
 
 /* Wide tables scroll inside their own box instead of widening the page. */
 @media (max-width: 780px) {
-  .content-wrap > *, .content-wrap section, .content-wrap section > *, .content-wrap section > * > * { min-width: 0; }
+  /* :where() keeps this at zero specificity, so a table with its own min-width (the rota) keeps it and scrolls. */
+  :where(.content-wrap > *, .content-wrap section, .content-wrap section > *, .content-wrap section > * > *) { min-width: 0; }
+  /* On the rota the staff names stay in view while the days scroll. */
+  .rota-table th:first-child, .rota-table td:first-child { position: sticky; z-index: 2; left: 0; background: #fff; box-shadow: 1px 0 0 #e7e8e1; }
+  .rota-table th:first-child { width: 128px; }
+  .rota-table thead th:first-child { background: #f5f6f1; }
+  .rota-table tfoot th:first-child { background: #f2f4ec; }
+  .rota-current h2 { font-size: 15px; }
   .perf-columns section, .safety-view .stock-table-wrap { overflow-x: auto; }
   .category-strip { max-width: 100%; }
 }
