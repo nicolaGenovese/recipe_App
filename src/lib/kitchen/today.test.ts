@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checklistItems, flipSign, kitchenPrepLists, slotOf, todaysChecklist, uncheckedDeliveries } from "@/lib/kitchen/today";
+import { opensInKitchen, checklistItems, flipSign, kitchenPrepLists, slotOf, todaysChecklist, uncheckedDeliveries } from "@/lib/kitchen/today";
 import type { ChecklistLog, DeliveryCheckLog, PrepList, StockDelivery } from "@/lib/types";
 
 const list = (id: string, date: string): PrepList => ({ id, name: id, date, menuIds: [], portions: {}, tasks: [], createdAt: "", updatedAt: "" });
@@ -36,5 +36,14 @@ describe("kitchen screen", () => {
     const checkOf = (deliveryId: string): DeliveryCheckLog => ({ id: "c" + deliveryId, kind: "delivery", deliveryId, date: "2026-11-16", time: "", by: "", ok: true, supplier: "S", chilledTemperature: null, frozenTemperature: null, packagingOk: true, datesOk: true, rejected: "", createdAt: "", updatedAt: "" });
     const rows = [delivery("old", "2026-11-10"), delivery("a", "2026-11-14"), delivery("b", "2026-11-16"), delivery("done", "2026-11-16"), delivery("future", "2026-11-17")];
     expect(uncheckedDeliveries(rows, [checkOf("done")], "2026-11-16").map((row) => row.id)).toEqual(["b", "a"]);
+  });
+
+  it("opens in kitchen mode on touch screens unless left in this session", () => {
+    const start = { link: false, stored: false, touch: false, leftThisSession: false };
+    expect(opensInKitchen(start)).toBe(false);
+    expect(opensInKitchen({ ...start, touch: true })).toBe(true);
+    expect(opensInKitchen({ ...start, touch: true, leftThisSession: true })).toBe(false);
+    expect(opensInKitchen({ ...start, stored: true })).toBe(true);
+    expect(opensInKitchen({ ...start, link: true, leftThisSession: true })).toBe(true);
   });
 });

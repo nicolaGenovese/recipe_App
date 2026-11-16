@@ -14,7 +14,7 @@ import { RotaView } from "@/components/rota/RotaView";
 import { SafetyView } from "@/components/safety/SafetyView";
 import { PerformanceView } from "@/components/performance/PerformanceView";
 import { KitchenMode } from "@/components/kitchen/KitchenMode";
-import { KITCHEN_KEY } from "@/lib/kitchen/today";
+import { KITCHEN_KEY, KITCHEN_LEFT_KEY, opensInKitchen } from "@/lib/kitchen/today";
 import { Toast } from "@/components/ui/bits";
 import { useApp } from "@/state/AppProvider";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
@@ -31,17 +31,20 @@ export function RecipeStudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
-  // A tablet left in kitchen mode, or opened from a link ending in ?cucina, starts there.
+  // Phones and tablets open in kitchen mode, as do a tablet left in it and links ending in ?cucina.
   useEffect(() => {
     let stored = "";
-    try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; } catch { /* No storage: start normally. */ }
+    let left = "";
+    try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; left = window.sessionStorage.getItem(KITCHEN_LEFT_KEY) ?? ""; } catch { /* No storage: decide from the device. */ }
     const params = new URLSearchParams(window.location.search);
-    if (params.has("cucina") || params.has("kitchen")) {
+    const link = params.has("cucina") || params.has("kitchen");
+    if (link) {
       try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* No storage: kitchen mode lasts until reload. */ }
       // Drop ?cucina from the address, so leaving kitchen mode and reloading does not bring it back.
       window.history.replaceState(null, "", window.location.pathname);
-      setView({ filter: "kitchen" });
-    } else if (stored === "1") setView({ filter: "kitchen" });
+    }
+    const touch = window.matchMedia("(pointer: coarse) and (hover: none)").matches;
+    if (opensInKitchen({ link, stored: stored === "1", touch, leftThisSession: left === "1" })) setView({ filter: "kitchen" });
   }, [setView]);
 
   // ⌘K / Ctrl+K jumps to the search box.
