@@ -1,4 +1,5 @@
 // Browser-side calls to the API routes. Errors carry the server message, translated by the caller.
+import type { InvoiceImage, ScannedInvoice } from "@/lib/invoices/scan";
 import type { AppState, Health, Menu, PrepList, RotaWeek, SafetyLog, SalesWeek, WasteLog, Recipe, Settings, StockDelivery, StockItem, StockReport } from "@/lib/types";
 
 export class ApiError extends Error {}
@@ -26,6 +27,7 @@ export const api = {
   deleteReport: (id: string) => remove("/api/stock/reports/" + encodeURIComponent(id)),
   saveDelivery: (delivery: StockDelivery) => post<StockDelivery>("/api/stock/deliveries", delivery),
   deleteDelivery: (id: string) => remove("/api/stock/deliveries/" + encodeURIComponent(id)),
+  scanInvoice: (files: InvoiceImage[], suppliers: string[]) => post<ScannedInvoice>("/api/invoices/scan", { files, suppliers }),
   saveMenu: (menu: Menu) => post<Menu>("/api/menus", menu),
   deleteMenu: (id: string) => remove("/api/menus/" + encodeURIComponent(id)),
   savePrepList: (list: PrepList) => post<PrepList>("/api/prep-lists", list),

@@ -158,6 +158,8 @@ export interface StockItem {
   kcal: number;
   parLevel?: number;
   note?: string;
+  /** Product texts read on this supplier's invoices and confirmed as this product. */
+  invoiceNames?: string[];
   stockCount?: StockCount;
   [extra: string]: unknown;
 }
@@ -405,4 +407,6 @@ export interface Health {
   storage: StorageMode;
   connected: boolean;
   error: string | null;
+  /** AI service that reads invoice photos, or null when none is configured. */
+  invoiceReader?: string | null;
 }

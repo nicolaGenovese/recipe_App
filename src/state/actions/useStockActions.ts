@@ -8,6 +8,7 @@ import { inventoryRow, nextStockCode } from "@/lib/stock/inventory";
 import { draftReport, latestSubmitted } from "@/lib/stock/report";
 import { findStockItemByName, stockSources } from "@/lib/stock/sources";
 import { FREE, recipesUsing } from "@/lib/recipes/catalog";
+import { withInvoiceName } from "@/lib/invoices/match";
 import type { StockDelivery, StockItem, StockReport } from "@/lib/types";
 import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
@@ -24,6 +25,8 @@ export interface DeliveryInput {
   invoiceAmount: string;
   rows: DeliveryRowInput[];
   updatePrices: boolean;
+  /** Invoice texts read by the scanner, with the product name each row ended up with. */
+  invoiceNames?: { name: string; text: string }[];
 }
 
 export function useStockActions() {
@@ -197,6 +200,15 @@ export function useStockActions() {
     }
   }
 
+  /** The next scan of this supplier's invoice recognises these texts straight away. */
+  async function rememberInvoiceNames(pairs: { name: string; text: string }[]) {
+    for (const pair of pairs) {
+      const item = findStockItemByName(current().stockItems, pair.name);
+      const names = item ? withInvoiceName(item, pair.text) : null;
+      if (item && names) await saveItem({ ...item, invoiceNames: names });
+    }
+  }
+
   async function saveDelivery(input: DeliveryInput) {
     const { invoiceNumber, date, supplier } = input;
     if (!invoiceNumber || !date) { notify(t("Inserisci numero fattura e data."), true); return; }
@@ -220,6 +232,7 @@ export function useStockActions() {
     });
     update((data) => ({ ...data, stockDeliveries: upsert(data.stockDeliveries, delivery) }));
     const prices = input.updatePrices ? await updateProductPrices(delivery) : new Map<string, number>();
+    await rememberInvoiceNames(input.invoiceNames || []);
     await syncRecipeCosts();
     await syncDraftWithDeliveries(prices);
     closeDialog();

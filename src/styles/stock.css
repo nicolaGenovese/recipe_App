@@ -50,8 +50,15 @@
 .stock-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
 .stock-delivery-wrap { margin-top: 16px; }
 .stock-delivery-lines td:first-child { min-width: 220px; }
-.stock-delivery-lines input[data-delivery-name] { width: 100%; }
+.stock-delivery-lines input[data-delivery-name], .stock-delivery-lines td:first-child input { width: 100%; }
 .stock-delivery-lines input:disabled { color: #7d8478; background: #f5f6f1; }
+.invoice-scan { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; padding: 10px 12px; border: 1px dashed #cfd8c2; border-radius: 10px; background: #fafaf7; }
+.invoice-scan .field-hint { flex: 1; min-width: 200px; margin: 0; }
+.scan-note { display: block; margin-top: 3px; overflow: hidden; color: #7d8478; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+.scan-note.check { color: #a3593f; }
+.scan-note.new { color: #3f6fa3; }
+.stock-delivery-lines tr.scan-check td { background: #fdf6f0; }
+.stock-delivery-lines tr.scan-new td { background: #f2f6fb; }
 .stock-add-line { margin: 10px 0 18px; }
 .stock-delivery-totals { align-items: start; margin-bottom: 14px; }
 .stock-pick-head, .stock-pick-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) 100px 80px 130px; align-items: center; gap: 10px; }

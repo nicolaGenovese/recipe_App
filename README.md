@@ -55,6 +55,7 @@ L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto
 - **Variabili su Vercel** (Project → Settings → Environment Variables):
   - `DATABASE_URL`: impostata dall'integrazione Neon (Project → Storage).
   - `APP_PASSWORD`: la password condivisa della cucina. Va scelta e inserita a mano. Cambiarla scollega tutti, che dovranno rientrare con la nuova password.
+  - `GEMINI_API_KEY` (facoltativa): attiva la scansione delle fatture in Food Stock → Consegne. Si crea gratis su [Google AI Studio](https://aistudio.google.com). `GEMINI_MODEL` cambia modello; `INVOICE_READER` sceglie il servizio (oggi `gemini`, oppure `demo` per provare in locale una fattura di esempio). Per usare un altro servizio basta aggiungere un lettore in `src/lib/server/invoices/readers.ts`.
 - **Database:** le tabelle si creano da sole alla prima visita.
 
 ## Comandi

@@ -1,23 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill, Datalist, TextField } from "@/components/ui/Field";
+import { matchLine, matchSupplier, type MatchStatus } from "@/lib/invoices/match";
+import { prepareInvoiceFiles } from "@/lib/invoices/upload";
 import { dateKey, newId, num } from "@/lib/num";
+import { api } from "@/state/api";
 import { isDeliveryClosed } from "@/lib/stock/deliveries";
 import { findStockItemByName } from "@/lib/stock/sources";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { useStockActions } from "@/state/actions/useStockActions";
 
-interface Row { key: string; name: string; quantity: string; price: string }
+/** What the scanner read for a row: the printed text, how sure the match was and the name it suggested. */
+interface RowScan { text: string; status: MatchStatus; suggested: string; oldPrice: number | null }
+
+interface Row { key: string; name: string; quantity: string; price: string; scan?: RowScan }
 
 const blankRow = (): Row => ({ key: newId(), name: "", quantity: "", price: "" });
 
 /** Goods received with an invoice. Quantities add to the open report and to stock on hand. */
 export function StockDeliveryDialog({ id }: { id?: string }) {
-  const { data, closeDialog, openDialog, f, t } = useApp();
+  const { data, closeDialog, openDialog, notify, health, f, t, fmt } = useApp();
   const guard = useGuard();
   const { saveDelivery, deleteDelivery } = useStockActions();
   const base = id ? data.stockDeliveries.find((row) => row.id === id) ?? null : null;
@@ -31,6 +37,11 @@ export function StockDeliveryDialog({ id }: { id?: string }) {
   const [rows, setRows] = useState<Row[]>(() => base?.lines.length
     ? base.lines.map((line) => ({ key: newId(), name: line.name, quantity: String(line.quantity), price: String(line.price) }))
     : [blankRow(), blankRow(), blankRow()]);
+
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanNote, setScanNote] = useState("");
+  const canScan = Boolean(health?.invoiceReader) && !closed;
 
   const suppliers = Array.from(new Set(data.stockItems.map((row) => row.supplier).filter(Boolean)));
   // Suggest the supplier's products first, or everything when the supplier has none yet.
@@ -46,16 +57,64 @@ export function StockDeliveryDialog({ id }: { id?: string }) {
       const item = findStockItemByName(data.stockItems, change.name);
       const before = findStockItemByName(data.stockItems, row.name);
       if (item && item.id !== before?.id) {
-        next.price = String(num(item.price));
+        // A row read from the invoice keeps the invoice price.
+        if (!row.scan) next.price = String(num(item.price));
         if (!supplier.trim() && item.supplier) setSupplier(item.supplier);
       }
       return next;
     }));
   }
 
+  /** Reads the photos, fills the header and replaces the empty rows with the invoice lines, matched to products. */
+  async function scan(files: File[]) {
+    if (!files.length) return;
+    setScanning(true);
+    setScanNote("");
+    try {
+      const invoice = await api.scanInvoice(await prepareInvoiceFiles(files), suppliers);
+      const who = matchSupplier(invoice.supplier, suppliers) || supplier;
+      if (invoice.invoiceNumber) setInvoiceNumber(invoice.invoiceNumber);
+      if (invoice.date) setDate(invoice.date);
+      if (who) setSupplier(who);
+      if (invoice.netTotal !== null) setInvoiceAmount(String(invoice.netTotal));
+      const read: Row[] = invoice.lines.map((line) => {
+        const match = matchLine(line, who, data.stockItems);
+        const name = match.item?.name ?? line.description;
+        return {
+          key: newId(), name, quantity: String(line.quantity), price: String(line.unitPrice),
+          scan: { text: line.description, status: match.status, suggested: name, oldPrice: match.priceChanged ? num(match.item?.price) : null }
+        };
+      });
+      setRows((old) => [...old.filter((row) => row.name.trim() || row.quantity.trim()), ...read]);
+      const toCheck = read.filter((row) => row.scan?.status === "check" || row.scan?.oldPrice !== null).length;
+      const created = read.filter((row) => row.scan?.status === "new").length;
+      setScanNote(read.length
+        ? fmt(t("Lette {0} righe: {1} da verificare, {2} prodotti nuovi. Controlla tutto prima di salvare."), read.length, toCheck, created)
+        : t("Nessuna riga letta: prova con una foto più nitida o inserisci le righe a mano."));
+    } catch (error) {
+      notify(t(error instanceof Error ? error.message : "Operazione non riuscita."), true);
+    } finally {
+      setScanning(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  }
+
+  /** Status shown under a scanned row; a name the user changed counts as checked. */
+  function scanState(row: Row): { kind: "ok" | "check" | "new"; label: string } | null {
+    if (!row.scan) return null;
+    const item = findStockItemByName(data.stockItems, row.name);
+    const read = fmt(t("letto: “{0}”"), row.scan.text);
+    if (!item) return { kind: "new", label: t("Prodotto nuovo, verrà creato") + " · " + read };
+    const changedPrice = row.scan.oldPrice !== null && row.name === row.scan.suggested;
+    if (row.scan.status === "check" && row.name === row.scan.suggested) return { kind: "check", label: t("Verifica il prodotto") + " · " + read };
+    if (changedPrice) return { kind: "check", label: fmt(t("Prezzo diverso dall'ultimo ({0})"), f.money(row.scan.oldPrice!)) + " · " + read };
+    return { kind: "ok", label: read };
+  }
+
   const submit = guard(() => saveDelivery({
     base, invoiceNumber: invoiceNumber.trim(), date: date.trim(), supplier: supplier.trim(), invoiceAmount: invoiceAmount.trim(), updatePrices,
-    rows: rows.map((row) => ({ name: row.name.trim(), quantity: num(row.quantity), price: num(row.price) }))
+    rows: rows.map((row) => ({ name: row.name.trim(), quantity: num(row.quantity), price: num(row.price) })),
+    invoiceNames: rows.filter((row) => row.scan && row.name.trim()).map((row) => ({ name: row.name.trim(), text: row.scan!.text }))
   }));
 
   return (
@@ -65,6 +124,15 @@ export function StockDeliveryDialog({ id }: { id?: string }) {
       <form id="stockDeliveryForm" onSubmit={(event) => { event.preventDefault(); void submit(); }}>
         <fieldset className="stock-fieldset" disabled={closed}>
           <div className="dialog-body">
+            {canScan ? (
+              <div className="invoice-scan">
+                <input ref={fileInput} type="file" accept="image/*,application/pdf" multiple hidden onChange={(event) => void scan(Array.from(event.target.files || []))} />
+                <button className="button button-secondary" type="button" disabled={scanning} onClick={() => fileInput.current?.click()}>
+                  {scanning ? t("Lettura della fattura…") : t("📷 Scansiona fattura")}
+                </button>
+                <span className="field-hint">{scanNote || t("Foto o PDF, fino a 5 pagine: compilo testata e righe, tu controlli e salvi.")}</span>
+              </div>
+            ) : null}
             <div className="form-grid cols-3">
               <TextField label={t("N° fattura *")} name="invoiceNumber" value={invoiceNumber} onChange={setInvoiceNumber} />
               <TextField label={t("Data consegna *")} name="date" type="date" value={date} onChange={setDate} />
@@ -76,9 +144,13 @@ export function StockDeliveryDialog({ id }: { id?: string }) {
                 <tbody>
                   {rows.map((row) => {
                     const item = findStockItemByName(data.stockItems, row.name);
+                    const state = scanState(row);
                     return (
-                      <tr key={row.key}>
-                        <td><input list="stockDeliveryProducts" value={row.name} aria-label={t("Prodotto")} onChange={(event) => changeRow(row.key, { name: event.target.value })} /></td>
+                      <tr key={row.key} className={state ? "scan-" + state.kind : undefined}>
+                        <td>
+                          <input list="stockDeliveryProducts" value={row.name} aria-label={t("Prodotto")} onChange={(event) => changeRow(row.key, { name: event.target.value })} />
+                          {state ? <small className={"scan-note " + state.kind}>{state.kind === "ok" ? "✓ " : state.kind === "check" ? "⚠ " : "＋ "}{state.label}</small> : null}
+                        </td>
                         <td><input type="number" min="0" step="0.01" value={row.quantity} aria-label={t("Quantità ricevuta")} onChange={(event) => changeRow(row.key, { quantity: event.target.value })} /></td>
                         <td>{t(item?.unitOfSale || "")}</td>
                         <td><input type="number" min="0" step="0.01" value={row.price} aria-label={t("Prezzo")} onChange={(event) => changeRow(row.key, { price: event.target.value })} /></td>
