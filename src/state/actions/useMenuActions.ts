@@ -2,11 +2,12 @@
 
 import { assignRecipeToMenus } from "@/lib/menus/menus";
 import { newId, upsert } from "@/lib/num";
-import type { Menu } from "@/lib/types";
+import { normalizeAvailability } from "@/lib/menus/availability";
+import type { Menu, MenuAvailability } from "@/lib/types";
 import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
 
-export interface MenuInput { id?: string; name: string; description: string; active: boolean; recipeIds: string[] }
+export interface MenuInput { id?: string; name: string; description: string; active: boolean; recipeIds: string[]; availability?: MenuAvailability }
 
 export function useMenuActions() {
   const { current, update, notify, t, fmt, closeDialog, view, setView } = useApp();
@@ -21,8 +22,9 @@ export function useMenuActions() {
     if (!input.name.trim()) { notify(t("Inserisci il nome del menu."), true); return; }
     const old = input.id ? current().menus.find((menu) => menu.id === input.id) : undefined;
     const now = new Date().toISOString();
+    const availability = normalizeAvailability(input.availability);
     await persistMenu({ ...old, id: old?.id ?? newId(), name: input.name.trim(), description: input.description.trim(), active: input.active,
-      recipeIds: input.recipeIds, createdAt: old?.createdAt ?? now, updatedAt: now });
+      recipeIds: input.recipeIds, availability, createdAt: old?.createdAt ?? now, updatedAt: now });
     closeDialog();
     notify(t(old ? "Menu salvato." : "Menu creato."));
   }

@@ -2,12 +2,15 @@
 
 import { useState, type ReactNode } from "react";
 import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon } from "@/components/ui/icons";
+import { availabilityLabel, dayNames } from "@/lib/menus/availability";
 import { sortMenus } from "@/lib/menus/menus";
+import { localeFor } from "@/lib/i18n";
 import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
 export function Sidebar() {
-  const { data, view, setView, openDialog, health, t, accessProtected } = useApp();
+  const { data, view, setView, openDialog, health, t, accessProtected, language } = useApp();
+  const dayName = dayNames(localeFor(language));
   const { recipes } = data;
   const items: [ViewFilter, string, ReactNode, number][] = [
     ["all", t("Tutte le ricette"), <GridIcon key="i" />, recipes.length],
@@ -58,7 +61,8 @@ export function Sidebar() {
               ) : null}
             </div>
             {filter === "menus" && showMenus ? <div id="sidebarMenus" className="nav-submenu">{menuLinks.map((menu) => (
-              <button key={menu.id} className={"nav-item nav-sub" + (view.filter === "menu" && view.menuId === menu.id ? " active" : "")} type="button" onClick={() => go({ filter: "menu", menuId: menu.id })}>
+              <button key={menu.id} className={"nav-item nav-sub" + (view.filter === "menu" && view.menuId === menu.id ? " active" : "")} type="button" onClick={() => go({ filter: "menu", menuId: menu.id })}
+                title={availabilityLabel(menu, dayName, t("Tutti i giorni")) || undefined}>
                 <span className="nav-icon" aria-hidden="true">·</span>
                 <span>{menu.name}</span><span className="nav-count">{menu.recipeIds.filter((id) => recipes.some((recipe) => recipe.id === id)).length}</span>
               </button>

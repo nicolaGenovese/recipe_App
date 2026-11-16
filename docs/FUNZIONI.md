@@ -17,6 +17,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 ### Menu
 
 - Più menu nella stessa cucina (oggi: Main menu, Pizza menu, Sunday Roast Menu), ognuno con nome, descrizione, stato attivo o sospeso e piatti in ordine di servizio.
+- Disponibilità di ogni menu: giorni della settimana e una o più fasce orarie (anche oltre la mezzanotte). La scheda del menu mostra quando è servito e se è disponibile in questo momento; senza giorni né orari il menu è sempre disponibile.
 - Lo stesso piatto può stare in più menu; la scelta si fa dal menu o dalla scheda del piatto.
 - Per ogni menu: piatti, costo e prezzo medi, food cost, margine medio, piatti senza prezzo.
 - Per ogni menu: quanti piatti hanno gli allergeni da controllare, e la matrice allergeni da stampare (A4 orizzontale): un piatto per riga, i 14 allergeni in colonna, ● contiene, ○ può contenere, stato del controllo e avviso se qualche piatto non è controllato.

@@ -1,6 +1,8 @@
 "use client";
 
+import { availabilityLabel, dayNames, isAvailableAt } from "@/lib/menus/availability";
 import { menuDishes, menuStats } from "@/lib/menus/menus";
+import { localeFor } from "@/lib/i18n";
 import { menuAllergenSummary } from "@/lib/recipes/allergens";
 import type { Menu } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
@@ -10,12 +12,13 @@ import { useMenuActions } from "@/state/actions/useMenuActions";
 const PREVIEW = 6;
 
 export function MenuCard({ menu }: { menu: Menu }) {
-  const { data, gpRules, setView, openDialog, f, t, fmt } = useApp();
+  const { data, gpRules, setView, openDialog, f, t, fmt, language } = useApp();
   const guard = useGuard();
   const { toggleActive } = useMenuActions();
   const dishes = menuDishes(menu, data.recipes);
   const stats = menuStats(menu, data.recipes, gpRules);
   const allergenCheck = menuAllergenSummary(dishes, data.stockItems, data.recipes);
+  const when = availabilityLabel(menu, dayNames(localeFor(language)), t("Tutti i giorni"));
   const lowMargin = stats.dishes > stats.unpriced && stats.averageMargin < gpRules.defaultMarginTarget;
 
   return (
@@ -25,6 +28,12 @@ export function MenuCard({ menu }: { menu: Menu }) {
           <span className={"menu-status" + (menu.active ? " on" : "")}>{t(menu.active ? "Attivo" : "Sospeso")}</span>
           <h3>{menu.name}</h3>
           {menu.description ? <p>{menu.description}</p> : null}
+          {when ? (
+            <span className="menu-when">
+              <span>{when}</span>
+              {menu.active ? <span className={"menu-now" + (isAvailableAt(menu.availability, new Date()) ? " on" : "")}>{t(isAvailableAt(menu.availability, new Date()) ? "Disponibile ora" : "Non disponibile ora")}</span> : null}
+            </span>
+          ) : null}
         </div>
         <button className="card-more" type="button" onClick={() => openDialog({ kind: "menuEditor", id: menu.id })} aria-label={t("Modifica menu")}>···</button>
       </header>

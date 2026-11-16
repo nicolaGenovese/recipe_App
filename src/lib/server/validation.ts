@@ -1,3 +1,4 @@
+import { normalizeAvailability } from "@/lib/menus/availability";
 import { normalizeSettings } from "@/lib/settings";
 import type { ChecklistKind, CookingProcess, Menu, PrepList, PrepTask, RotaWeek, SafetyLog, SalesWeek, WasteLog, WasteReason, Recipe, Settings, StockDelivery, StockItem, StockReport } from "@/lib/types";
 import { num } from "@/lib/num";
@@ -68,9 +69,11 @@ const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filt
 export function parseMenu(value: unknown): Menu {
   if (!isObject(value) || !isValidId(value.id) || typeof value.name !== "string" || !value.name.trim()) throw new HttpError(400, "Il menu deve avere un nome.");
   const now = new Date().toISOString();
+  const availability = normalizeAvailability(value.availability);
   return {
     id: value.id, name: value.name.trim(), description: typeof value.description === "string" ? value.description : "",
     active: value.active !== false, recipeIds: Array.from(new Set(strings(value.recipeIds))),
+    ...(availability ? { availability } : {}),
     createdAt: typeof value.createdAt === "string" && value.createdAt ? value.createdAt : now, updatedAt: now
   };
 }

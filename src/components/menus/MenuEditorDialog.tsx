@@ -4,7 +4,10 @@ import { useState } from "react";
 import { MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill, TextField } from "@/components/ui/Field";
+import { availabilityLabel, dayNames, normalizeAvailability, WEEK_DAYS } from "@/lib/menus/availability";
 import { menuDishes, menuStats } from "@/lib/menus/menus";
+import { localeFor } from "@/lib/i18n";
+import type { MenuSlot } from "@/lib/types";
 import { newId } from "@/lib/num";
 import { margin, portionCost } from "@/lib/recipes/math";
 import { useApp } from "@/state/AppProvider";
@@ -14,7 +17,7 @@ import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** Create or edit a menu: name, status and the dishes in serving order. */
 export function MenuEditorDialog({ id }: { id?: string }) {
-  const { data, gpRules, closeDialog, notify, f, t, fmt } = useApp();
+  const { data, gpRules, closeDialog, notify, f, t, fmt, language } = useApp();
   const guard = useGuard();
   const { saveMenu, deleteMenu } = useMenuActions();
   const { saveRecipe } = useRecipeActions();
@@ -25,6 +28,14 @@ export function MenuEditorDialog({ id }: { id?: string }) {
   const [active, setActive] = useState(base?.active ?? true);
   // Ids of deleted recipes are dropped as soon as the menu is opened.
   const [recipeIds, setRecipeIds] = useState(() => menuDishes(base ?? { recipeIds: [] }, data.recipes).map((recipe) => recipe.id));
+  // No days ticked means every day; no hours means all day.
+  const [days, setDays] = useState<number[]>(base?.availability?.days ?? []);
+  const [slots, setSlots] = useState<MenuSlot[]>(base?.availability?.slots ?? []);
+  const dayName = dayNames(localeFor(language));
+  const toggleDay = (day: number) => setDays((old) => (old.includes(day) ? old.filter((other) => other !== day) : [...old, day].sort()));
+  const setSlot = (index: number, change: Partial<MenuSlot>) => setSlots((old) => old.map((slot, at) => (at === index ? { ...slot, ...change } : slot)));
+  const incomplete = slots.some((slot) => !slot.from || !slot.to || slot.from === slot.to);
+  const summary = availabilityLabel({ availability: normalizeAvailability({ days, slots }) }, dayName, t("Tutti i giorni"));
   const [query, setQuery] = useState("");
   const [showBases, setShowBases] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -67,7 +78,10 @@ export function MenuEditorDialog({ id }: { id?: string }) {
     return next;
   });
 
-  const submit = guard(() => saveMenu({ id: base?.id, name, description, active, recipeIds }));
+  const submit = guard(async () => {
+    if (incomplete) { notify(t("Completa le fasce orarie: inizio e fine, diversi tra loro."), true); return; }
+    await saveMenu({ id: base?.id, name, description, active, recipeIds, availability: { days, slots } });
+  });
 
   return (
     <Dialog size="wide">
@@ -79,6 +93,27 @@ export function MenuEditorDialog({ id }: { id?: string }) {
             <TextField label={t("Descrizione")} name="menuDescription" value={description} onChange={setDescription} placeholder={t("Es. Solo domenica a pranzo")} />
           </div>
           <CheckPill checked={active} onChange={setActive}>{t("Menu attivo: i suoi piatti contano come “in menu”")}</CheckPill>
+
+          <fieldset className="menu-availability">
+            <legend>{t("Disponibilità")}</legend>
+            <div className="menu-days" role="group" aria-label={t("Giorni")}>
+              {WEEK_DAYS.map((day) => (
+                <button key={day} type="button" className={"menu-day" + (days.includes(day) ? " on" : "")} aria-pressed={days.includes(day)} onClick={() => toggleDay(day)}>{dayName(day)}</button>
+              ))}
+            </div>
+            <div className="menu-slots">
+              {slots.map((slot, index) => (
+                <span className="menu-slot" key={index}>
+                  <input type="time" value={slot.from} onChange={(event) => setSlot(index, { from: event.target.value })} aria-label={t("Dalle")} required />
+                  <span aria-hidden="true">–</span>
+                  <input type="time" value={slot.to} onChange={(event) => setSlot(index, { to: event.target.value })} aria-label={t("Alle")} required />
+                  <button className="card-action" type="button" onClick={() => setSlots((old) => old.filter((_, at) => at !== index))} aria-label={t("Rimuovi fascia oraria")}>×</button>
+                </span>
+              ))}
+              <button type="button" className="button button-quiet button-small" onClick={() => setSlots((old) => [...old, old.length ? { from: "18:00", to: "22:00" } : { from: "12:00", to: "15:00" }])}>{t("+ Fascia oraria")}</button>
+            </div>
+            <p className="field-hint">{summary ? fmt(t("Servito: {0}"), summary) : t("Sempre disponibile. Scegli i giorni e aggiungi le fasce orarie se il menu è servito solo in certi momenti.")}</p>
+          </fieldset>
 
           <div className="pill-metrics menu-editor-metrics">
             <MetricTile label={t("Piatti")}>{stats.dishes}</MetricTile>

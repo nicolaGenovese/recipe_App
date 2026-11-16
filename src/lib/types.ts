@@ -219,6 +219,12 @@ export interface StockDelivery {
   lines: DeliveryLine[];
 }
 
+/** A time window in 24-hour "HH:MM"; one that ends before it starts runs past midnight. */
+export interface MenuSlot { from: string; to: string }
+
+/** When a menu is served: weekdays (Monday = 0 … Sunday = 6, empty = every day) and hours (empty = all day). */
+export interface MenuAvailability { days: number[]; slots: MenuSlot[] }
+
 /** One menu served by the kitchen (main menu, pizza menu, Sunday roast…). Dishes are kept in menu order. */
 export interface Menu {
   id: string;
@@ -227,6 +233,8 @@ export interface Menu {
   /** Inactive menus stay in the archive but their dishes no longer count as "on the menu". */
   active: boolean;
   recipeIds: string[];
+  /** Days and hours the menu is served; missing means always. */
+  availability?: MenuAvailability;
   createdAt: string;
   updatedAt: string;
 }

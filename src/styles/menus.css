@@ -25,6 +25,19 @@
 .menu-dishes .menu-more { color: #9ba095; font-style: italic; }
 .menu-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
 
+.menu-availability { display: grid; gap: 8px; margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafaf7; }
+.menu-availability legend { padding: 0 4px; color: #4d5a46; font-size: 12px; font-weight: 600; }
+.menu-availability .field-hint { margin: 0; }
+.menu-days { display: flex; flex-wrap: wrap; gap: 4px; }
+.menu-day { min-width: 44px; min-height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px; color: #6b7366; background: #fff; font-size: 11px; font-weight: 560; cursor: pointer; }
+.menu-day.on { border-color: var(--green); color: #fff; background: var(--green); }
+.menu-slots { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.menu-slot { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.menu-slot input { min-height: 28px; padding: 0 4px; border: 0; background: transparent; font: inherit; font-size: 12px; }
+.menu-when { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; color: #6b7366; font-size: 11px; }
+.menu-now { display: inline-flex; align-items: center; min-height: 18px; padding: 0 7px; border-radius: 999px; color: #8a8f84; background: var(--soft); font-size: 10px; font-weight: 600; }
+.menu-now.on { color: var(--green-dark); background: var(--sage); }
+
 .menu-pick-list { display: grid; gap: 6px; }
 .menu-editor-metrics { margin: 14px 0; }
 .menu-editor { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
