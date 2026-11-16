@@ -59,6 +59,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Checklist di apertura, chiusura e pulizie, con chi ha fatto ogni voce.
 - Avviso dei controlli che mancano oggi; azione correttiva obbligatoria se un controllo è fuori limite; registro stampabile per periodo.
 - Limiti e voci delle checklist modificabili (valori predefiniti UK Safer Food, Better Business).
+- Foto delle temperature: accanto a ogni temperatura (frigoriferi, cotture, abbattimenti, consegne) si scatta la foto del termometro o del display. La foto viene ridotta sul telefono, salvata a parte (non rallenta l'app) e si apre dal registro con l'icona 📷. In Impostazioni della sicurezza alimentare si può rendere obbligatoria: senza foto la registrazione non si salva. Le foto sostituite o di registrazioni eliminate vengono cancellate.
 
 ### Andamento
 
@@ -73,7 +74,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Online su Vercel con database Neon; in locale anche su file JSON. Backup e importazione JSON, CSV delle ricette.
 - Accesso protetto da una password condivisa.
 - Interfaccia in italiano e inglese, pensata anche per il telefono: barra in basso con Ricette, Menu, Prep list, Sicurezza e "Altro" (tutte le altre pagine, i menu, la modalità cucina e le impostazioni), finestre a tutto schermo, testi e pulsanti più grandi, tabelle che scorrono nel loro riquadro. Si può aggiungere alla schermata Home del telefono o del tablet.
-- Modalità cucina per tablet (barra laterale → Modalità cucina, oppure l'indirizzo con `?cucina`): schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Tre schede con il conteggio di cosa manca: prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
+- Modalità cucina per tablet (barra laterale → Modalità cucina, oppure l'indirizzo con `?cucina`): schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Cinque schede con il conteggio di cosa manca: prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) cottura, abbattimento, rigenerazione e mantenimento (con i piatti controllati di recente a un tocco), controllo merce in arrivo (parte dalle consegne di Food Stock ancora senza controllo) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Ogni temperatura ha la sua foto; i controlli di oggi si toccano per correggerli. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
 
 ## Da implementare
 

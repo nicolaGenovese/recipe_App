@@ -16,6 +16,9 @@ export interface RecordMap {
   salesWeeks: SalesWeek;
 }
 
+/** A photo kept apart from the records: base64 bytes and their type. Records only hold its id. */
+export interface StoredPhoto { mimeType: string; data: string }
+
 export interface StoreHealth {
   connected: boolean;
   error: string | null;
@@ -31,4 +34,8 @@ export interface Store {
   saveSettings(settings: Settings): Promise<Settings>;
   saveRecord<K extends RecordKind>(kind: K, record: RecordMap[K]): Promise<RecordMap[K]>;
   deleteRecord(kind: RecordKind, id: string): Promise<void>;
+  /** Photos are not part of getState, so the app loads fast however many there are. */
+  savePhoto(id: string, photo: StoredPhoto): Promise<void>;
+  getPhoto(id: string): Promise<StoredPhoto | null>;
+  deletePhoto(id: string): Promise<void>;
 }

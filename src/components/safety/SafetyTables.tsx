@@ -2,6 +2,7 @@
 
 import { CHECKLIST_LABELS } from "@/components/safety/ChecklistDialog";
 import { PROCESS_LABELS } from "@/components/safety/CookingDialog";
+import { PhotoLink } from "@/components/safety/PhotoButton";
 import { rangeText } from "@/components/safety/TemperatureDialog";
 import { logsBetween } from "@/lib/safety/rules";
 import type { DeliveryCheckLog } from "@/lib/types";
@@ -37,7 +38,7 @@ export function TemperatureTable({ from, to, print }: TableProps) {
             <td>{t(log.slot === "am" ? "Mattina" : "Sera")}</td>
             {equipment.map((item) => {
               const reading = log.readings.find((row) => row.equipmentId === item.id);
-              return <td key={item.id} className={reading && !reading.ok ? "safety-out" : ""}>{temp(reading?.value)}</td>;
+              return <td key={item.id} className={reading && !reading.ok ? "safety-out" : ""}>{temp(reading?.value)} <PhotoLink id={reading?.photoId} /></td>;
             })}
             <td>{log.by}</td>
             <td>{log.action || "—"}</td>
@@ -61,7 +62,7 @@ export function CookingTable({ from, to, print }: TableProps) {
             <td>{f.stockDate(log.date)} {log.time}</td>
             <td>{t(PROCESS_LABELS[log.process])}</td>
             <td>{log.item}</td>
-            <td>{log.process === "cool" && log.startTemperature !== null && log.startTemperature !== undefined ? temp(log.startTemperature) + " → " : ""}{temp(log.temperature)}</td>
+            <td>{log.process === "cool" && log.startTemperature !== null && log.startTemperature !== undefined ? <>{temp(log.startTemperature)} <PhotoLink id={log.startPhotoId} /> → </> : null}{temp(log.temperature)} <PhotoLink id={log.photoId} /></td>
             <td>{log.process === "cool" ? (log.startTime || "?") + "–" + (log.endTime || "?") : "—"}</td>
             <td><Status ok={log.ok} /></td>
             <td>{log.by}</td>
@@ -100,8 +101,8 @@ export function DeliveryChecksTable({ from, to, print }: TableProps) {
               <td>{f.stockDate(log.date)} {log.time}</td>
               <td>{log.supplier || "—"}</td>
               <td>{log.invoiceNumber || "—"}</td>
-              <td>{temp(log.chilledTemperature)}</td>
-              <td>{temp(log.frozenTemperature)}</td>
+              <td>{temp(log.chilledTemperature)} <PhotoLink id={log.chilledPhotoId} /></td>
+              <td>{temp(log.frozenTemperature)} <PhotoLink id={log.frozenPhotoId} /></td>
               <td>{t(log.packagingOk ? "OK" : "No")}</td>
               <td>{t(log.datesOk ? "OK" : "No")}</td>
               <td>{log.rejected || "—"}</td>

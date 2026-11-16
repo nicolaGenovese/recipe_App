@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { checklistItems, flipSign, kitchenPrepLists, slotOf, todaysChecklist } from "@/lib/kitchen/today";
-import type { ChecklistLog, PrepList } from "@/lib/types";
+import { checklistItems, flipSign, kitchenPrepLists, slotOf, todaysChecklist, uncheckedDeliveries } from "@/lib/kitchen/today";
+import type { ChecklistLog, DeliveryCheckLog, PrepList, StockDelivery } from "@/lib/types";
 
 const list = (id: string, date: string): PrepList => ({ id, name: id, date, menuIds: [], portions: {}, tasks: [], createdAt: "", updatedAt: "" });
 const check = (id: string, date: string, updatedAt: string): ChecklistLog => ({ id, kind: "checklist", list: "opening", date, time: "", by: "", ok: true, items: [], createdAt: "", updatedAt });
@@ -29,5 +29,12 @@ describe("kitchen screen", () => {
     expect(flipSign("18")).toBe("-18");
     expect(flipSign("-18")).toBe("18");
     expect(flipSign("")).toBe("-");
+  });
+
+  it("lists recent deliveries without a check", () => {
+    const delivery = (id: string, date: string): StockDelivery => ({ id, date, invoiceNumber: id, supplier: "S", invoiceAmount: null, createdAt: date, lines: [] });
+    const checkOf = (deliveryId: string): DeliveryCheckLog => ({ id: "c" + deliveryId, kind: "delivery", deliveryId, date: "2026-11-16", time: "", by: "", ok: true, supplier: "S", chilledTemperature: null, frozenTemperature: null, packagingOk: true, datesOk: true, rejected: "", createdAt: "", updatedAt: "" });
+    const rows = [delivery("old", "2026-11-10"), delivery("a", "2026-11-14"), delivery("b", "2026-11-16"), delivery("done", "2026-11-16"), delivery("future", "2026-11-17")];
+    expect(uncheckedDeliveries(rows, [checkOf("done")], "2026-11-16").map((row) => row.id)).toEqual(["b", "a"]);
   });
 });

@@ -7,11 +7,13 @@
 .kitchen-who { display: grid; gap: 4px; color: #5d6857; font-size: 12px; font-weight: 600; }
 .kitchen-who select { min-width: 200px; min-height: 52px; padding: 0 14px; border: 2px solid #d5dccb; border-radius: 12px; color: var(--ink); background: #fff; font-size: 18px; font-weight: 600; }
 .kitchen-exit { min-height: 52px; padding: 0 18px; border: 1px solid var(--line); border-radius: 12px; color: #6d7468; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-.kitchen-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-.kitchen-tab { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 68px; padding: 0 12px; border: 2px solid #dfe3d7; border-radius: 16px; color: #4d5a46; background: #fff; font-size: clamp(16px, 2.4vw, 21px); font-weight: 700; cursor: pointer; }
+.kitchen-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 18px; }
+.kitchen-tab { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; min-height: 68px; padding: 6px 10px; line-height: 1.15; text-align: center; border: 2px solid #dfe3d7; border-radius: 16px; color: #4d5a46; background: #fff; font-size: clamp(14px, 1.9vw, 19px); font-weight: 700; cursor: pointer; }
 .kitchen-tab.active { border-color: var(--green-dark); color: #fff; background: var(--green-dark); }
 .kitchen-badge { display: inline-grid; min-width: 30px; height: 30px; place-items: center; padding: 0 8px; border-radius: 999px; color: #fff; background: #c2552d; font-size: 15px; }
 .kitchen-badge.done { color: var(--green-dark); background: var(--lime); }
+.kitchen-badge.info { color: #4d5a46; background: #e4e7de; }
+.kitchen-tab.active .kitchen-badge.info { color: var(--green-dark); background: #fff; }
 .kitchen-body { flex: 1; }
 .kitchen-card { margin-bottom: 18px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
 .kitchen-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
@@ -45,7 +47,7 @@
 .kitchen-segment button { flex: 1; min-height: 56px; border: 2px solid #dfe3d7; border-radius: 12px; color: #4d5a46; background: #fff; font-size: 17px; font-weight: 650; cursor: pointer; }
 .kitchen-segment button.active { border-color: var(--green); color: var(--green-dark); background: var(--sage); }
 .kitchen-readings { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
-.kitchen-reading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 2px solid #e4e7de; border-radius: 14px; background: #fff; }
+.kitchen-reading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 2px solid #e4e7de; border-radius: 14px; background: #fff; }
 .kitchen-reading.ok { border-color: #bcd0a5; background: #f4f8ee; }
 .kitchen-reading.out { border-color: #e2a48e; background: #fdf3ef; }
 .kitchen-reading-name { display: grid; gap: 4px; font-size: 18px; font-weight: 650; }
@@ -55,6 +57,52 @@
 .kitchen-sign { width: 48px; min-height: 56px; border: 2px solid #e4e7de; border-radius: 12px; color: #5d6857; background: #fafaf7; font-size: 22px; cursor: pointer; }
 .kitchen-action { display: grid; gap: 6px; margin-top: 14px; padding: 14px; border: 2px solid #e2a48e; border-radius: 14px; color: #8b3f2a; background: #fdf3ef; font-size: 15px; }
 .kitchen-action textarea { min-height: 90px; padding: 10px 12px; border: 1px solid #e3c4b8; border-radius: 10px; font-size: 16px; }
+.kitchen-segment.wrap { flex-wrap: wrap; }
+.kitchen-segment.wrap button { flex: 1 1 140px; }
+.kitchen-field { display: grid; gap: 6px; margin-bottom: 14px; }
+.kitchen-field label { color: #5d6857; font-size: 14px; font-weight: 650; }
+.kitchen-field input, .kitchen-field textarea { width: 100%; min-height: 56px; padding: 0 14px; border: 2px solid #d5dccb; border-radius: 12px; color: var(--ink); background: #fff; font-size: 19px; }
+.kitchen-field textarea { min-height: 84px; padding: 10px 14px; font-size: 16px; }
+.kitchen-times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.kitchen-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.kitchen-chips button { min-height: 44px; padding: 0 16px; border: 1px solid #d5dccb; border-radius: 999px; color: #4d5a46; background: #fff; font-size: 15px; cursor: pointer; }
+.kitchen-chips button.active { border-color: var(--green); background: var(--sage); }
+.kitchen-pending { margin-bottom: 16px; padding: 12px 14px; border: 2px dashed #e2a48e; border-radius: 14px; background: #fdf6f2; }
+.kitchen-pending h3, .kitchen-today h3 { margin: 0 0 8px; color: #5d6857; font-size: 15px; }
+.kitchen-editing { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; color: #4d5a46; background: var(--sage); }
+.kitchen-yesno { margin: 14px 0; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.kitchen-task.off { border-color: #e2a48e; background: #fdf3ef; }
+.kitchen-task.off .kitchen-check { border-color: #c2552d; color: #c2552d; font-size: 20px; }
+.kitchen-task strong.no-strike { color: var(--ink) !important; text-decoration: none !important; }
+.kitchen-today { margin-top: 22px; }
+.kitchen-today ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.kitchen-today button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-align: left; cursor: pointer; }
+.kitchen-today button.active { border-color: var(--green); background: var(--sage); }
+.kitchen-today-time { color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; }
+.kitchen-today-main { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.kitchen-today-main strong { font-size: 16px; }
+.kitchen-today-main small { overflow: hidden; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.kitchen-today .safety-status { font-size: 12px; }
+
+/* Temperature photos: a camera button next to each reading, the photo once taken. */
+.photo-button { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
+.photo-take { display: inline-grid; min-width: 32px; height: 32px; place-items: center; padding: 0 6px; border: 1px dashed #cfd8c2; border-radius: 8px; background: #fafaf7; font-size: 15px; cursor: pointer; }
+.photo-button.needed .photo-take { border: 2px solid #c2552d; background: #fdf3ef; }
+.photo-thumb { display: block; width: 36px; height: 36px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; }
+.photo-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.photo-action { width: 26px; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 7px; color: #6d7468; background: #fff; font-size: 14px; cursor: pointer; }
+.photo-button.big .photo-take { display: inline-flex; gap: 6px; min-width: 96px; height: 56px; padding: 0 14px; border-width: 2px; border-radius: 12px; font-size: 22px; }
+.photo-button.big .photo-take span { font-size: 16px; font-weight: 650; color: #4d5a46; }
+.photo-button.big .photo-thumb { width: 56px; height: 56px; border-radius: 12px; }
+.photo-button.big .photo-action { width: 44px; height: 56px; border-radius: 12px; font-size: 20px; }
+.temp-with-photo { display: flex; align-items: center; gap: 8px; }
+.temp-with-photo .safety-temp { flex: 1; min-width: 0; }
+.photo-link { margin-left: 2px; text-decoration: none; }
+@media print { .photo-link { font-size: 9px; } }
+
+@media (max-width: 900px) {
+  .kitchen-tabs { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 600px) {
   .kitchen-head { gap: 10px; }
   .kitchen-who { order: 3; flex: 1 1 100%; }.kitchen-who select { width: 100%; min-width: 0; }
@@ -67,4 +115,7 @@
   .kitchen-qty { font-size: 20px; }
   .kitchen-readings { grid-template-columns: 1fr; }
   .kitchen-segment button { font-size: 15px; }
+  .kitchen-reading-input { width: 100%; }
+  .kitchen-reading-input input { flex: 1; width: auto; min-width: 0; }
+  .kitchen-times { grid-template-columns: 1fr; gap: 0; }
 }

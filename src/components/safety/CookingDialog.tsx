@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PhotoButton } from "@/components/safety/PhotoButton";
 import { ActionField, StaffField, TempInput, nowTime, tempText, tempValue } from "@/components/safety/fields";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, FieldShell, SelectField, TextField } from "@/components/ui/Field";
@@ -30,6 +31,9 @@ export function CookingDialog({ id, recipeId }: { id?: string; recipeId?: string
   const [startTime, setStartTime] = useState(base?.startTime ?? "");
   const [endTime, setEndTime] = useState(base?.endTime ?? "");
   const [startTemperature, setStartTemperature] = useState(tempText(base?.startTemperature));
+  const [photoId, setPhotoId] = useState(base?.photoId);
+  const [startPhotoId, setStartPhotoId] = useState(base?.startPhotoId);
+  const requirePhotos = Boolean(rules.requireTemperaturePhotos);
   const [by, setBy] = useState(base?.by ?? "");
   const [action, setAction] = useState(base?.action ?? "");
   const [notes, setNotes] = useState(base?.notes ?? "");
@@ -44,7 +48,8 @@ export function CookingDialog({ id, recipeId }: { id?: string; recipeId?: string
 
   const submit = guard(() => saveLog({
     id: base?.id, createdAt: base?.createdAt, kind: "cooking", date, time, process, item: item.trim(), recipeId: recipe?.id, temperature: draft.temperature,
-    ...(process === "cool" ? { startTime, endTime, startTemperature: tempValue(startTemperature) } : {}), by, action: failing ? action : "", notes
+    ...(photoId ? { photoId } : {}),
+    ...(process === "cool" ? { startTime, endTime, startTemperature: tempValue(startTemperature), ...(startPhotoId ? { startPhotoId } : {}) } : {}), by, action: failing ? action : "", notes
   }));
 
   return (
@@ -65,11 +70,19 @@ export function CookingDialog({ id, recipeId }: { id?: string; recipeId?: string
             <div className="form-grid cols-3 safety-cool">
               <TextField label={t("Inizio")} name="coolStart" value={startTime} onChange={setStartTime} placeholder="14:00" />
               <TextField label={t("Fine")} name="coolEnd" value={endTime} onChange={setEndTime} placeholder="15:20" />
-              <FieldShell label={t("Temperatura iniziale °C")} htmlFor="coolStartTemp"><TempInput value={startTemperature} onChange={setStartTemperature} label={t("Temperatura iniziale °C")} /></FieldShell>
+              <FieldShell label={t("Temperatura iniziale °C")} htmlFor="coolStartTemp">
+                <span className="temp-with-photo">
+                  <TempInput value={startTemperature} onChange={setStartTemperature} label={t("Temperatura iniziale °C")} />
+                  <PhotoButton value={startPhotoId} onChange={setStartPhotoId} label={t("Temperatura iniziale")} needed={requirePhotos && tempValue(startTemperature) !== null && !startPhotoId} />
+                </span>
+              </FieldShell>
             </div>
           ) : null}
           <FieldShell label={process === "cool" ? t("Temperatura finale °C *") : t("Temperatura al cuore °C *")} htmlFor="safetyTemp">
-            <TempInput value={temperature} onChange={setTemperature} invalid={failing} label={t("Temperatura °C")} />
+            <span className="temp-with-photo">
+              <TempInput value={temperature} onChange={setTemperature} invalid={failing} label={t("Temperatura °C")} />
+              <PhotoButton value={photoId} onChange={setPhotoId} label={t(process === "cool" ? "Temperatura finale" : "Temperatura al cuore")} needed={requirePhotos && draft.temperature !== null && !photoId} />
+            </span>
           </FieldShell>
           {failing ? <ActionField value={action} onChange={setAction} /> : null}
           <div className="form-grid">

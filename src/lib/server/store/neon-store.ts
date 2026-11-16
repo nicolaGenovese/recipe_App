@@ -25,6 +25,7 @@ async function ensureSchema(sql: Sql): Promise<void> {
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_waste_logs (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_sales_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_safety_logs (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
+  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_photos (id text PRIMARY KEY, mime_type text NOT NULL, data bytea NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`;
   await sql`CREATE TABLE IF NOT EXISTS recipe_studio_rota_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
   // A new database starts empty: only the default settings are written.
   const [settingsRows] = (await sql.transaction([sql`SELECT count(*)::int AS total FROM recipe_studio_settings WHERE id = 1`])) as { total: number }[][];
@@ -138,6 +139,20 @@ export function createNeonStore(connectionString: string): Store {
     async deleteRecord(kind, id) {
       await ready();
       await deleteRow(sql, kind, id);
+    },
+    async savePhoto(id, photo) {
+      await ready();
+      await sql`INSERT INTO recipe_studio_photos (id, mime_type, data) VALUES (${id}, ${photo.mimeType}, decode(${photo.data}, 'base64'))
+        ON CONFLICT (id) DO UPDATE SET mime_type = EXCLUDED.mime_type, data = EXCLUDED.data`;
+    },
+    async getPhoto(id) {
+      await ready();
+      const rows = (await sql`SELECT mime_type, encode(data, 'base64') AS data FROM recipe_studio_photos WHERE id = ${id}`) as { mime_type: string; data: string }[];
+      return rows[0] ? { mimeType: rows[0].mime_type, data: rows[0].data.replace(/\s/g, "") } : null;
+    },
+    async deletePhoto(id) {
+      await ready();
+      await sql`DELETE FROM recipe_studio_photos WHERE id = ${id}`;
     }
   };
 }

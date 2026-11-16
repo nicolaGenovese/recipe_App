@@ -129,6 +129,21 @@ const TIME = /^\d{1,2}:\d{2}$/;
  * A food safety record. Fields are cleaned per kind and "ok" is worked out again here from the
  * kitchen's limits, so a record can never claim to pass when its numbers do not.
  */
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+/** Photos are resized in the browser to well under this. */
+const MAX_PHOTO_CHARS = 3 * 1024 * 1024;
+
+/** A temperature photo as the browser sends it: id, image type and base64 bytes. */
+export function parsePhoto(value: unknown): { id: string; mimeType: string; data: string } {
+  if (!isObject(value) || !isValidId(value.id) || typeof value.mimeType !== "string" || !PHOTO_TYPES.includes(value.mimeType)
+    || typeof value.data !== "string" || !value.data || !/^[A-Za-z0-9+/]+=*$/.test(value.data)) throw new HttpError(400, "Foto non valida: usa una foto JPG, PNG o WEBP.");
+  if (value.data.length > MAX_PHOTO_CHARS) throw new HttpError(413, "Foto troppo grande.");
+  return { id: value.id, mimeType: value.mimeType, data: value.data };
+}
+
+/** A photo reference kept only when it is a valid id; the photo itself lives in its own store. */
+const photo = <K extends string>(key: K, value: unknown): Partial<Record<K, string>> => (isValidId(value) ? { [key]: value } as Record<K, string> : {});
+
 export function parseSafetyLog(value: unknown, settings: Settings): SafetyLog {
   if (!isObject(value) || !isValidId(value.id) || !DAY.test(String(value.date ?? "")) || !["temperature", "cooking", "delivery", "checklist"].includes(String(value.kind))) {
     throw new HttpError(400, "Registrazione non valida.");
@@ -143,18 +158,20 @@ export function parseSafetyLog(value: unknown, settings: Settings): SafetyLog {
   if (value.kind === "temperature") {
     const readings = Array.isArray(value.readings) ? value.readings.filter(isObject).slice(0, 50) : [];
     log = { ...base, kind: "temperature", slot: value.slot === "pm" ? "pm" : "am",
-      readings: readings.map((row) => ({ equipmentId: text(row.equipmentId, 80), name: text(row.name, 80), value: temperature(row.value), ok: true })) };
+      readings: readings.map((row) => ({ equipmentId: text(row.equipmentId, 80), name: text(row.name, 80), value: temperature(row.value), ok: true, ...photo("photoId", row.photoId) })) };
   } else if (value.kind === "cooking") {
     const process = (["cook", "cool", "reheat", "hotHold"].includes(String(value.process)) ? value.process : "cook") as CookingProcess;
     log = { ...base, kind: "cooking", process, item: text(value.item, 120), temperature: temperature(value.temperature),
       ...(isValidId(value.recipeId) ? { recipeId: value.recipeId } : {}),
-      ...(process === "cool" ? { startTime: text(value.startTime, 5), endTime: text(value.endTime, 5), startTemperature: temperature(value.startTemperature) } : {}) };
+      ...photo("photoId", value.photoId),
+      ...(process === "cool" ? { startTime: text(value.startTime, 5), endTime: text(value.endTime, 5), startTemperature: temperature(value.startTemperature), ...photo("startPhotoId", value.startPhotoId) } : {}) };
     if (!log.item) throw new HttpError(400, "Indica cosa è stato controllato.");
   } else if (value.kind === "delivery") {
     log = { ...base, kind: "delivery", supplier: text(value.supplier, 120), invoiceNumber: text(value.invoiceNumber, 60),
       ...(isValidId(value.deliveryId) ? { deliveryId: value.deliveryId } : {}),
       chilledTemperature: temperature(value.chilledTemperature), frozenTemperature: temperature(value.frozenTemperature),
-      packagingOk: value.packagingOk !== false, datesOk: value.datesOk !== false, rejected: text(value.rejected, 500) };
+      packagingOk: value.packagingOk !== false, datesOk: value.datesOk !== false, rejected: text(value.rejected, 500),
+      ...photo("chilledPhotoId", value.chilledPhotoId), ...photo("frozenPhotoId", value.frozenPhotoId) };
   } else {
     const list = (["opening", "closing", "cleaning"].includes(String(value.list)) ? value.list : "opening") as ChecklistKind;
     const items = Array.isArray(value.items) ? value.items.filter(isObject).slice(0, 80) : [];

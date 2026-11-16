@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CHECKLIST_LABELS } from "@/components/safety/ChecklistDialog";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
-import { TextAreaField, TextField } from "@/components/ui/Field";
+import { CheckPill, TextAreaField, TextField } from "@/components/ui/Field";
 import { clone, newId, num } from "@/lib/num";
 import type { ChecklistKind, Equipment, FoodSafetySettings } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
@@ -79,6 +79,13 @@ export function SafetySettingsDialog() {
                 onChange={(value) => setDraft((old) => ({ ...old, [key]: num(value) }))} />
             ))}
           </div>
+        </section>
+        <section className="form-section">
+          <h3 className="form-section-title">{t("Foto delle temperature")}</h3>
+          <CheckPill checked={Boolean(draft.requireTemperaturePhotos)} onChange={(value) => setDraft((old) => ({ ...old, requireTemperaturePhotos: value }))}>
+            {t("Foto obbligatoria per ogni temperatura (frigoriferi, cotture, abbattimenti e consegne)")}
+          </CheckPill>
+          <p className="field-hint">{t("Con l'opzione attiva una registrazione non si salva finché ogni temperatura scritta non ha la foto del termometro o del display. Senza, la foto resta facoltativa.")}</p>
         </section>
         <section className="form-section">
           <h3 className="form-section-title">{t("Voci delle checklist")} <small>{t("una per riga")}</small></h3>

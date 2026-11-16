@@ -113,6 +113,8 @@ export interface FoodSafetySettings {
   /** Shelf life used on a label when the base recipe has none. */
   defaultShelfLifeDays: number;
   checklists: Record<ChecklistKind, string[]>;
+  /** Every temperature written must come with a photo of the thermometer or display. */
+  requireTemperaturePhotos?: boolean;
 }
 
 export interface Settings {
@@ -305,7 +307,7 @@ interface SafetyLogBase {
 export interface TemperatureLog extends SafetyLogBase {
   kind: "temperature";
   slot: "am" | "pm";
-  readings: { equipmentId: string; name: string; value: number | null; ok: boolean }[];
+  readings: { equipmentId: string; name: string; value: number | null; ok: boolean; photoId?: string }[];
 }
 
 export type CookingProcess = "cook" | "cool" | "reheat" | "hotHold";
@@ -321,6 +323,9 @@ export interface CookingLog extends SafetyLogBase {
   startTime?: string;
   endTime?: string;
   startTemperature?: number | null;
+  /** Photos of the thermometer: the core (or final) temperature and, for cooling, the starting one. */
+  photoId?: string;
+  startPhotoId?: string;
 }
 
 export interface DeliveryCheckLog extends SafetyLogBase {
@@ -334,6 +339,8 @@ export interface DeliveryCheckLog extends SafetyLogBase {
   datesOk: boolean;
   /** Goods sent back, if any. */
   rejected: string;
+  chilledPhotoId?: string;
+  frozenPhotoId?: string;
 }
 
 export interface ChecklistLog extends SafetyLogBase {

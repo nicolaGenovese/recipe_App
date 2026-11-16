@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
       { id: "fridge-2", name: "Frigo 2", kind: "fridge", min: 0, max: 5 },
       { id: "freezer-1", name: "Congelatore 1", kind: "freezer", min: null, max: -18 }
     ],
-    cookMin: 75, reheatMin: 75, hotHoldMin: 63, coolTarget: 8, coolMinutes: 90, chilledDeliveryMax: 8, frozenDeliveryMax: -15, defaultShelfLifeDays: 3,
+    cookMin: 75, reheatMin: 75, hotHoldMin: 63, coolTarget: 8, coolMinutes: 90, chilledDeliveryMax: 8, frozenDeliveryMax: -15, defaultShelfLifeDays: 3, requireTemperaturePhotos: false,
     checklists: {
       opening: ["Frigoriferi e congelatori in temperatura", "Superfici di lavoro pulite e disinfettate", "Lavamani con sapone e carta", "Personale in salute e in divisa pulita", "Prodotti scaduti tolti dal servizio"],
       closing: ["Alimenti coperti, etichettati e in frigorifero", "Avanzi buttati o raffreddati ed etichettati", "Superfici e attrezzature pulite", "Pavimenti puliti e rifiuti portati fuori", "Gas, forni e friggitrici spenti"],

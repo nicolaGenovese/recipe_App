@@ -1,4 +1,5 @@
-import type { ChecklistKind, ChecklistLog, PrepList, SafetyLog, TemperatureLog } from "@/lib/types";
+import { addDays } from "@/lib/num";
+import type { ChecklistKind, ChecklistLog, PrepList, SafetyLog, StockDelivery, TemperatureLog } from "@/lib/types";
 
 /** Browser storage key: set while a tablet stays in kitchen mode, so a reload opens it again. */
 export const KITCHEN_KEY = "recipe-studio:kitchen";
@@ -43,3 +44,11 @@ export function checklistItems(settingsItems: string[], record?: Pick<ChecklistL
 
 /** Flips the sign of a typed temperature, for keypads without a minus key ("4" → "-4", "-18" → "18"). */
 export const flipSign = (value: string) => (value.trim() === "" ? "-" : value.startsWith("-") ? value.slice(1) : "-" + value);
+
+/** Deliveries entered in Food Stock in the last three days that nobody has checked yet, newest first. */
+export function uncheckedDeliveries(deliveries: StockDelivery[], logs: SafetyLog[], today: string): StockDelivery[] {
+  const checked = new Set(logs.flatMap((log) => (log.kind === "delivery" && log.deliveryId ? [log.deliveryId] : [])));
+  const from = addDays(today, -2);
+  return deliveries.filter((delivery) => delivery.date >= from && delivery.date <= today && !checked.has(delivery.id))
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+}

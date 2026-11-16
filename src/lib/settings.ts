@@ -27,7 +27,8 @@ export function normalizeSettings(raw: Partial<Settings> | null | undefined, rot
     foodSafety: {
       ...base.foodSafety, ...safety,
       equipment: Array.isArray(safety.equipment) ? safety.equipment.filter((row) => row && typeof row.id === "string" && row.id).map(cleanEquipment) : base.foodSafety.equipment,
-      checklists: { ...base.foodSafety.checklists, ...(safety.checklists || {}) }
+      checklists: { ...base.foodSafety.checklists, ...(safety.checklists || {}) },
+      requireTemperaturePhotos: safety.requireTemperaturePhotos === true
     }
   };
 }

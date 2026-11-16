@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PhotoButton } from "@/components/safety/PhotoButton";
 import { ActionField, StaffField, TempInput, nowTime, tempText, tempValue } from "@/components/safety/fields";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill, FieldShell, TextAreaField, TextField } from "@/components/ui/Field";
@@ -29,6 +30,9 @@ export function DeliveryCheckDialog({ id, deliveryId }: { id?: string; deliveryI
   const [packagingOk, setPackagingOk] = useState(base?.packagingOk ?? true);
   const [datesOk, setDatesOk] = useState(base?.datesOk ?? true);
   const [rejected, setRejected] = useState(base?.rejected ?? "");
+  const [chilledPhotoId, setChilledPhotoId] = useState(base?.chilledPhotoId);
+  const [frozenPhotoId, setFrozenPhotoId] = useState(base?.frozenPhotoId);
+  const requirePhotos = Boolean(rules.requireTemperaturePhotos);
   const [by, setBy] = useState(base?.by ?? "");
   const [action, setAction] = useState(base?.action ?? "");
   const [notes, setNotes] = useState(base?.notes ?? "");
@@ -38,7 +42,8 @@ export function DeliveryCheckDialog({ id, deliveryId }: { id?: string; deliveryI
 
   const submit = guard(() => saveLog({
     id: base?.id, createdAt: base?.createdAt, kind: "delivery", date, time, deliveryId: delivery?.id, supplier: supplier.trim(), invoiceNumber: invoiceNumber.trim(),
-    ...draft, rejected, by, action: failing ? action : "", notes
+    ...draft, rejected, by, action: failing ? action : "", notes,
+    ...(chilledPhotoId ? { chilledPhotoId } : {}), ...(frozenPhotoId ? { frozenPhotoId } : {})
   }));
 
   return (
@@ -53,10 +58,16 @@ export function DeliveryCheckDialog({ id, deliveryId }: { id?: string; deliveryI
             <TextField label={t("Data")} name="safetyDate" type="date" value={date} onChange={setDate} />
             <TextField label={t("Ora")} name="safetyTime" value={time} onChange={setTime} placeholder="08:30" />
             <FieldShell label={t("Refrigerati °C")} htmlFor="safetyChilled" hint={t("Lascia vuoto se non ce ne sono.")}>
-              <TempInput value={chilled} onChange={setChilled} invalid={draft.chilledTemperature !== null && draft.chilledTemperature > rules.chilledDeliveryMax} label={t("Refrigerati °C")} />
+              <span className="temp-with-photo">
+                <TempInput value={chilled} onChange={setChilled} invalid={draft.chilledTemperature !== null && draft.chilledTemperature > rules.chilledDeliveryMax} label={t("Refrigerati °C")} />
+                <PhotoButton value={chilledPhotoId} onChange={setChilledPhotoId} label={t("Refrigerati")} needed={requirePhotos && draft.chilledTemperature !== null && !chilledPhotoId} />
+              </span>
             </FieldShell>
             <FieldShell label={t("Surgelati °C")} htmlFor="safetyFrozen" hint={t("Lascia vuoto se non ce ne sono.")}>
-              <TempInput value={frozen} onChange={setFrozen} invalid={draft.frozenTemperature !== null && draft.frozenTemperature > rules.frozenDeliveryMax} label={t("Surgelati °C")} />
+              <span className="temp-with-photo">
+                <TempInput value={frozen} onChange={setFrozen} invalid={draft.frozenTemperature !== null && draft.frozenTemperature > rules.frozenDeliveryMax} label={t("Surgelati °C")} />
+                <PhotoButton value={frozenPhotoId} onChange={setFrozenPhotoId} label={t("Surgelati")} needed={requirePhotos && draft.frozenTemperature !== null && !frozenPhotoId} />
+              </span>
             </FieldShell>
           </div>
           <div className="form-checks safety-checks">

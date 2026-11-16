@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PhotoButton } from "@/components/safety/PhotoButton";
 import { ActionField, StaffField, TempInput, nowTime, tempText, tempValue } from "@/components/safety/fields";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { SelectField, TextField } from "@/components/ui/Field";
@@ -37,7 +38,14 @@ export function TemperatureDialog({ id }: { id?: string }) {
     .concat((base?.readings ?? []).filter((reading) => !equipment.some((item) => item.id === reading.equipmentId)).map((reading) => ({ equipmentId: reading.equipmentId, name: reading.name, item: { min: null, max: null } as Equipment })));
   const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries((base?.readings ?? []).map((reading) => [reading.equipmentId, tempText(reading.value)])));
 
-  const readings = rows.map((row) => ({ equipmentId: row.equipmentId, name: row.name, value: tempValue(values[row.equipmentId] ?? ""), ok: readingOk(tempValue(values[row.equipmentId] ?? ""), row.item) }));
+  const [photos, setPhotos] = useState<Record<string, string | undefined>>(() => Object.fromEntries((base?.readings ?? []).map((reading) => [reading.equipmentId, reading.photoId])));
+  const requirePhotos = Boolean(data.settings.foodSafety.requireTemperaturePhotos);
+
+  const readings = rows.map((row) => {
+    const value = tempValue(values[row.equipmentId] ?? "");
+    const photoId = photos[row.equipmentId];
+    return { equipmentId: row.equipmentId, name: row.name, value, ok: readingOk(value, row.item), ...(photoId ? { photoId } : {}) };
+  });
   const failing = readings.some((reading) => !reading.ok);
 
   const submit = guard(() => saveLog({ id: base?.id, createdAt: base?.createdAt, kind: "temperature", date, time, slot, by, action: failing ? action : "", notes, readings }));
@@ -53,13 +61,15 @@ export function TemperatureDialog({ id }: { id?: string }) {
             <TextField label={t("Ora")} name="safetyTime" value={time} onChange={setTime} placeholder="09:00" />
           </div>
           <table className="stock-table safety-readings">
-            <thead><tr><th>{t("Apparecchio")}</th><th>{t("Limite")}</th><th>{t("Temperatura °C")}</th></tr></thead>
+            <thead><tr><th>{t("Apparecchio")}</th><th>{t("Limite")}</th><th>{t("Temperatura °C")}</th><th>{t(requirePhotos ? "Foto *" : "Foto")}</th></tr></thead>
             <tbody>
               {readings.map((reading, index) => (
                 <tr key={reading.equipmentId} className={reading.ok ? "" : "safety-bad"}>
                   <td>{t(reading.name)}</td>
                   <td>{rangeText(rows[index].item)}</td>
                   <td><TempInput value={values[reading.equipmentId] ?? ""} invalid={!reading.ok} label={reading.name} onChange={(value) => setValues((old) => ({ ...old, [reading.equipmentId]: value }))} /></td>
+                  <td><PhotoButton value={photos[reading.equipmentId]} label={t(reading.name)} needed={requirePhotos && reading.value !== null && !photos[reading.equipmentId]}
+                    onChange={(id) => setPhotos((old) => ({ ...old, [reading.equipmentId]: id }))} /></td>
                 </tr>
               ))}
             </tbody>

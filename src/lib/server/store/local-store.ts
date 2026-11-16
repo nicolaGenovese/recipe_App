@@ -1,9 +1,9 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
 import type { AppData } from "@/lib/types";
-import type { RecordKind, Store } from "@/lib/server/store/types";
+import type { RecordKind, Store, StoredPhoto } from "@/lib/server/store/types";
 
 const LIST_KEYS = {
   items: "stockItems", reports: "stockReports", deliveries: "stockDeliveries", menus: "menus", prepLists: "prepLists", rotaWeeks: "rotaWeeks", safetyLogs: "safetyLogs", wasteLogs: "wasteLogs", salesWeeks: "salesWeeks"
@@ -59,6 +59,9 @@ function upsertById<T extends { id: string }>(list: T[], saved: T): void {
   else list.unshift(saved);
 }
 
+/** Photos sit in a "photos" folder next to the archive, one small JSON file each. */
+const photoFile = (file: string, id: string) => path.join(path.dirname(file), "photos", id + ".json");
+
 export function createLocalStore(file = localDataFile()): Store {
   // Changes run one after another, so two quick saves cannot overwrite each other.
   let queue: Promise<unknown> = Promise.resolve();
@@ -84,6 +87,19 @@ export function createLocalStore(file = localDataFile()): Store {
     deleteRecord: (kind, id) => change((data) => {
       const key = LIST_KEYS[kind];
       (data[key] as { id: string }[]) = (data[key] as { id: string }[]).filter((row) => row.id !== id);
-    })
+    }),
+    async savePhoto(id, photo) {
+      const target = photoFile(file, id);
+      await mkdir(path.dirname(target), { recursive: true });
+      await writeFile(target + ".tmp", JSON.stringify(photo), "utf8");
+      await rename(target + ".tmp", target);
+    },
+    async getPhoto(id) {
+      try { return JSON.parse(await readFile(photoFile(file, id), "utf8")) as StoredPhoto; }
+      catch { return null; }
+    },
+    async deletePhoto(id) {
+      await rm(photoFile(file, id), { force: true });
+    }
   };
 }
