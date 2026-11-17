@@ -38,7 +38,7 @@ export function InventoryTab() {
         <CheckPill checked={inventoryReorderOnly} onChange={(checked) => setStockView({ inventoryReorderOnly: checked })}>{t("Solo da riordinare")}</CheckPill>
         <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "stockItem" })}>{t("Nuovo prodotto")}</button>
       </div>
-      <Callout title={t("Conteggio")}>{t("Le celle gialle si salvano da sole. Una giacenza corretta qui vale finché non invii un nuovo report; le consegne successive si sommano.")}</Callout>
+      <Callout title={t("Conteggio")}>{t("Le celle gialle si salvano da sole. Una giacenza corretta qui vale finché non invii un nuovo report; le consegne successive si sommano. ⚠ accanto a un nome: c'è una nota da controllare (passaci sopra o apri il prodotto).")}</Callout>
       <div className="stock-table-wrap">
         <table className="stock-table stock-inventory">
           <thead>

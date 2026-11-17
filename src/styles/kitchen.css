@@ -7,6 +7,7 @@
 .kitchen-who { display: grid; gap: 4px; color: #5d6857; font-size: 12px; font-weight: 600; }
 .kitchen-who select { min-width: 200px; min-height: 52px; padding: 0 14px; border: 2px solid #d5dccb; border-radius: 12px; color: var(--ink); background: #fff; font-size: 18px; font-weight: 600; }
 .kitchen-exit { min-height: 52px; padding: 0 18px; border: 1px solid var(--line); border-radius: 12px; color: #6d7468; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.kitchen-exit-short { display: none; }
 .kitchen-tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 18px; }
 .kitchen-tab { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; min-height: 68px; padding: 6px 10px; line-height: 1.15; text-align: center; border: 2px solid #dfe3d7; border-radius: 16px; color: #4d5a46; background: #fff; font-size: clamp(14px, 1.9vw, 19px); font-weight: 700; cursor: pointer; }
 .kitchen-tab.active { border-color: var(--green-dark); color: #fff; background: var(--green-dark); }
@@ -108,7 +109,19 @@
   .kitchen-tabs { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 600px) {
-  .kitchen-head { gap: 10px; }
+  /* Phones: time, who and exit in two short rows, the five sections in one row that scrolls sideways. */
+  .kitchen { padding-top: max(10px, env(safe-area-inset-top)); }
+  .kitchen-head { gap: 8px 10px; padding-bottom: 10px; }
+  .kitchen-when { display: flex; align-items: baseline; gap: 8px; }
+  .kitchen-when strong { font-size: 28px; }
+  .kitchen-when span { font-size: 13px; }
+  .kitchen-who > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .kitchen-who select { min-height: 46px; font-size: 16px; }
+  .kitchen-exit-long { display: none; }
+  .kitchen-exit-short { display: inline; }
+  .kitchen-tabs { display: flex; gap: 8px; margin: 0 -14px 14px; padding: 0 14px 4px; overflow-x: auto; scrollbar-width: none; }
+  .kitchen-tabs::-webkit-scrollbar { display: none; }
+  .kitchen-tab { flex: 0 0 auto; flex-direction: row !important; min-width: 0; min-height: 50px !important; padding: 0 14px; font-size: 15px !important; white-space: nowrap; }
   .kitchen-who { order: 3; flex: 1 1 100%; }.kitchen-who select { width: 100%; min-width: 0; }
   .kitchen-exit { min-height: 44px; font-size: 13px; }
   .kitchen-tab { min-height: 58px; flex-direction: column; gap: 4px; font-size: 15px; }

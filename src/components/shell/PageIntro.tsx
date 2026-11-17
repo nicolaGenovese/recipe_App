@@ -7,8 +7,8 @@ import type { ViewFilter } from "@/state/view";
 const TITLES: Record<ViewFilter, [string, string]> = {
   all: ["Le tue ricette", "Tutto quello che serve, organizzato in un unico posto."],
   menu: ["Piatti in menu", "I piatti dei menu attivi."],
-  archive: ["Basi & preparazioni", "Preparazioni riutilizzabili e ricette archiviate."],
-  stock: ["Gestione magazzino", "Report periodici, valore delle giacenze e GP della cucina."],
+  archive: ["Basi e archivio", "Preparazioni riutilizzabili e ricette archiviate."],
+  stock: ["Food Stock", "Report periodici, valore delle giacenze e GP della cucina."],
   menus: ["I tuoi menu", "Tutti i menu della cucina: piatti, costi e margini di ognuno."],
   prep: ["Prep list", "Cosa preparare prima del servizio, piatto per piatto."],
   rota: ["Turni del personale", "Chi lavora e quando, settimana per settimana, con le ore calcolate da sole."],

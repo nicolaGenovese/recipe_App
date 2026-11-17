@@ -112,12 +112,12 @@ export function Sidebar() {
         </button>
       ))}
       <button type="button" className={inMore || moreOpen ? "active" : ""} aria-expanded={moreOpen} aria-controls="mobileMore" onClick={() => setMoreOpen(!moreOpen)}>
-        <span className="tabbar-dots" aria-hidden="true">···</span><span>{t("Altro")}</span>
+        <span className="tabbar-dots" aria-hidden="true">···</span><span>{t("Altro|nav")}</span>
       </button>
     </nav>
     {moreOpen ? (
       <div className="mobile-sheet-backdrop" onClick={() => setMoreOpen(false)}>
-        <div id="mobileMore" className="mobile-sheet" role="dialog" aria-label={t("Altro")} onClick={(event) => event.stopPropagation()}>
+        <div id="mobileMore" className="mobile-sheet" role="dialog" aria-label={t("Altro|nav")} onClick={(event) => event.stopPropagation()}>
           <button className="mobile-sheet-kitchen" type="button" onClick={enterKitchen}><PlateIcon /><span><strong>{t("Modalità cucina")}</strong><small>{t("Prep list, temperature e checklist con pulsanti grandi")}</small></span></button>
           <div className="mobile-sheet-grid">
             {items.map(([filter, label, icon, count]) => (

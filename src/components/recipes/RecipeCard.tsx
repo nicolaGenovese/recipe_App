@@ -6,6 +6,7 @@ import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
+import { countLabel } from "@/lib/i18n";
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
   const { data, onMenu, openDialog, f, t, fmt } = useApp();
@@ -34,8 +35,8 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
         <p className="card-description">{recipe.description || t("Aggiungi una breve descrizione per questa ricetta.")}</p>
         <div className="card-divider" />
         <div className="card-footer">
-          <span className="card-stat">♙ {portionsOf(recipe)} {t("porzioni")}</span>
-          <span className="card-stat">◇ {allergens(recipe).length} {t("allergeni")}</span>
+          <span className="card-stat">♙ {countLabel(t, portionsOf(recipe), "porzione", "porzioni")}</span>
+          <span className="card-stat">◇ {countLabel(t, allergens(recipe).length, "allergene", "allergeni")}</span>
           <span className="card-actions">
             <span className="card-cost">{f.money(portionCost(recipe))} <small>/ {t("porz.")}</small></span>
             <button className="card-action" type="button" onClick={guard(() => cloneRecipe(recipe.id))} aria-label={t("Duplica ricetta")}>⧉</button>

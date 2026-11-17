@@ -75,7 +75,9 @@ export function KitchenMode() {
             <option value="__other">{t("Un altro nome…")}</option>
           </select>
         </label>
-        <button className="kitchen-exit" type="button" onClick={exit}>{t("Esci dalla modalità cucina")}</button>
+        <button className="kitchen-exit" type="button" onClick={exit} aria-label={t("Esci dalla modalità cucina")}>
+          <span className="kitchen-exit-long">{t("Esci dalla modalità cucina")}</span><span className="kitchen-exit-short">{t("Esci|kitchen")}</span>
+        </button>
       </header>
 
       <nav className="kitchen-tabs" aria-label={t("Modalità cucina")}>

@@ -21,7 +21,7 @@ import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** The whole page: sidebar, top bar and either the recipe library or Food Stock. */
 export function RecipeStudio() {
-  const { view, setView, openDialog, t, notify, loaded } = useApp();
+  const { view, setView, t, notify, loaded } = useApp();
   const { syncRecipeCosts } = useRecipeActions();
 
   // Product prices may have changed since recipes were last saved.
@@ -51,7 +51,8 @@ export function RecipeStudio() {
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        document.getElementById("searchInput")?.focus();
+        if (!document.getElementById("searchInput")) setView({ filter: "all", menuId: null, page: 1 });
+        window.setTimeout(() => document.getElementById("searchInput")?.focus(), 50);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -77,10 +78,6 @@ export function RecipeStudio() {
           <div className="content-wrap">
             <PageIntro />
             {view.filter === "stock" ? <StockView /> : view.filter === "menus" ? <MenusView /> : view.filter === "prep" ? <PrepView /> : view.filter === "rota" ? <RotaView /> : view.filter === "safety" ? <SafetyView /> : view.filter === "performance" ? <PerformanceView /> : <><OverviewCards /><RecipeLibrary /></>}
-            <footer className="page-footer">
-              <span>Recipe Studio <span className="footer-dot">·</span> {t("uno spazio fatto per ogni cucina")}</span>
-              <button type="button" onClick={() => openDialog({ kind: "settings" })}>{t("Personalizza il tuo spazio")} <span aria-hidden="true">↗</span></button>
-            </footer>
           </div>
         </main>
       </div>

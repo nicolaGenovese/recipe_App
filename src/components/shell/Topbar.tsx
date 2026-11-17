@@ -12,6 +12,7 @@ export function Topbar() {
   const { data, view, setView, t } = useApp();
   const menu = view.filter === "menu" && view.menuId ? data.menus.find((row) => row.id === view.menuId) : undefined;
   const { exportJson } = useArchiveActions();
+  const recipePage = view.filter === "all" || view.filter === "menu" || view.filter === "archive";
 
   return (
     <header className="topbar">
@@ -20,15 +21,19 @@ export function Topbar() {
       </a>
       <div className="breadcrumbs"><span>{t("La mia cucina")}</span><span className="crumb-slash">/</span><strong>{menu ? menu.name : t(CRUMBS[view.filter])}</strong></div>
       <div className="topbar-actions">
-        <label className="global-search" htmlFor="searchInput">
-          <SearchIcon />
-          <input
-            id="searchInput" type="search" placeholder={t("Cerca ricette, ingredienti…")} autoComplete="off" value={view.query}
-            // Searching from a page without recipes jumps back to the recipes.
-            onChange={(event) => setView({ query: event.target.value, page: 1, ...(["stock", "menus", "prep", "rota", "safety", "performance"].includes(view.filter) ? { filter: "all", menuId: null } : {}) })}
-          />
-          <kbd>⌘ K</kbd>
-        </label>
+        {/* The box searches recipes, so it shows on the recipe pages; elsewhere a button says where it goes. */}
+        {recipePage ? (
+          <label className="global-search" htmlFor="searchInput">
+            <SearchIcon />
+            <input id="searchInput" type="search" placeholder={t("Cerca ricette, ingredienti…")} autoComplete="off" value={view.query}
+              onChange={(event) => setView({ query: event.target.value, page: 1 })} />
+            <kbd>⌘ K</kbd>
+          </label>
+        ) : (
+          <button className="button button-quiet topbar-search-jump" type="button" onClick={() => { setView({ filter: "all", menuId: null, page: 1 }); window.setTimeout(() => document.getElementById("searchInput")?.focus(), 50); }}>
+            <SearchIcon /><span>{t("Cerca ricette")}</span>
+          </button>
+        )}
         <StockAlerts />
         <button className="topbar-icon" type="button" onClick={exportJson} aria-label={t("Esporta archivio")} title={t("Esporta archivio (copia di sicurezza in JSON)")}><DownloadIcon /></button>
       </div>

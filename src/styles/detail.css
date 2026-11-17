@@ -27,3 +27,8 @@
 .check-pill-list { display: grid; gap: 6px; }
 .check-pill { display: flex; align-items: flex-start; gap: 7px; color: #6a7267; font-size: 12px; line-height: 1.5; }
 .check-pill::before { content: "✓"; display: grid; flex: 0 0 auto; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #5f744e; background: #edf1e7; font-size: 11px; }
+
+.detail-line { margin: 8px 0 0; color: #3f4a3a; font-size: 13px; line-height: 1.5; }
+.detail-line strong { margin-right: 6px; color: #5d6857; font-weight: 650; }
+.detail-line.muted { color: #6c7168; }
+.detail-summary > .category-tag { width: fit-content; }

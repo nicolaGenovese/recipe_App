@@ -9,6 +9,7 @@ import { num } from "@/lib/num";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { menusOfRecipe } from "@/lib/menus/menus";
+import { countLabel } from "@/lib/i18n";
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return <section className="detail-block"><h4>{title}</h4>{children}</section>;
@@ -54,15 +55,15 @@ export function RecipeDetailDialog({ id }: { id: string }) {
         </div>
         <div className="detail-summary">
           <span className="category-tag">{t(recipe.category) || t("Senza categoria")}</span>
-          <h3>{recipe.name}</h3>
-          <p>{recipe.description || ""}</p>
           <div className="detail-flags">
-            {menusOfRecipe(data.menus, recipe.id).map((menu) => <span key={menu.id} className={"category-tag" + (menu.active ? "" : " muted")}>{menu.name}</span>)}
             {recipe.archivedBatch ? <span className="category-tag batch">{t("Base / preparazione")}</span> : null}
-            <span className="category-tag">{t(recipe.cookingMethod || "") || t("Tecnica da definire")}</span>
           </div>
+          {menusOfRecipe(data.menus, recipe.id).length ? (
+            <p className="detail-line"><strong>{t("Nei menu")}</strong> {menusOfRecipe(data.menus, recipe.id).map((menu) => menu.name + (menu.active ? "" : " (" + t("sospeso") + ")")).join(" · ")}</p>
+          ) : <p className="detail-line muted">{t("In nessun menu")}</p>}
+          <p className={"detail-line" + (recipe.cookingMethod ? "" : " muted")}><strong>{t("Tecnica")}</strong> {recipe.cookingMethod ? t(recipe.cookingMethod) : t("da definire")}</p>
           <div className="detail-mini-stat">
-            <span>{portionsOf(recipe)} {t("porzioni")}</span><span>{(recipe.ingredients || []).length} {t("ingredienti")}</span><span>{t("Aggiornata")} {f.dateLabel(recipe.updatedAt)}</span>
+            <span>{countLabel(t, portionsOf(recipe), "porzione", "porzioni")}</span><span>{countLabel(t, (recipe.ingredients || []).length, "ingrediente", "ingredienti")}</span><span>{t("Aggiornata")} {f.dateLabel(recipe.updatedAt)}</span>
           </div>
         </div>
       </div>

@@ -42,7 +42,7 @@
 .stock-inv-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 460px; margin: 0 0 16px; }
 .stock-table .stock-num { text-align: right; white-space: nowrap; }
 .stock-inventory td:nth-child(2) { min-width: 170px; color: #3f4b39; font-weight: 620; }
-.stock-inv-input { width: 68px; height: 28px; padding: 0 6px; border: 1px solid #e6e0b4; border-radius: 5px; color: #343d32; background: #fffbdc; font-size: 13px; text-align: right; }
+.stock-inv-input { width: 68px; height: 32px; padding: 0 6px; border: 1px solid #ddd6a8; border-radius: 6px; color: #343d32; background: #fffdf0; font-size: 13px; text-align: right; }
 .stock-status { display: inline-block; min-width: 66px; padding: 3px 7px; border-radius: 4px; font-size: 12px; font-weight: 700; text-align: center; }
 .stock-status-reorder { color: #8d3a2e; background: #f9d5d0; }
 .stock-status-ok { color: #2f6b3c; background: #d3eed8; }
