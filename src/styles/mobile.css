@@ -181,3 +181,12 @@
   .safety-bar .button { flex: 1 1 100%; }
   .topbar-search-jump span { display: none; }
 }
+
+/* Bell notifications on a phone: a sheet under the top bar, edge to edge, instead of a box hung off the bell. */
+@media (max-width: 780px) {
+  .alerts-panel { position: fixed; top: calc(60px + env(safe-area-inset-top)); right: 12px; left: 12px; width: auto; max-height: calc(100dvh - 160px - env(safe-area-inset-bottom)); }
+  .alerts-head strong { font-size: 15px; }
+  .alerts-head small, .alerts-empty, .alerts-recipes { font-size: 13px; }
+  .alerts-item-top strong { font-size: 14px; }
+  .alerts-list li { padding: 12px 14px; }
+}
