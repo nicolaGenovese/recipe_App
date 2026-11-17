@@ -73,7 +73,7 @@ export function WasteDialog({ id }: { id?: string }) {
           <Datalist id="wasteItems" values={[...data.recipes.map((row) => row.name), ...data.stockItems.map((row) => row.name)]} />
         </div>
         <footer className="dialog-footer">
-          <div>{base ? <button className="button button-quiet" type="button" onClick={guard(() => deleteWaste(base.id))}>{t("Elimina")}</button> : <span />}</div>
+          <div>{base ? <button className="button button-quiet danger" type="button" onClick={guard(() => deleteWaste(base.id))}>{t("Elimina")}</button> : <span />}</div>
           <div className="dialog-footer-right">
             <button className="button button-quiet" type="button" onClick={closeDialog}>{t("Annulla")}</button>
             <button className="button button-primary" type="submit">{t("Salva")}</button>

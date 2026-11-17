@@ -183,7 +183,7 @@ export function StockDeliveryDialog({ id, scan: startWithScan }: { id?: string; 
         </fieldset>
         <footer className="dialog-footer">
           <div>
-            {!base || closed ? null : <button className="button button-quiet" type="button" onClick={guard(() => deleteDelivery(base))}>{t("Elimina consegna")}</button>}
+            {!base || closed ? null : <button className="button button-quiet danger" type="button" onClick={guard(() => deleteDelivery(base))}>{t("Elimina consegna")}</button>}
             {base ? (
               <button className="button button-quiet" type="button" onClick={() => {
                 const check = data.safetyLogs.find((log) => log.kind === "delivery" && log.deliveryId === base.id);

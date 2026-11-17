@@ -38,4 +38,12 @@ describe("menus", () => {
     expect(stats.foodCostPercent).toBeCloseTo(30);
     expect(stats.averageMargin).toBeCloseTo(70);
   });
+
+  it("leaves dishes without costs out of food cost and margin", () => {
+    const stats = menuStats({ recipeIds: ["a", "b"] }, [dish("a", 3, 10), dish("b", 0, 8)], { recipeMarginOnNet: true });
+    expect(stats).toMatchObject({ costed: 1, uncosted: 1, unpriced: 0 });
+    expect(stats.averageMargin).toBeCloseTo(70);
+    const none = menuStats({ recipeIds: ["b"] }, [dish("b", 0, 8)], { recipeMarginOnNet: true });
+    expect(none).toMatchObject({ costed: 0, averageMargin: 0, foodCostPercent: 0 });
+  });
 });

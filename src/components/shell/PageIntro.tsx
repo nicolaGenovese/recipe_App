@@ -24,7 +24,6 @@ export function PageIntro() {
   return (
     <section className="page-intro">
       <div>
-        <div className="eyebrow"><span className="eyebrow-dot" /> {t("IL TUO SPAZIO DI LAVORO")}</div>
         <h1>{title}<span className="title-period">.</span></h1>
         <p className="page-subtitle">{subtitle}</p>
       </div>

@@ -72,7 +72,7 @@ export function StockReportDialog({ id }: { id: string }) {
         </div>
         <footer className="dialog-footer">
           <div>
-            {editable ? <button className="button button-quiet" type="button" onClick={guard(() => actions.deleteDraft(report))}>{t("Elimina bozza")}</button>
+            {editable ? <button className="button button-quiet danger" type="button" onClick={guard(() => actions.deleteDraft(report))}>{t("Elimina bozza")}</button>
               : canReopen ? <button className="button button-quiet" type="button" onClick={guard(() => actions.reopenReport(report))}>{t("Riapri")}</button> : <span />}
           </div>
           <div className="dialog-footer-right">

@@ -8,7 +8,7 @@
 .preview-sheet h3 { color: #30392e; font-size: 14px; }.preview-sheet > p { margin: 4px 0 11px; color: #92978d; font-size: 8px; }
 .preview-recipe { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid #eef0e9; color: #667060; font-size: 9px; }
 .preview-recipe strong { color: #42503a; font-weight: 640; }.preview-recipe small { display: block; margin-top: 3px; color: #9da297; font-size: 8px; }.preview-allergens { grid-column: 1 / -1; color: #997653; font-size: 8px; }
-.toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; max-width: min(370px, calc(100vw - 30px)); padding: 11px 14px; transform: translateY(12px); border: 1px solid #e0e5d8; border-radius: 9px; color: #41543a; background: #f5f7f1; box-shadow: var(--shadow); font-size: 10px; opacity: 0; pointer-events: none; transition: .2s ease; }
+.toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; max-width: min(370px, calc(100vw - 30px)); padding: 11px 14px; transform: translateY(12px); border: 1px solid #e0e5d8; border-radius: 9px; color: #41543a; background: #f5f7f1; box-shadow: var(--shadow); font-size: 13px; opacity: 0; pointer-events: none; transition: .2s ease; }
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.error { border-color: #f0d4cc; color: #944d3e; background: #fcf2ef; }
 .print-images { margin-top: 12px; }

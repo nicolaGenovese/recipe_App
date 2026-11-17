@@ -30,8 +30,7 @@ export function Topbar() {
           <kbd>⌘ K</kbd>
         </label>
         <StockAlerts />
-        <button className="topbar-icon" type="button" onClick={exportJson} aria-label={t("Esporta archivio")} title={t("Esporta archivio")}><DownloadIcon /></button>
-        <span className="topbar-avatar" title={t("Team cucina")}>C</span>
+        <button className="topbar-icon" type="button" onClick={exportJson} aria-label={t("Esporta archivio")} title={t("Esporta archivio (copia di sicurezza in JSON)")}><DownloadIcon /></button>
       </div>
     </header>
   );

@@ -4,7 +4,7 @@ import type { FormPatch } from "@/components/recipes/editor/RecipeEditorDialog";
 import { Callout, MetricTile } from "@/components/ui/bits";
 import { TextField } from "@/components/ui/Field";
 import { ingredientFromDraft, type RecipeForm } from "@/lib/recipes/form";
-import { calories, margin, portionCost, portionsOf, suggestPrice, totalCost } from "@/lib/recipes/math";
+import { calories, hasCost, margin, portionCost, portionsOf, suggestPrice, totalCost } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
 import { useApp } from "@/state/AppProvider";
 
@@ -23,7 +23,7 @@ export function CostsPanel({ form, patch }: { form: RecipeForm; patch: FormPatch
         <div className="pill-metrics">
           <MetricTile label={t("Costo ricetta")}>{f.money(totalCost(recipe))}</MetricTile>
           <MetricTile label={t("Costo / porzione")}>{f.money(portionCost(recipe))}</MetricTile>
-          <MetricTile label={t("Margine teorico")}>{margin(recipe, gpRules).toFixed(1)}<small>%</small></MetricTile>
+          <MetricTile label={t("Margine teorico")}>{hasCost(recipe) ? <>{margin(recipe, gpRules).toFixed(1)}<small>%</small></> : <span className="metric-missing" title={t("Gli ingredienti non hanno ancora un costo: il margine non si può calcolare.")}>{t("Costo mancante")}</span>}</MetricTile>
           <MetricTile label={t("Prezzo suggerito")}>{f.money(suggestPrice(recipe, gpRules))}</MetricTile>
         </div>
         <div className="form-grid cols-3">

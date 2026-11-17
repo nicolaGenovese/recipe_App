@@ -119,7 +119,7 @@ export function MenuEditorDialog({ id }: { id?: string }) {
             <MetricTile label={t("Piatti")}>{stats.dishes}</MetricTile>
             <MetricTile label={t("Costo medio")}>{f.money(stats.averageCost)}</MetricTile>
             <MetricTile label={t("Food cost")}>{stats.foodCostPercent ? stats.foodCostPercent.toFixed(1) + "%" : "—"}</MetricTile>
-            <MetricTile label={t("Margine medio")}>{stats.dishes > stats.unpriced ? stats.averageMargin.toFixed(1) + "%" : "—"}</MetricTile>
+            <MetricTile label={t("Margine medio")}>{stats.costed ? stats.averageMargin.toFixed(1) + "%" : "—"}</MetricTile>
           </div>
 
           <div className="menu-editor">
@@ -179,7 +179,7 @@ export function MenuEditorDialog({ id }: { id?: string }) {
           </div>
         </div>
         <footer className="dialog-footer">
-          <div>{base ? <button className="button button-quiet" type="button" onClick={guard(() => deleteMenu(base.id))}>{t("Elimina menu")}</button> : <span />}</div>
+          <div>{base ? <button className="button button-quiet danger" type="button" onClick={guard(() => deleteMenu(base.id))}>{t("Elimina menu")}</button> : <span />}</div>
           <div className="dialog-footer-right">
             <button className="button button-quiet" type="button" onClick={closeDialog}>{t("Annulla")}</button>
             <button className="button button-primary" type="submit">{t(base ? "Salva menu" : "Crea menu")}</button>

@@ -105,7 +105,7 @@ export function PrepListDialog({ id, copyOf, menuId }: { id?: string; copyOf?: s
           <div>
             {isNew ? <span /> : (
               <>
-                <button className="button button-quiet" type="button" onClick={guard(() => deletePrepList(list.id))}>{t("Elimina")}</button>
+                <button className="button button-quiet danger" type="button" onClick={guard(() => deletePrepList(list.id))}>{t("Elimina")}</button>
                 <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "prepList", copyOf: list.id })}>{t("Duplica")}</button>
                 <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "prepLabels", id: list.id })}>{t("Etichette")}</button>
               </>

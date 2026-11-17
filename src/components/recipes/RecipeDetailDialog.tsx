@@ -4,7 +4,7 @@ import { AllergenTags, Callout, MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { PlateIcon } from "@/components/ui/icons";
 import { allergenStatus } from "@/lib/recipes/allergens";
-import { calories, coverType, hasImage, margin, portionCost, portionsOf, recipeCostGaps, totalCost } from "@/lib/recipes/math";
+import { calories, coverType, hasCost, hasImage, margin, portionCost, portionsOf, recipeCostGaps, totalCost } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
@@ -72,7 +72,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
           <MetricTile label={t("Costo totale")}>{f.money(totalCost(recipe))}</MetricTile>
           <MetricTile label={t("Costo / porzione")}>{f.money(portionCost(recipe))}</MetricTile>
           <MetricTile label={t("Prezzo vendita")}>{f.money(recipe.sellingPrice)}</MetricTile>
-          <MetricTile label={t("Margine teorico")}>{margin(recipe, gpRules).toFixed(1)}<small>%</small></MetricTile>
+          <MetricTile label={t("Margine teorico")}>{hasCost(recipe) ? <>{margin(recipe, gpRules).toFixed(1)}<small>%</small></> : <span className="metric-missing" title={t("Gli ingredienti non hanno ancora un costo: il margine non si può calcolare.")}>{t("Costo mancante")}</span>}</MetricTile>
         </div>
         <div className="detail-two-col">
           <div>

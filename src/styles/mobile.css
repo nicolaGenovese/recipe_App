@@ -139,3 +139,35 @@
   /* Whatever slips through, the page itself never scrolls sideways. */
   .app-shell { overflow-x: clip; }
 }
+
+/* Ingredient rows on a phone: the name across the full width, then type, quantity, unit, price and total.
+   Children: 1 type, 2 name, 3 supplier, 4 quantity, 5 unit, 6 price, 7 total, 8 remove. */
+@media (max-width: 780px) {
+  .ingredient-labels { display: none; }
+  .ingredient-row { grid-template-columns: minmax(0, 1.1fr) minmax(0, .8fr) minmax(0, .9fr) minmax(0, .9fr) minmax(0, .9fr); grid-template-areas: "name name name name remove" "type qty unit price total"; gap: 6px; }
+  .ingredient-row > :nth-child(1) { grid-area: type; }
+  .ingredient-row > :nth-child(2) { grid-area: name; }
+  .ingredient-row > :nth-child(3) { display: none; }
+  .ingredient-row > :nth-child(4) { grid-area: qty; }
+  .ingredient-row > :nth-child(5) { grid-area: unit; }
+  .ingredient-row > :nth-child(6) { grid-area: price; }
+  .ingredient-row > :nth-child(7) { grid-area: total; text-align: right; }
+  .ingredient-row > :nth-child(8) { grid-area: remove; justify-self: end; width: 40px; height: 40px; }
+  .ingredient-row select, .ingredient-row input, .ingredient-type-badge { height: 42px; min-height: 42px; }
+  .ingredient-extra-row { grid-template-columns: minmax(0, 1fr) 96px; }
+  .ingredient-extra-row input { height: 40px; }
+}
+
+/* Inventory on a phone: name, unit, par level, stock and status; code, supplier, reorder, cost and value stay on the computer. */
+@media (max-width: 600px) {
+  .stock-inventory th:nth-child(1), .stock-inventory td:nth-child(1),
+  .stock-inventory th:nth-child(4), .stock-inventory td:nth-child(4),
+  .stock-inventory th:nth-child(3), .stock-inventory td:nth-child(3),
+  .stock-inventory th:nth-child(7), .stock-inventory td:nth-child(7),
+  .stock-inventory th:nth-child(9), .stock-inventory td:nth-child(9),
+  .stock-inventory th:nth-child(10), .stock-inventory td:nth-child(10) { display: none; }
+  .stock-inventory { min-width: 0 !important; width: 100%; }
+  .stock-inventory td:nth-child(2) { min-width: 120px; white-space: normal; }
+  .page-intro { margin-bottom: 16px; }
+  .page-intro h1 { font-size: 26px; }
+}

@@ -55,7 +55,6 @@ export function Sidebar() {
       <div className="workspace-switcher">
         <span className="workspace-avatar">K</span>
         <span className="workspace-copy"><strong>{t("La mia cucina")}</strong><small>{t("Spazio di lavoro")}</small></span>
-        <span className="switcher-chevron" aria-hidden="true">⌄</span>
       </div>
 
       <div className="nav-label">{t("GESTIONE")}</div>
@@ -103,7 +102,6 @@ export function Sidebar() {
             <span>{t("Esci")}</span>
           </button>
         ) : null}
-        <div className="sidebar-user"><span className="user-avatar">C</span><span><strong>{t("Team cucina")}</strong><small>{t("Workspace personale")}</small></span><span className="user-more">···</span></div>
       </div>
     </aside>
 

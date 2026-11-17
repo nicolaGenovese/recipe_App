@@ -32,6 +32,11 @@ export interface PriceInput {
   marginTarget?: number;
 }
 
+/** A dish whose ingredients have no cost yet: its margin would read 100% and mean nothing. */
+export function hasCost(recipe: { ingredients?: CostRow[]; portions?: number }): boolean {
+  return portionCost(recipe) > 0;
+}
+
 export function margin(recipe: PriceInput & { ingredients?: CostRow[]; portions?: number }, rules: MarginRules): number {
   const net = recipeNetPrice(recipe.sellingPrice, recipe.vat, rules);
   return net > 0 ? ((net - portionCost(recipe)) / net) * 100 : 0;

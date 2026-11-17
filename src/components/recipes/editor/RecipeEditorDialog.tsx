@@ -82,9 +82,9 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
           {tab === "costs" ? <CostsPanel form={form} patch={patch} /> : null}
         </div>
         <footer className="dialog-footer">
-          <button className="button button-quiet" type="button" onClick={closeDialog}>{t("Annulla")}</button>
+          <div>{isNew ? <span /> : <button className="button button-quiet danger" type="button" onClick={() => deleteRecipe(form.id).catch((error) => notify(t(error.message), true))}>{t("Elimina")}</button>}</div>
           <div className="dialog-footer-right">
-            {isNew ? null : <button className="button button-quiet" type="button" onClick={() => deleteRecipe(form.id).catch((error) => notify(t(error.message), true))}>{t("Elimina")}</button>}
+            <button className="button button-quiet" type="button" onClick={closeDialog}>{t("Annulla")}</button>
             <button className="button button-primary" type="submit" disabled={saving === "saving"}>
               {saving === "saving" ? t("Salvataggio…") : saving === "failed" ? t("Riprova") : isNew ? t("Crea ricetta") : t("Salva modifiche")}
             </button>

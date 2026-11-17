@@ -1,4 +1,4 @@
-import { margin, portionCost, recipeNetPrice } from "@/lib/recipes/math";
+import { hasCost, margin, portionCost, recipeNetPrice } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
 import type { GpRules, Menu, Recipe } from "@/lib/types";
 
@@ -34,26 +34,34 @@ export interface MenuStats {
   averageCost: number;
   /** Average selling price. */
   averagePrice: number;
-  /** Food cost as a share of net prices, over the priced dishes. */
+  /** Food cost as a share of net prices, over the dishes with both a price and a cost. */
   foodCostPercent: number;
-  /** Average theoretical margin over the priced dishes. */
+  /** Average theoretical margin over the dishes with both a price and a cost. */
   averageMargin: number;
+  /** Dishes with both a price and a cost: food cost and margin are worked out on these only. */
+  costed: number;
   unpriced: number;
+  /** Dishes whose ingredients have no cost yet. */
+  uncosted: number;
 }
 
 export function menuStats(menu: Pick<Menu, "recipeIds">, recipes: Recipe[], rules: Pick<GpRules, "recipeMarginOnNet">): MenuStats {
   const dishes = menuDishes(menu, recipes);
   const priced = dishes.filter((recipe) => num(recipe.sellingPrice) > 0);
-  const net = priced.reduce((total, recipe) => total + recipeNetPrice(recipe.sellingPrice, recipe.vat, rules), 0);
-  const pricedCost = priced.reduce((total, recipe) => total + portionCost(recipe), 0);
+  // A dish without costs would count as 100% margin and make the menu look better than it is.
+  const costed = priced.filter(hasCost);
+  const net = costed.reduce((total, recipe) => total + recipeNetPrice(recipe.sellingPrice, recipe.vat, rules), 0);
+  const pricedCost = costed.reduce((total, recipe) => total + portionCost(recipe), 0);
   const average = (rows: Recipe[], read: (recipe: Recipe) => number) => (rows.length ? rows.reduce((total, recipe) => total + read(recipe), 0) / rows.length : 0);
   return {
     dishes: dishes.length,
     averageCost: average(dishes, portionCost),
     averagePrice: average(priced, (recipe) => num(recipe.sellingPrice)),
     foodCostPercent: net > 0 ? (pricedCost / net) * 100 : 0,
-    averageMargin: average(priced, (recipe) => margin(recipe, rules)),
-    unpriced: dishes.length - priced.length
+    averageMargin: average(costed, (recipe) => margin(recipe, rules)),
+    costed: costed.length,
+    unpriced: dishes.length - priced.length,
+    uncosted: dishes.filter((recipe) => !hasCost(recipe)).length
   };
 }
 

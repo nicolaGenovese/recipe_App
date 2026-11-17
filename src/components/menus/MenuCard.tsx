@@ -19,7 +19,7 @@ export function MenuCard({ menu }: { menu: Menu }) {
   const stats = menuStats(menu, data.recipes, gpRules);
   const allergenCheck = menuAllergenSummary(dishes, data.stockItems, data.recipes);
   const when = availabilityLabel(menu, dayNames(localeFor(language)), t("Tutti i giorni"));
-  const lowMargin = stats.dishes > stats.unpriced && stats.averageMargin < gpRules.defaultMarginTarget;
+  const lowMargin = stats.costed > 0 && stats.averageMargin < gpRules.defaultMarginTarget;
 
   return (
     <article className={"menu-card" + (menu.active ? "" : " inactive")}>
@@ -42,16 +42,19 @@ export function MenuCard({ menu }: { menu: Menu }) {
         <div><span>{t("Costo medio")}</span><strong>{f.money(stats.averageCost)}</strong></div>
         <div><span>{t("Prezzo medio")}</span><strong>{stats.averagePrice ? f.money(stats.averagePrice) : "—"}</strong></div>
         <div><span>{t("Food cost")}</span><strong>{stats.foodCostPercent ? stats.foodCostPercent.toFixed(1) + "%" : "—"}</strong></div>
-        <div className={lowMargin ? "warn" : ""}><span>{t("Margine medio")}</span><strong>{stats.dishes > stats.unpriced ? stats.averageMargin.toFixed(1) + "%" : "—"}</strong></div>
+        <div className={lowMargin ? "warn" : ""}><span>{t("Margine medio")}</span><strong>{stats.costed ? stats.averageMargin.toFixed(1) + "%" : "—"}</strong></div>
       </div>
+      {/* One calm line of chips instead of red sentences; the names are in the allergen matrix. */}
       {dishes.length ? (
-        <p className={"menu-note menu-allergens" + (allergenCheck.toCheck.length ? " warn" : " ok")}>
-          {allergenCheck.toCheck.length
-            ? fmt(t("Allergeni da controllare: {0} piatti su {1}"), allergenCheck.toCheck.length, allergenCheck.dishes) + " (" + allergenCheck.toCheck.slice(0, 3).map((dish) => dish.name).join(", ") + (allergenCheck.toCheck.length > 3 ? "…" : "") + ")"
-            : t("Allergeni controllati su tutti i piatti.")}
-        </p>
+        <div className="menu-flags">
+          <button type="button" className={"menu-flag" + (allergenCheck.toCheck.length ? " todo" : " ok")} onClick={() => openDialog({ kind: "print", menuId: menu.id, mode: "matrix" })}
+            title={allergenCheck.toCheck.length ? allergenCheck.toCheck.map((dish) => dish.name).join(", ") : undefined}>
+            {allergenCheck.toCheck.length ? fmt(t("Allergeni da controllare {0}/{1}"), allergenCheck.toCheck.length, allergenCheck.dishes) : t("Allergeni controllati")}
+          </button>
+          {stats.unpriced ? <span className="menu-flag">{fmt(t("{0} senza prezzo"), stats.unpriced)}</span> : null}
+          {stats.uncosted ? <span className="menu-flag">{fmt(t("{0} senza costi"), stats.uncosted)}</span> : null}
+        </div>
       ) : null}
-      {stats.unpriced ? <p className="menu-note">{fmt(stats.unpriced === 1 ? t("{0} piatto senza prezzo di vendita.") : t("{0} piatti senza prezzo di vendita."), stats.unpriced)}</p> : null}
       <ul className="menu-dishes">
         {dishes.slice(0, PREVIEW).map((dish) => (
           <li key={dish.id}>
