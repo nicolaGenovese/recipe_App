@@ -1,5 +1,6 @@
 "use client";
 
+import { useRecipeRights } from "@/state/useRights";
 import { useRef } from "react";
 import { RecipeCard } from "@/components/recipes/RecipeCard";
 import { GridIcon, ListIcon, PrintIcon, UploadIcon } from "@/components/ui/icons";
@@ -9,10 +10,11 @@ import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import { pageWindow } from "@/lib/pages";
 import { ALL_CATEGORIES, type RecipeSort, type ViewFilter } from "@/state/view";
 
-const SECTION_TITLES: Record<ViewFilter, string> = { all: "Esplora le ricette", menu: "Piatti nel menu", archive: "Basi e preparazioni", stock: "", menus: "", prep: "", rota: "", safety: "", performance: "", kitchen: "" };
+const SECTION_TITLES: Record<ViewFilter, string> = { all: "Esplora le ricette", menu: "Piatti nel menu", archive: "Basi e preparazioni", stock: "", menus: "", prep: "", rota: "", safety: "", performance: "", kitchen: "", company: "" };
 
 export function RecipeLibrary() {
   const { data, view, setView, openDialog, onMenu, t, fmt } = useApp();
+  const rights = useRecipeRights();
   const { importJson } = useArchiveActions();
   const fileInput = useRef<HTMLInputElement>(null);
   const recipes = data.recipes;
@@ -36,7 +38,7 @@ export function RecipeLibrary() {
           <p>{fmt(rows.length === 1 ? t("{0} ricetta") : t("{0} ricette"), rows.length)}{view.query ? " " + t("per") + " “" + view.query + "”" : ""}</p>
         </div>
         <div className="section-tools">
-          <button className="button button-quiet" type="button" onClick={() => fileInput.current?.click()}><UploadIcon />{t("Importa")}</button>
+          {rights.canCreate ? <button className="button button-quiet" type="button" onClick={() => fileInput.current?.click()}><UploadIcon />{t("Importa")}</button> : null}
           <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "print", menuId: pickedMenu?.id })}><PrintIcon />{t("Stampe")}</button>
           <input
             ref={fileInput} className="visually-hidden" type="file" accept="application/json,.json"
@@ -88,7 +90,7 @@ export function RecipeLibrary() {
           <div className="empty-art"><span>✳</span><span>⌕</span></div>
           <h3>{t("Nessuna ricetta qui, per ora")}</h3>
           <p>{t("Prova a cambiare i filtri oppure crea la prima ricetta per questo spazio.")}</p>
-          <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "recipeEditor" })}>{t("Crea una ricetta")}</button>
+          {rights.canCreate ? <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "recipeEditor" })}>{t("Crea una ricetta")}</button> : null}
         </div>
       ) : (
         <div className="pagination">

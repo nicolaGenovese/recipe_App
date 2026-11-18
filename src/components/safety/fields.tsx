@@ -2,12 +2,13 @@
 
 import { Datalist, FieldShell } from "@/components/ui/Field";
 import { staffNames } from "@/lib/safety/staff";
+import { staffAtSite } from "@/lib/staff";
 import { useApp } from "@/state/AppProvider";
 
 /** "Who did it": the names on the rota for that day's week are suggested, any other name can be typed. */
 export function StaffField({ value, date, onChange, label }: { value: string; date: string; onChange: (value: string) => void; label?: string }) {
-  const { data, t } = useApp();
-  const names = staffNames(data.rotaWeeks, date, data.settings.staff);
+  const { data, t, access } = useApp();
+  const names = staffNames(data.rotaWeeks, date, staffAtSite(data.settings.staff, access?.site.id));
   return (
     <FieldShell label={label ?? t("Firmato da *")} htmlFor="field-safetyBy" hint={names.length ? undefined : t("Aggiungi il personale in Impostazioni → Personale per sceglierlo da qui.")}>
       <input id="field-safetyBy" list="safetyStaff" value={value} onChange={(event) => onChange(event.target.value)} placeholder={names[0] ?? ""} autoComplete="off" />

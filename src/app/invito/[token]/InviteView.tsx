@@ -22,7 +22,7 @@ export function InviteView({ token, info, user }: { token: string; info: InviteI
       </AccountCard>
     );
   }
-  const intro = <>{t("Sei invitato in")} <strong>{info.companyName}</strong> {t("come")} <strong>{info.roleName}</strong>{info.placeName && info.placeName !== info.companyName ? <> · {info.placeName}</> : null}.</>;
+  const intro = <>{t("Sei invitato in")} <strong>{info.companyName}</strong> {t("come")} <strong>{t(info.roleName)}</strong>{info.placeName && info.placeName !== info.companyName ? <> · {info.placeName}</> : null}.</>;
   if (user) {
     return (
       <AccountCard title={t("Invito")} intro={intro}>

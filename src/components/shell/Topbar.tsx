@@ -6,7 +6,7 @@ import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import type { ViewFilter } from "@/state/view";
 
-const CRUMBS: Record<ViewFilter, string> = { all: "Ricette", menu: "In menu", archive: "Basi e archivio", stock: "Food Stock", menus: "Menu", prep: "Prep list", rota: "Turni", safety: "Sicurezza alimentare", performance: "Andamento", kitchen: "Modalità cucina" };
+const CRUMBS: Record<ViewFilter, string> = { all: "Ricette", menu: "In menu", archive: "Basi e archivio", stock: "Food Stock", menus: "Menu", prep: "Prep list", rota: "Turni", safety: "Sicurezza alimentare", performance: "Andamento", kitchen: "Modalità cucina", company: "Compagnia" };
 
 export function Topbar() {
   const { data, view, setView, t } = useApp();

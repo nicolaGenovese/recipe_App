@@ -1,6 +1,6 @@
 # Proposta: più compagnie, più sedi, account e permessi
 
-Stato: **proposta, non ancora implementata** (12/11/2026). Descrive come trasformare Recipe Studio da app per una sola cucina ad app per più compagnie, ognuna con più ristoranti o pub, con account e permessi dal head office fino ai kitchen porter. Le scelte segnate come "da decidere" sono in fondo.
+Stato: **implementata** il 18/11/2026 (prima versione), con le scelte della sezione 6. Cosa fa oggi è in [FUNZIONI.md](FUNZIONI.md); le differenze da questa proposta sono in fondo. Descrive come trasformare Recipe Studio da app per una sola cucina ad app per più compagnie, ognuna con più ristoranti o pub, con account e permessi dal head office fino ai kitchen porter. Le scelte segnate come "da decidere" sono in fondo.
 
 Per vendere l'app a più clienti, l'ordine di lavoro, i prerequisiti e cosa rimandare sono in [PIANO-VENDITA.md](PIANO-VENDITA.md).
 
@@ -145,11 +145,18 @@ Il punto 1 è il più delicato perché tocca tutti i dati: va fatto con un backu
 | Sicurezza alimentare | Per sede; firme dall'account dell'utente; correzioni come nuove versioni |
 | Impostazioni | Divise in impostazioni della compagnia (valuta, regole GP, liste) e della sede (apparecchi, checklist) |
 
-## 6. Da decidere prima di iniziare
+## 6. Scelte fatte
 
-- **Ricette:** le sedi possono creare ricette proprie, o solo l'head office?
-- **Personale tra sedi:** una persona lavora in più sedi della stessa compagnia, e i suoi turni vanno visti insieme?
-- **Ruoli:** bastano quelli predefiniti, o ogni compagnia deve poterli personalizzare da subito?
-- **Uso esterno:** l'app resta vostra o sarà offerta ad altre compagnie? Cambiano la parte su abbonamenti, sicurezza e contratti (trattamento dei dati).
-- **Hosting:** online (consigliato) o su un server vostro?
-- **Login:** Better Auth (consigliato) o Clerk?
+- **Ricette:** anche le sedi possono creare ricette proprie (permesso "ricette della sede", di default al head chef); la libreria resta della compagnia.
+- **Personale tra sedi:** una persona può lavorare in più sedi e i suoi turni si vedono insieme.
+- **Ruoli:** ogni compagnia li personalizza da subito (tabella dei permessi) e può crearne di propri.
+- **Uso esterno:** l'app sarà offerta o venduta ad altre compagnie: registrazione aperta, dati separati per compagnia (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md) per abbonamenti e contratti).
+- **Hosting:** online, Vercel e Neon.
+- **Login:** Better Auth.
+
+## 7. Differenze dalla proposta
+
+- **Tabelle**: per ora restano quelle "id + JSON" di prima, con in più la compagnia e la sede (come consigliato in PIANO-VENDITA.md); le tabelle relazionali vere si faranno dove servono.
+- **Indirizzi per sede** non ancora usati: la sede si sceglie dalla barra laterale.
+- **Proposte di modifica alla libreria** dal head chef non ancora fatte: il head chef crea ricette della sede.
+- **Inviti** con link da copiare, senza invio di email.

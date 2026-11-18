@@ -8,7 +8,9 @@ import { api } from "@/state/api";
 import { useApp } from "@/state/AppProvider";
 
 export function useRecipeActions() {
-  const { current, update, notify, t, fmt, closeDialog } = useApp();
+  const { current, update, notify, t, fmt, closeDialog, can, access } = useApp();
+  // Library recipes need "recipes.library", a site's own recipes "recipes.site".
+  const editable = (recipe: Recipe) => (recipe.siteId ? can("recipes.site") : can("recipes.library"));
 
   const findRecipe = (id: string) => current().recipes.find((item) => item.id === id);
 
@@ -37,7 +39,9 @@ export function useRecipeActions() {
     if (!recipe) return;
     const now = new Date().toISOString();
     const { currentMenu: _legacy, ...copy } = clone(recipe);
-    await saveRecipe({ ...copy, id: newId(), name: recipe.name + " · " + t("copia"), createdAt: now, updatedAt: now });
+    // Whoever may only create site recipes gets the copy as a recipe of their site.
+    const siteId = copy.siteId ?? (can("recipes.library") ? undefined : access?.site.id);
+    await saveRecipe({ ...copy, siteId, id: newId(), name: recipe.name + " · " + t("copia"), createdAt: now, updatedAt: now });
     closeDialog();
     notify(t("Copia creata."));
   }
@@ -55,7 +59,8 @@ export function useRecipeActions() {
    * kcal of linked rows follow their product or base recipe. Returns true when any recipe changed.
    */
   async function syncRecipeCosts(): Promise<boolean> {
-    const stale = recipesOutOfSync(current().recipes, current().stockItems);
+    // Only recipes this role may save; the others are aligned by whoever can edit them.
+    const stale = recipesOutOfSync(current().recipes, current().stockItems).filter(editable);
     for (const recipe of stale) await saveRecipe(recipe);
     return stale.length > 0;
   }

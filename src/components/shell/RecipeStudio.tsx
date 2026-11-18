@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyView } from "@/components/company/CompanyView";
 import { useEffect } from "react";
 import { DialogHost } from "@/components/shell/DialogHost";
 import { PageIntro } from "@/components/shell/PageIntro";
@@ -21,7 +22,12 @@ import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** The whole page: sidebar, top bar and either the recipe library or Food Stock. */
 export function RecipeStudio() {
-  const { view, setView, t, notify, loaded } = useApp();
+  const { view, setView, t, notify, loaded, can } = useApp();
+  // Roles without "costs.view" get zeros from the server; the cost figures are hidden instead of showing £0.00.
+  const hideCosts = !can("costs.view");
+  useEffect(() => { document.body.classList.toggle("no-costs", hideCosts); }, [hideCosts]);
+  const hidePay = !can("pay.view");
+  useEffect(() => { document.body.classList.toggle("no-pay", hidePay); }, [hidePay]);
   const { syncRecipeCosts } = useRecipeActions();
 
   // Product prices may have changed since recipes were last saved.
@@ -77,7 +83,7 @@ export function RecipeStudio() {
           <Topbar />
           <div className="content-wrap">
             <PageIntro />
-            {view.filter === "stock" ? <StockView /> : view.filter === "menus" ? <MenusView /> : view.filter === "prep" ? <PrepView /> : view.filter === "rota" ? <RotaView /> : view.filter === "safety" ? <SafetyView /> : view.filter === "performance" ? <PerformanceView /> : <><OverviewCards /><RecipeLibrary /></>}
+            {view.filter === "stock" ? <StockView /> : view.filter === "menus" ? <MenusView /> : view.filter === "prep" ? <PrepView /> : view.filter === "rota" ? <RotaView /> : view.filter === "safety" ? <SafetyView /> : view.filter === "performance" ? <PerformanceView /> : view.filter === "company" ? <CompanyView /> : <><OverviewCards /><RecipeLibrary /></>}
           </div>
         </main>
       </div>

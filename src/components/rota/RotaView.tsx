@@ -9,7 +9,8 @@ import { makeRotaFormat } from "@/lib/rota/format";
 import { payRules } from "@/lib/performance/labour";
 import { isEmptyRow, normalizeRows } from "@/lib/rota/shifts";
 import { pastWeeks, plannableWeeks, rowsForStaff } from "@/lib/rota/weeks";
-import type { RotaRow } from "@/lib/types";
+import { staffAtSite } from "@/lib/staff";
+import type { RotaRow, SharedShift } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { useRotaActions } from "@/state/actions/useRotaActions";
@@ -28,11 +29,14 @@ type SaveState = "idle" | "pending" | "saving" | "saved";
 
 /** Staff rota: this week and the next three can be edited, earlier weeks are kept as read-only history. */
 export function RotaView() {
-  const { data, f, t, fmt, notify, openDialog } = useApp();
+  const { data, f, t, fmt, notify, openDialog, access, can, sharedShifts } = useApp();
   const guard = useGuard();
   const { saveWeek, deleteWeek } = useRotaActions();
   const pay = payRules(data.settings);
-  const staff = data.settings.staff;
+  // People of this site only; with "rota.view" missing, the server sends just the person's own line.
+  const staff = staffAtSite(data.settings.staff, access?.site.id);
+  const editable = can("rota.edit");
+  const everyone = can("rota.view");
   const format = useMemo(() => makeRotaFormat(f.locale), [f.locale]);
   // The week list follows the calendar; it is worked out again whenever the page is shown.
   const [today] = useState(() => new Date());
@@ -40,10 +44,11 @@ export function RotaView() {
   const history = pastWeeks(data.rotaWeeks, today);
 
   const [weekId, setWeekId] = useState(plannable[0]);
-  const readOnly = !plannable.includes(weekId);
+  const past = !plannable.includes(weekId);
+  const readOnly = past || !editable;
   const stored = data.rotaWeeks.find((week) => week.id === weekId);
   // Editable weeks show one line per active staff member; past weeks show what was saved.
-  const linesFor = (id: string, saved: RotaRow[]) => (plannable.includes(id) ? rowsForStaff(saved, staff) : saved);
+  const linesFor = (id: string, saved: RotaRow[]) => (plannable.includes(id) && everyone ? rowsForStaff(saved, staff) : saved);
   const [rows, setRows] = useState<RotaRow[]>(() => linesFor(weekId, normalizeRows(stored?.rows ?? [])));
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [clipboard, setClipboard] = useState<RotaRow[] | null>(null);
@@ -56,7 +61,7 @@ export function RotaView() {
   // People added, renamed or removed in Settings show up straight away.
   const staffKey = staff.map((member) => member.name + ":" + member.active).join("|");
   useEffect(() => {
-    if (!readOnly) setRows((old) => rowsForStaff(old, staff));
+    if (!readOnly && everyone) setRows((old) => rowsForStaff(old, staff));
     // Runs when the staff list changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [staffKey]);
@@ -133,35 +138,36 @@ export function RotaView() {
   return (
     <section className="rota-view">
       <div className="rota-nav">
-        <button className="rota-nav-button" type="button" aria-label={t("Settimana precedente")} disabled={readOnly || index <= 0} onClick={guard(() => openWeek(plannable[index - 1]))}>←</button>
+        <button className="rota-nav-button" type="button" aria-label={t("Settimana precedente")} disabled={past || index <= 0} onClick={guard(() => openWeek(plannable[index - 1]))}>←</button>
         <div className="rota-current" aria-live="polite">
-          <p>{readOnly ? t("Storico · sola lettura") : fmt(t("Settimana {0} di {1}"), index + 1, plannable.length)}</p>
+          <p>{past ? t("Storico · sola lettura") : fmt(t("Settimana {0} di {1}"), index + 1, plannable.length)}{!past && !editable ? " · " + t(everyone ? "sola lettura" : "i tuoi turni") : ""}</p>
           <h2>{format.weekLabel(weekId)}</h2>
         </div>
-        <button className="rota-nav-button" type="button" aria-label={t("Settimana successiva")} disabled={readOnly || index >= plannable.length - 1} onClick={guard(() => openWeek(plannable[index + 1]))}>→</button>
+        <button className="rota-nav-button" type="button" aria-label={t("Settimana successiva")} disabled={past || index >= plannable.length - 1} onClick={guard(() => openWeek(plannable[index + 1]))}>→</button>
       </div>
 
       <div className="rota-bar">
         <label className="rota-history">
           <span>{t("Storico")}</span>
-          <select value={readOnly ? weekId : ""} onChange={(event) => { void guard(() => openWeek(event.target.value || plannable[0]))(); }}>
+          <select value={past ? weekId : ""} onChange={(event) => { void guard(() => openWeek(event.target.value || plannable[0]))(); }}>
             <option value="">{history.length ? t("Settimane passate…") : t("Nessuna settimana passata")}</option>
             {history.map((id) => <option key={id} value={id}>{format.weekLabel(id)}</option>)}
           </select>
         </label>
-        {readOnly ? <button className="button button-secondary button-small" type="button" onClick={guard(() => openWeek(plannable[0]))}>{t("Torna alla settimana corrente")}</button> : null}
+        {past ? <button className="button button-secondary button-small" type="button" onClick={guard(() => openWeek(plannable[0]))}>{t("Torna alla settimana corrente")}</button> : null}
         <span className="rota-status" role="status">{status}</span>
       </div>
 
-      <p className="field-hint rota-hint">{t("Scrivi i turni come 09:00-17:00; per un turno spezzato separa le fasce con una virgola (10:00-14:00, 18:00-22:00). Con ▾ segni riposo o ferie. Le modifiche si salvano da sole.")}</p>
+      {editable ? <p className="field-hint rota-hint">{t("Scrivi i turni come 09:00-17:00; per un turno spezzato separa le fasce con una virgola (10:00-14:00, 18:00-22:00). Con ▾ segni riposo o ferie. Le modifiche si salvano da sole.")}</p> : null}
 
       {!readOnly && !staff.some((member) => member.active) ? (
         <div className="safety-pending"><strong>{t("Nessuna persona in organico.")}</strong><span>{t("Aggiungi il personale e la paga oraria nelle impostazioni.")}</span></div>
       ) : null}
       <RotaTable weekId={weekId} rows={rows} readOnly={readOnly} format={format} onChange={edit} pay={pay} />
+      <OtherSites shifts={sharedShifts.filter((shift) => shift.weekId === weekId)} rows={rows} heads={format.dayHeads(weekId).map((head) => head.name)} />
 
       <div className="rota-actions">
-        <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "settings", tab: "staff" })}>{t("Gestisci personale e paghe")}</button>
+        {can("settings.company") ? <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "settings", tab: "staff" })}>{t("Gestisci personale e paghe")}</button> : null}
         <span className="rota-actions-spacer" />
         {readOnly ? null : (
           <>
@@ -176,6 +182,36 @@ export function RotaView() {
       </div>
 
       {printing ? <RotaPrintSheet weekId={weekId} rows={rows.filter((row) => !isEmptyRow(row))} format={format} texts={texts} /> : null}
+    </section>
+  );
+}
+
+/**
+ * Shifts the people of this site have at other sites of the company in the same week, so a person
+ * who works in two places is not booked twice. A day with shifts in both places is marked.
+ */
+function OtherSites({ shifts, rows, heads }: { shifts: SharedShift[]; rows: RotaRow[]; heads: string[] }) {
+  const { t } = useApp();
+  if (!shifts.length) return null;
+  const here = new Map(rows.map((row) => [row.name.trim().toLocaleLowerCase(), row.shifts]));
+  const working = (value: string | undefined) => Boolean(value && /\d/.test(value));
+  return (
+    <section className="rota-other">
+      <h3>{t("Turni in altre sedi")}</h3>
+      <ul>
+        {shifts.map((shift) => (
+          <li key={shift.siteId + shift.name}>
+            <strong>{shift.name}</strong> · {shift.siteName}
+            <span>
+              {shift.shifts.map((value, day) => (value ? (
+                <em key={day} className={working(value) && working(here.get(shift.name.trim().toLocaleLowerCase())?.[day]) ? "clash" : ""}>{heads[day]} {value}</em>
+              ) : null))}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {shifts.some((shift) => shift.shifts.some((value, day) => working(value) && working(here.get(shift.name.trim().toLocaleLowerCase())?.[day])))
+        ? <p className="field-hint">{t("In rosso i giorni in cui la persona lavora anche qui: controlla che gli orari non si sovrappongano.")}</p> : null}
     </section>
   );
 }

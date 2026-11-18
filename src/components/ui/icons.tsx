@@ -15,6 +15,9 @@ export function ArchiveIcon() {
 export function BoxIcon() {
   return <svg viewBox="0 0 20 20" fill="none"><path d="M10 2.5 17 6v8l-7 3.5L3 14V6l7-3.5ZM3 6l7 3.5L17 6M10 9.5v8" /></svg>;
 }
+export function UsersIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><circle cx="7.5" cy="7" r="2.8" /><path d="M2.5 16.5c.6-2.9 2.6-4.5 5-4.5s4.4 1.6 5 4.5M13 4.6a2.6 2.6 0 0 1 0 4.9M14.6 12.3c1.6.5 2.6 1.9 3 4.2" /></svg>;
+}
 export function GearIcon() {
   return <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" /><path d="M10 2.8v1.7m0 11v1.7m7.2-7.2h-1.7m-11 0H2.8m12.3-5.1-1.2 1.2m-7.8 7.8-1.2 1.2m11.4 0-1.2-1.2m-7.8-7.8L5.1 4.9" /></svg>;
 }

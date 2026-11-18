@@ -39,7 +39,7 @@ export function RotaTable({ weekId, rows, readOnly, format, onChange, pay }: Pro
             <th>{t("Staff")}</th>
             {heads.map((head) => <th key={head.key}><span className="rota-day">{head.name}</span><span className="rota-date">{head.day}</span></th>)}
             <th className="rota-total">{t("Ore")}</th>
-            <th className="rota-total">{t("Costo")}</th>
+            <th className="rota-total pay-only">{t("Costo")}</th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +58,7 @@ export function RotaTable({ weekId, rows, readOnly, format, onChange, pay }: Pro
                   <ShiftCell key={day} value={shift} readOnly={readOnly} onChange={(value) => setShift(index, day, value)} label={heads[day].name + ", " + (row.name || t("Senza nome"))} />
                 ))}
                 <td className="rota-total">{format.hours(totals.rows[index])}</td>
-                <td className="rota-total">{rate ? f.money(rowLabourCost(row, pay)) : "—"}</td>
+                <td className="rota-total pay-only">{rate ? f.money(rowLabourCost(row, pay)) : "—"}</td>
               </tr>
             );
           })}
@@ -68,9 +68,9 @@ export function RotaTable({ weekId, rows, readOnly, format, onChange, pay }: Pro
             <th scope="row">{t("Totale giornaliero")}</th>
             {totals.days.map((hours, day) => <td key={day}>{format.hours(hours)}</td>)}
             <td className="rota-total rota-grand">{format.hours(totals.total)}</td>
-            <td className="rota-total rota-grand">{f.money(labourTotal)}</td>
+            <td className="rota-total rota-grand pay-only">{f.money(labourTotal)}</td>
           </tr>
-          <tr className="rota-cost-row">
+          <tr className="rota-cost-row pay-only">
             <th scope="row">{t("Costo giornaliero")}</th>
             {labourByDay.map((cost, day) => <td key={day}>{f.money(cost)}</td>)}
             <td />

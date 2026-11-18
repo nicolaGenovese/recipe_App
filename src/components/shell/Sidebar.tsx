@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon, PlateIcon } from "@/components/ui/icons";
+import { ArchiveIcon, BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, MenuIcon, PlateIcon, UsersIcon } from "@/components/ui/icons";
 import { availabilityLabel, dayNames } from "@/lib/menus/availability";
 import { sortMenus } from "@/lib/menus/menus";
 import { localeFor } from "@/lib/i18n";
@@ -10,7 +10,7 @@ import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
 export function Sidebar() {
-  const { data, view, setView, openDialog, health, t, accessProtected, language } = useApp();
+  const { data, view, setView, openDialog, health, t, accessProtected, language, access, can, switchSite, logout } = useApp();
   const dayName = dayNames(localeFor(language));
   const { recipes } = data;
   const items: [ViewFilter, string, ReactNode, number][] = [
@@ -21,8 +21,17 @@ export function Sidebar() {
     ["rota", t("Turni"), <CalendarIcon key="i" />, data.rotaWeeks.length],
     ["safety", t("Sicurezza alimentare"), <ShieldIcon key="i" />, data.safetyLogs.length],
     ["performance", t("Andamento"), <ChartIcon key="i" />, data.salesWeeks.length],
-    ["stock", t("Food Stock"), <BoxIcon key="i" />, data.stockItems.length]
+    ["stock", t("Food Stock"), <BoxIcon key="i" />, data.stockItems.length],
+    ["company", t("Compagnia"), <UsersIcon key="i" />, access?.sites.filter((site) => site.companyId === access.company.id).length ?? 0]
   ];
+  // Pages a role cannot use are not offered; the server refuses them anyway.
+  const allowed: Partial<Record<ViewFilter, boolean>> = {
+    performance: can("sales.view"),
+    stock: can("stock.manage") || can("stock.count") || can("stock.deliveries"),
+    company: Boolean(access) && (can("users.manage") || can("company.manage"))
+  };
+  for (let index = items.length - 1; index >= 0; index--) if (allowed[items[index][0]] === false) items.splice(index, 1);
+  const showSettings = can("settings.site") || can("settings.company");
   // Each active menu gets a shortcut under "Menu" that shows its dishes.
   const menuLinks = sortMenus(data.menus).filter((menu) => menu.active);
   // With more than one menu the shortcuts sit in a dropdown under "Menu", open while one of them is shown.
@@ -41,7 +50,6 @@ export function Sidebar() {
     try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
     setView({ filter: "kitchen" });
   };
-  const logout = async () => { await fetch("/api/logout", { method: "POST" }); window.location.assign("/login"); };
   const storageLabel = health?.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
 
   return (
@@ -52,10 +60,7 @@ export function Sidebar() {
         <span className="brand-copy"><strong>{t("ricetta")}</strong><small>studio</small></span>
       </a>
 
-      <div className="workspace-switcher">
-        <span className="workspace-avatar">K</span>
-        <span className="workspace-copy"><strong>{t("La mia cucina")}</strong><small>{t("Spazio di lavoro")}</small></span>
-      </div>
+      <SitePicker />
 
       <div className="nav-label">{t("GESTIONE")}</div>
       <nav className="side-nav">
@@ -92,10 +97,12 @@ export function Sidebar() {
           <span className="nav-icon" aria-hidden="true"><PlateIcon /></span>
           <span>{t("Modalità cucina")}</span>
         </button>
-        <button className="nav-item settings-link" type="button" onClick={() => openDialog({ kind: "settings" })}>
-          <span className="nav-icon" aria-hidden="true"><GearIcon /></span>
-          <span>{t("Impostazioni")}</span>
-        </button>
+        {showSettings ? (
+          <button className="nav-item settings-link" type="button" onClick={() => openDialog({ kind: "settings" })}>
+            <span className="nav-icon" aria-hidden="true"><GearIcon /></span>
+            <span>{t("Impostazioni")}</span>
+          </button>
+        ) : null}
         {accessProtected ? (
           <button className="nav-item settings-link" type="button" onClick={logout}>
             <span className="nav-icon" aria-hidden="true">⎋</span>
@@ -118,6 +125,7 @@ export function Sidebar() {
     {moreOpen ? (
       <div className="mobile-sheet-backdrop" onClick={() => setMoreOpen(false)}>
         <div id="mobileMore" className="mobile-sheet" role="dialog" aria-label={t("Altro|nav")} onClick={(event) => event.stopPropagation()}>
+          {access && access.sites.length > 1 ? <div className="mobile-sheet-site"><SitePicker /></div> : null}
           <button className="mobile-sheet-kitchen" type="button" onClick={enterKitchen}><PlateIcon /><span><strong>{t("Modalità cucina")}</strong><small>{t("Prep list, temperature e checklist con pulsanti grandi")}</small></span></button>
           <div className="mobile-sheet-grid">
             {items.map(([filter, label, icon, count]) => (
@@ -131,12 +139,47 @@ export function Sidebar() {
             </div>
           ) : null}
           <div className="mobile-sheet-foot">
-            <button type="button" onClick={() => { setMoreOpen(false); openDialog({ kind: "settings" }); }}><GearIcon /> {t("Impostazioni")}</button>
+            {showSettings ? <button type="button" onClick={() => { setMoreOpen(false); openDialog({ kind: "settings" }); }}><GearIcon /> {t("Impostazioni")}</button> : null}
             {accessProtected ? <button type="button" onClick={logout}>⎋ {t("Esci")}</button> : null}
           </div>
         </div>
       </div>
     ) : null}
     </>
+  );
+}
+
+/**
+ * Company and site at the top of the sidebar. With more than one site (or company) it is a picker;
+ * in local mode it shows the single kitchen.
+ */
+export function SitePicker() {
+  const { access, switchSite, t } = useApp();
+  if (!access) {
+    return (
+      <div className="workspace-switcher">
+        <span className="workspace-avatar">K</span>
+        <span className="workspace-copy"><strong>{t("La mia cucina")}</strong><small>{t("Spazio di lavoro")}</small></span>
+      </div>
+    );
+  }
+  const companies = Array.from(new Map(access.sites.map((site) => [site.companyId, site.companyName])));
+  return (
+    <div className="workspace-switcher">
+      <span className="workspace-avatar">{(access.site.name.trim()[0] ?? "K").toUpperCase()}</span>
+      <span className="workspace-copy">
+        <strong>{access.site.name}</strong>
+        <small>{access.company.name}</small>
+      </span>
+      {access.sites.length > 1 ? (
+        <select className="workspace-select" aria-label={t("Cambia sede")} value={access.site.id} onChange={(event) => void switchSite(event.target.value)}>
+          {companies.map(([companyId, companyName]) => (
+            <optgroup key={companyId} label={companyName}>
+              {access.sites.filter((site) => site.companyId === companyId).map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}
+            </optgroup>
+          ))}
+        </select>
+      ) : null}
+    </div>
   );
 }

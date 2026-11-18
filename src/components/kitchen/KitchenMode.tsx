@@ -11,6 +11,7 @@ import { KITCHEN_KEY, kitchenPrepLists, slotOf, uncheckedDeliveries } from "@/li
 import { dateKey } from "@/lib/num";
 import { missingToday } from "@/lib/safety/rules";
 import { staffNames } from "@/lib/safety/staff";
+import { staffAtSite } from "@/lib/staff";
 import { useApp } from "@/state/AppProvider";
 
 type Panel = "prep" | "temperature" | "cooking" | "delivery" | "checklist";
@@ -26,13 +27,15 @@ type Badge = { count: number; tone: "todo" | "info" | "done" | "none" };
  * once and signs every record.
  */
 export function KitchenMode() {
-  const { data, setView, t, f } = useApp();
+  const { data, setView, t, f, access } = useApp();
   useWakeLock();
   const now = useNow();
   const today = dateKey(now);
   const [panel, setPanel] = useState<Panel>("prep");
-  const [by, setBy] = useState(() => readStored(BY_KEY));
-  const names = staffNames(data.rotaWeeks, today, data.settings.staff);
+  // An account linked to a staff member signs as that person; otherwise the name last picked on this device.
+  const linked = data.settings.staff.find((member) => member.id === access?.staffId)?.name;
+  const [by, setBy] = useState(() => linked || readStored(BY_KEY));
+  const names = staffNames(data.rotaWeeks, today, staffAtSite(data.settings.staff, access?.site.id));
   const missing = missingToday(data.safetyLogs, today, data.settings.foodSafety);
   const lists = kitchenPrepLists(data.prepLists, today);
   const prepLeft = lists.reduce((total, list) => total + list.tasks.filter((task) => !task.done).length, 0);

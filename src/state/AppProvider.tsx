@@ -6,7 +6,8 @@ import { fmt, localeFor, makeTranslate, readStoredLanguage, storeLanguage, type 
 import { menuRecipeIds } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
 import { clone } from "@/lib/num";
-import type { AppData, AppState, GpRules, Health, Language } from "@/lib/types";
+import { canDo, type AccessInfo, type Permission } from "@/lib/access/permissions";
+import type { AppData, AppState, GpRules, Health, Language, SharedShift } from "@/lib/types";
 import { api } from "@/state/api";
 import type { DialogState } from "@/state/dialogs";
 import { INITIAL_STOCK_VIEW, INITIAL_VIEW, type StockViewState, type ViewState } from "@/state/view";
@@ -39,9 +40,19 @@ interface AppContextValue {
   closeDialog: () => void;
   toast: Toast | null;
   notify: (message: string, error?: boolean) => void;
-  /** True when the app sits behind the shared password, so a "log out" button makes sense. */
+  /** True when the app sits behind accounts or the shared password, so a "log out" button makes sense. */
   accessProtected: boolean;
+  /** Signed-in user, company, site and permissions; null in local mode, where everything is allowed. */
+  access: AccessInfo | null;
+  can: (permission: Permission) => boolean;
+  /** Shifts the people of this site have at other sites of the company. */
+  sharedShifts: SharedShift[];
+  /** Opens another site of the user's companies and reloads its data. */
+  switchSite: (siteId: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
+
+const SITE_COOKIE = "rs_site";
 
 const AppContext = createContext<AppContextValue | null>(null);
 
@@ -70,6 +81,8 @@ export function AppProvider({ initialState, accessProtected = false, children }:
   const dataRef = useRef(data);
   const [loaded, setLoaded] = useState(Boolean(initialState));
   const [health, setHealth] = useState<Health | null>(null);
+  const [access, setAccess] = useState<AccessInfo | null>(initialState?.access ?? null);
+  const [sharedShifts, setSharedShifts] = useState<SharedShift[]>(initialState?.sharedShifts ?? []);
   const [language, setLanguageState] = useState<Language>(initialState?.settings?.language ?? "en");
   const [view, setViewState] = useState(INITIAL_VIEW);
   const [stockView, setStockViewState] = useState(INITIAL_STOCK_VIEW);
@@ -108,6 +121,8 @@ export function AppProvider({ initialState, accessProtected = false, children }:
     try {
       const state = await api.state();
       update(() => toData(state));
+      setAccess(state.access ?? null);
+      setSharedShifts(state.sharedShifts ?? []);
       if (state.settings?.language) setLanguage(state.settings.language);
     } catch (error) {
       notify(t("Archivio non raggiungibile:") + " " + t(error instanceof Error ? error.message : String(error)), true);
@@ -133,7 +148,20 @@ export function AppProvider({ initialState, accessProtected = false, children }:
     stockView,
     setStockView: useCallback((change) => setStockViewState((old) => ({ ...old, ...(typeof change === "function" ? change(old) : change) })), []),
     dialog, openDialog: setDialog, closeDialog: useCallback(() => setDialog(null), []),
-    toast, notify, accessProtected
+    toast, notify, accessProtected,
+    access, sharedShifts,
+    can: useCallback((permission: Permission) => canDo(access, permission), [access]),
+    switchSite: useCallback(async (siteId: string) => {
+      // A preference only: the server checks it against the user's assignments on every request.
+      document.cookie = SITE_COOKIE + "=" + encodeURIComponent(siteId) + "; path=/; max-age=31536000; samesite=lax";
+      setViewState((old) => ({ ...old, filter: old.filter === "company" ? "company" : "all", menuId: null, page: 1 }));
+      await reload();
+      await refreshHealth();
+    }, [reload, refreshHealth]),
+    logout: useCallback(async () => {
+      await fetch(access ? "/api/auth/sign-out" : "/api/logout", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" }).catch(() => undefined);
+      window.location.assign("/login");
+    }, [access])
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

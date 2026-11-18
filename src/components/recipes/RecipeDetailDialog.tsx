@@ -1,5 +1,6 @@
 "use client";
 
+import { useRecipeRights } from "@/state/useRights";
 import { AllergenTags, Callout, MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { PlateIcon } from "@/components/ui/icons";
@@ -28,10 +29,10 @@ function IngredientTable({ recipe }: { recipe: Recipe }) {
   if (!list.length) return <p className="detail-text">{t("Nessun ingrediente inserito. Aggiungili dalla scheda di modifica.")}</p>;
   return (
     <table className="detail-table">
-      <thead><tr><th>{t("Ingrediente")}</th><th>{t("Tipo")}</th><th>{t("Quantità")}</th><th>{t("Costo")}</th></tr></thead>
+      <thead><tr><th>{t("Ingrediente")}</th><th>{t("Tipo")}</th><th>{t("Quantità")}</th><th className="cost-only">{t("Costo")}</th></tr></thead>
       <tbody>
         {list.map((item, index) => (
-          <tr key={index}><td>{item.name}</td><td>{t(item.type) || t("Prodotto")}</td><td>{num(item.quantity)} {item.unit || ""}</td><td>{f.money(num(item.quantity) * num(item.unitCost))}</td></tr>
+          <tr key={index}><td>{item.name}</td><td>{t(item.type) || t("Prodotto")}</td><td>{num(item.quantity)} {item.unit || ""}</td><td className="cost-only">{f.money(num(item.quantity) * num(item.unitCost))}</td></tr>
         ))}
       </tbody>
     </table>
@@ -40,6 +41,7 @@ function IngredientTable({ recipe }: { recipe: Recipe }) {
 
 export function RecipeDetailDialog({ id }: { id: string }) {
   const { data, gpRules, openDialog, f, t, fmt } = useApp();
+  const rights = useRecipeRights();
   const recipe = data.recipes.find((item) => item.id === id);
   if (!recipe) return null;
   const gaps = recipeCostGaps(recipe);
@@ -69,7 +71,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
       </div>
       <div className="detail-body">
         {gaps.length ? <Callout title={t("Costo incompleto")}>{fmt(t("Senza costo: {0}."), gaps.map((row) => row.name).join(", "))}</Callout> : null}
-        <div className="pill-metrics">
+        <div className="pill-metrics cost-only">
           <MetricTile label={t("Costo totale")}>{f.money(totalCost(recipe))}</MetricTile>
           <MetricTile label={t("Costo / porzione")}>{f.money(portionCost(recipe))}</MetricTile>
           <MetricTile label={t("Prezzo vendita")}>{f.money(recipe.sellingPrice)}</MetricTile>
@@ -109,8 +111,8 @@ export function RecipeDetailDialog({ id }: { id: string }) {
           <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "safetyCooking", recipeId: recipe.id })}>{t("Registra temperatura")}</button>
         </div>
         <div className="dialog-footer-right">
-          <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "recipeMenus", id: recipe.id })}>{t("Menu…")}</button>
-          <button className="button button-primary button-small" type="button" onClick={() => openDialog({ kind: "recipeEditor", recipe })}>{t("Modifica ricetta")}</button>
+          {rights.canMenus ? <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "recipeMenus", id: recipe.id })}>{t("Menu…")}</button> : null}
+          {rights.canEdit(recipe) ? <button className="button button-primary button-small" type="button" onClick={() => openDialog({ kind: "recipeEditor", recipe })}>{t("Modifica ricetta")}</button> : null}
         </div>
       </footer>
     </Dialog>

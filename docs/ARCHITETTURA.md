@@ -17,7 +17,7 @@ src/
 1. **Prima apertura.** `app/page.tsx` gira sul server, legge l'archivio con `getStore().getState()` e passa tutto ad `AppProvider`. La pagina arriva già con i dati, senza schermata di caricamento.
 2. **Nel browser.** `state/AppProvider.tsx` tiene i dati in memoria e li mette a disposizione di ogni componente con `useApp()`, insieme a lingua (`t`), formati (`f`: valuta, quantità, date), regole GP, filtri della vista, finestra aperta e avvisi.
 3. **Una modifica.** Un componente chiama un'azione, per esempio `useStockActions().saveDelivery(…)`. L'azione chiama l'API (`state/api.ts`), aggiorna i dati in memoria con `update(…)` e mostra l'avviso.
-4. **Sul server.** La route in `app/api/…` legge il JSON, lo valida (`lib/server/validation.ts`) e lo passa all'archivio (`lib/server/store`), che è il file JSON locale oppure Neon.
+4. **Sul server.** La route in `app/api/…` chiede il contesto (`lib/server/auth/context.ts`: chi è, in quale compagnia e sede, con quali permessi), legge il JSON, lo valida (`lib/server/validation.ts`), controlla il permesso e lo passa all'archivio della sede (`lib/server/store`), che è il file JSON locale oppure Neon.
 
 `current()` restituisce sempre i dati più recenti, anche dentro un'azione lunga che fa più salvataggi di fila: usalo al posto di `data` nelle azioni.
 
@@ -65,12 +65,20 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 
 | File | Contenuto |
 | --- | --- |
-| `store/types.ts` | L'interfaccia `Store`: tutto quello che le API chiedono all'archivio. |
-| `store/local-store.ts` | Archivio su file JSON. Le scritture passano da un file temporaneo e sono in coda, quindi due salvataggi veloci non si sovrascrivono. |
-| `store/neon-store.ts` | Archivio su Neon Postgres. Crea le tabelle al primo uso. |
+| `store/types.ts` | Le interfacce `Store` e `ScopedStore`: ai dati si arriva solo con `store.scoped({ companyId, siteId })`. |
+| `store/local-store.ts` | Archivio su file JSON, una sola cucina (ignora la sede). Le scritture passano da un file temporaneo e sono in coda, quindi due salvataggi veloci non si sovrascrivono. |
+| `store/neon-store.ts` | Archivio su Neon Postgres. Ogni chiamata è una transazione con il ruolo limitato `rs_tenant` e la compagnia impostata, quindi la row-level security non lascia vedere altre compagnie. Ricette e prodotti per compagnia, il resto per sede; la giacenza dei prodotti e le impostazioni di sicurezza per sede. |
 | `store/index.ts` | `getStore()`: Neon se c'è `DATABASE_URL`, altrimenti il file. |
+| `schema.ts` | Tabelle, migrazione una tantum (i dati di prima diventano `company_first` / `site_first`) e row-level security, sotto un lock. |
+| `db.ts` | Connessione Neon e id casuali. |
+| `directory.ts` | Compagnie, aree, sedi, ruoli, incarichi e inviti (come proprietario del database, quindi ogni funzione controlla la compagnia da sé). `buildAccess` calcola sedi raggiungibili e permessi. |
+| `auth/auth.ts` | Better Auth (email e password) sullo stesso database; crea le sue tabelle una volta. |
+| `auth/context.ts` | `requireContext(request, ...permessi)`: sessione, compagnia, sede (cookie `rs_site`), permessi e archivio della sede. In locale tutto permesso. |
+| `guards.ts` | Regole sulle scritture: ricette della libreria o della sede, conteggi e spunte, correzioni HACCP, registro attività. |
 | `validation.ts` | Controlli sui dati in arrivo ed `HttpError`. |
 | `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori. |
+
+Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso con il browser); `lib/access/redact.ts` toglie dai dati quello che un ruolo non può vedere.
 
 `store/index.ts` importa `server-only`: se per sbaglio un componente del browser lo importa, la build si ferma invece di esporre il database.
 

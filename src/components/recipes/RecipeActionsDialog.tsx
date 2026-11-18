@@ -1,5 +1,6 @@
 "use client";
 
+import { useRecipeRights } from "@/state/useRights";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -10,16 +11,18 @@ export function RecipeActionsDialog({ id }: { id: string }) {
   const { data, openDialog, t } = useApp();
   const guard = useGuard();
   const actions = useRecipeActions();
+  const rights = useRecipeRights();
   const recipe = data.recipes.find((item) => item.id === id);
   if (!recipe) return null;
 
-  const options: [string, string, () => unknown][] = [
-    [t("Modifica"), t("Aggiorna ingredienti, istruzioni e costi."), () => openDialog({ kind: "recipeEditor", recipe })],
-    [t("Duplica"), t("Crea una copia modificabile."), () => actions.cloneRecipe(id)],
-    [t("Menu"), t("Scegli in quali menu compare questo piatto."), () => openDialog({ kind: "recipeMenus", id })],
-    [recipe.archivedBatch ? t("Rimuovi dalle basi") : t("Salva come base"), t("Organizza le preparazioni riutilizzabili."), () => actions.toggleArchive(id)],
-    [t("Elimina"), t("Rimuove la scheda dall'archivio."), () => actions.deleteRecipe(id)]
-  ];
+  const editable = rights.canEdit(recipe);
+  const options = ([
+    [t("Modifica"), t("Aggiorna ingredienti, istruzioni e costi."), () => openDialog({ kind: "recipeEditor", recipe }), editable],
+    [t("Duplica"), t("Crea una copia modificabile."), () => actions.cloneRecipe(id), rights.canCreate],
+    [t("Menu"), t("Scegli in quali menu compare questo piatto."), () => openDialog({ kind: "recipeMenus", id }), rights.canMenus],
+    [recipe.archivedBatch ? t("Rimuovi dalle basi") : t("Salva come base"), t("Organizza le preparazioni riutilizzabili."), () => actions.toggleArchive(id), editable],
+    [t("Elimina"), t("Rimuove la scheda dall'archivio."), () => actions.deleteRecipe(id), editable]
+  ] as [string, string, () => unknown, boolean][]).filter((option) => option[3]);
 
   return (
     <Dialog>

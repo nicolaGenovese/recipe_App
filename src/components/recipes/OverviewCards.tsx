@@ -26,7 +26,7 @@ export function OverviewCards() {
         <div className="overview-foot"><span className="status-ring" /> {fmt(activeMenus === 1 ? t("Su {0} menu attivo") : t("Su {0} menu attivi"), activeMenus)}</div>
         <div className="mini-dots" aria-hidden="true">{Array.from({ length: 9 }, (_, index) => <i key={index} />)}</div>
       </article>
-      <article className="overview-card">
+      <article className="overview-card cost-only">
         <div className="overview-label">{t("COSTO MEDIO / PORZIONE")}</div>
         <div className="overview-value">{f.money(averageCost)}</div>
         <div className="overview-foot">{t("Sulle ricette con ingredienti e costi")}</div>

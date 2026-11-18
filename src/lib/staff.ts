@@ -34,6 +34,12 @@ export function staffFromRota(weeks: Pick<RotaWeek, "id" | "rows">[], rates: Rec
 
 export const activeStaff = (staff: StaffMember[]) => staff.filter((member) => member.active);
 
+/** Staff working at a site: those assigned to it, or to every site when none is chosen. Without a site, everyone. */
+export function staffAtSite(staff: StaffMember[], siteId: string | null | undefined): StaffMember[] {
+  if (!siteId) return staff;
+  return staff.filter((member) => !member.siteIds?.length || member.siteIds.includes(siteId));
+}
+
 export function findStaff(staff: StaffMember[], name: string): StaffMember | undefined {
   const key = name.trim().toLocaleLowerCase();
   return staff.find((member) => member.name.toLocaleLowerCase() === key);

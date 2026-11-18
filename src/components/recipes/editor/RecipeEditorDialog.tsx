@@ -22,7 +22,7 @@ const TABS: [EditorTab, string][] = [["general", "Panoramica"], ["ingredients", 
 
 /** Create or edit a recipe. Opening it with a partial recipe (no id) prefills a new one. */
 export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?: Partial<Recipe>; startTab?: EditorTab }) {
-  const { data, gpRules, t, fmt, notify, closeDialog, current } = useApp();
+  const { data, gpRules, t, fmt, notify, closeDialog, current, access, can } = useApp();
   const { saveRecipe, deleteRecipe, syncRecipeCosts } = useRecipeActions();
   const { setRecipeMenus } = useMenuActions();
   const recipe = initial?.id ? data.recipes.find((item) => item.id === initial.id) ?? initial : initial ?? {};
@@ -32,6 +32,9 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
     menuIds: recipe.id ? menusOfRecipe(data.menus, recipe.id).map((menu) => menu.id) : []
   }));
   const [tab, setTab] = useState<EditorTab>(startTab);
+  // Library recipes belong to the whole company; a site can also keep recipes of its own.
+  const library = can("recipes.library");
+  const [ownSite, setOwnSite] = useState(() => Boolean(recipe.siteId) || (!library && can("recipes.site")));
   const [saving, setSaving] = useState<"idle" | "saving" | "failed">("idle");
   const patch: FormPatch = (change) => setForm((old) => ({ ...old, ...(typeof change === "function" ? change(old) : change) }));
 
@@ -51,7 +54,8 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
       const resolved = resolveRecipe(draft, current().stockItems, current().recipes);
       const check = nextAllergenCheck(resolved, { confirmed: form.allergensConfirmed, touched: form.allergensTouched, by: form.allergensCheckedBy });
       const { allergenCheck: _old, ...rest } = resolved;
-      const saved = await saveRecipe(check ? { ...rest, allergenCheck: check } : rest);
+      const placed = { ...rest, siteId: access && ownSite ? access.site.id : undefined };
+      const saved = await saveRecipe(check ? { ...placed, allergenCheck: check } : placed);
       await setRecipeMenus(saved.id, form.menuIds);
       // A base recipe passes its new cost and allergens to the dishes that use it.
       if (saved.archivedBatch) await syncRecipeCosts();
@@ -70,6 +74,14 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
     <Dialog>
       <DialogHeader kicker={isNew ? t("NUOVA SCHEDA") : t("MODIFICA SCHEDA")} title={isNew ? t("Crea una ricetta") : t("Modifica ricetta")} subtitle={t("Ingredienti, costi e indicazioni operative in un'unica scheda.")} />
       <form id="recipeForm" onSubmit={submit}>
+        {access ? (
+          <div className="recipe-owner">
+            {library && can("recipes.site") ? (
+              <label><input type="checkbox" checked={ownSite} onChange={(event) => setOwnSite(event.target.checked)} /> {fmt(t("Solo per {0}"), access.site.name)}</label>
+            ) : null}
+            <span>{ownSite ? fmt(t("Ricetta propria di {0}: le altre sedi non la vedono."), access.site.name) : t("Ricetta della libreria: tutte le sedi della compagnia la vedono.")}</span>
+          </div>
+        ) : null}
         <div className="editor-tabs">
           {TABS.map(([key, label]) => (
             <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>

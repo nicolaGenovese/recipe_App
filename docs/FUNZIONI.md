@@ -72,7 +72,16 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 
 - Impostazioni: valuta, lingua (italiano, inglese), regole del calcolo GP, personale, liste personalizzabili.
 - Online su Vercel con database Neon; in locale anche su file JSON. Backup e importazione JSON, CSV delle ricette.
-- Accesso protetto da una password condivisa.
+- **Più compagnie e sedi, account e ruoli** (con il database): ognuno entra con email e password (Better Auth). Una compagnia ha una o più sedi, raggruppabili in aree; la libreria di ricette e i prodotti sono della compagnia, una sede può avere ricette proprie, e menu, magazzino, prep list, turni, registri, sprechi e vendite sono di ogni sede. La sede si sceglie in alto nella barra laterale.
+  - **Primo accesso**: i dati che esistevano prima degli account diventano la prima compagnia e la sua sede; li prende il primo account, che deve conoscere la vecchia password dell'app (`APP_PASSWORD`).
+  - **Registrazione**: chiunque può creare una nuova compagnia (pagina "Crea una nuova compagnia"); parte vuota e ne diventa proprietario.
+  - **Pagina Compagnia**: confronto tra sedi (vendite, GP teorico e reale, sprechi, personale, prime cost, anomalie HACCP e controlli da fare oggi, ultime 4 settimane), persone con ruolo, sede o area e persona in organico collegata, inviti con link (14 giorni, una volta sola, facoltativamente legati a un'email), sedi e aree, ruoli e permessi con una tabella da spuntare, registro delle attività.
+  - **Ruoli**: gli otto ruoli predefiniti di MULTI-AZIENDA.md, modificabili per ogni compagnia, più ruoli propri. Nessuno assegna un ruolo pari o superiore al proprio, né fuori dalle sedi in cui lavora.
+  - **Permessi** controllati dal server su ogni operazione; quello che un ruolo non può vedere (prezzi e costi, paghe, turni degli altri) non arriva al browser e le cifre non compaiono.
+  - **Isolamento tra compagnie su due livelli**: il codice filtra ogni lettura, e Postgres applica la row-level security con un ruolo limitato (`rs_tenant`).
+  - **Personale tra sedi**: ogni persona ha le sedi in cui lavora; nei turni si vedono i suoi turni nelle altre sedi, con in rosso i giorni in cui lavora in due posti. Un account collegato a una persona vede i propri turni e firma i registri in modalità cucina con il proprio nome.
+  - **Registro delle attività**: prezzi, turni, paghe, ruoli, permessi, incarichi, sedi. I registri HACCP corretti o eliminati conservano la copia precedente con chi e quando.
+- Senza database (in locale) l'app resta una sola cucina, aperta o protetta dalla password condivisa.
 - Interfaccia in italiano e inglese, pensata anche per il telefono: barra in basso con Ricette, Menu, Prep list, Sicurezza e "Altro" (tutte le altre pagine, i menu, la modalità cucina e le impostazioni), finestre a tutto schermo, testi e pulsanti più grandi, tabelle che scorrono nel loro riquadro. Si può aggiungere alla schermata Home del telefono o del tablet.
 - Modalità cucina per tablet e telefono: si apre da sola su telefoni e tablet (schermi touch); se su un dispositivo si esce, quel dispositivo lo ricorda e si apre nell'app normale finché non si sceglie di nuovo Modalità cucina (barra laterale o "Altro"). Dal computer si apre dalla barra laterale → Modalità cucina, oppure con l'indirizzo `?cucina`: schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Cinque schede con il conteggio di cosa manca: prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) cottura, abbattimento, rigenerazione e mantenimento (con i piatti controllati di recente a un tocco), controllo merce in arrivo (parte dalle consegne di Food Stock ancora senza controllo; con "Scansiona fattura" si fotografa la fattura, si controllano le righe e la consegna salvata viene scelta subito per il controllo) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Ogni temperatura ha la sua foto; i controlli di oggi si toccano per correggerli. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
 
@@ -81,7 +90,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 In ordine di utilità, secondo quanto discusso finora.
 
 1. **Ordini ai fornitori.** Ordine suggerito per fornitore (sotto il livello minimo più il fabbisogno delle prossime prep list); scheda fornitore con contatti, giorni di consegna e orario limite; invio per email o WhatsApp; confronto tra ordinato e consegnato.
-2. **Più compagnie e sedi, utenti e ruoli.** Compagnie con più ristoranti o pub, login, gerarchia dal head office al kitchen porter e permessi per sede. Necessario prima di usare l'app fuori dalla rete del locale. Proposta completa in [MULTI-AZIENDA.md](MULTI-AZIENDA.md).
+2. **Abbonamenti e vendita** (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md)): Stripe, prova gratuita, limiti di scansione per sede, email di sistema per inviti e recupero password.
 3. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
 4. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
 5. **Storico dei prezzi** di prodotti e piatti.
@@ -102,7 +111,9 @@ L'archivio online parte vuoto. Per avere numeri affidabili servono:
 
 ## Limiti noti
 
-- **Password condivisa, non utenti**: online l'app è protetta da un'unica password (`APP_PASSWORD`), ma non distingue chi la usa né limita cosa può fare.
+- **Inviti solo con link**: non partono email; il link si copia e si manda a mano. Anche il recupero della password non è ancora attivo (serve un servizio email).
+- **Indirizzi per sede** (`/compagnia/sede/...`) non ancora usati: la sede scelta resta nel browser.
+- **Prezzi cambiati da chi non modifica le ricette** (per esempio un sous chef): i costi delle ricette si riallineano alla prossima apertura di chi può modificarle.
 - **GP reale settimanale** approssimato: arriva dal report stock che copre più giorni della settimana.
 - **Controllo all'arrivo aperto da una consegna** non provato, perché l'archivio non ha ancora consegne.
 - **Vecchia app Rota** ancora attiva su Supabase: le modifiche fatte lì non arrivano qui.

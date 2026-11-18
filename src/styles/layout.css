@@ -112,3 +112,73 @@ h1 { color: #293229; font-size: clamp(24px, 2.4vw, 30px); font-weight: 640; lett
 .account-switch { justify-self: start; margin-top: 4px; font-size: 13px; }
 .account-note { padding-top: 10px; border-top: 1px solid var(--line); font-size: 12px !important; }
 .account-tabs { margin: 4px 0; }
+
+/* Site picker in the sidebar: the whole box opens the native select. */
+.workspace-switcher { position: relative; }
+.workspace-select { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+.workspace-switcher:has(.workspace-select)::after { content: "⌄"; margin-left: auto; color: #6c7168; font-size: 14px; }
+.mobile-sheet-site { margin-bottom: 10px; }
+.mobile-sheet-site .workspace-switcher { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+
+/* Company page */
+.company-view { display: grid; gap: 16px; }
+.company-empty { padding: 30px; color: var(--muted); text-align: center; }
+.company-name { margin: 0; font-size: 20px; }
+.company-name-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.company-name-form input { width: min(320px, 100%); }
+.company-name-form label { display: grid; gap: 4px; flex: 0 1 auto; color: #5d6857; font-size: 13px; font-weight: 600; }
+.company-name-form input, .company-form input, .company-form select, .company-table select, .company-list select { min-height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; font-size: 14px; }
+.company-card { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.company-card h3, .company-subtitle { margin: 0; font-size: 15px; }
+.company-hint { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.company-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); align-items: end; gap: 10px; }
+.company-form label { display: grid; gap: 4px; color: #5d6857; font-size: 13px; font-weight: 600; }
+.company-form.inline { padding-top: 10px; border-top: 1px solid var(--line); }
+.company-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 10px; border-radius: 8px; background: #f1f6ea; font-size: 13px; }
+.company-link code { overflow-wrap: anywhere; }
+.company-table td { vertical-align: middle; }
+.company-table select { min-height: 34px; max-width: 220px; }
+.company-sub { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.company-table .category-tag { margin-left: 6px; }
+.company-invites, .company-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.company-invites li, .company-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 14px; }
+.company-invites li > span { flex: 1 1 240px; }
+.company-invites small { display: block; color: var(--muted); font-size: 12px; }
+.company-list li > strong { flex: 1 1 160px; }
+.company-sites { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.role-matrix th { min-width: 110px; vertical-align: bottom; }
+.role-matrix th:first-child, .role-matrix td:first-child { position: sticky; left: 0; z-index: 1; min-width: 220px; background: #fff; }
+.role-head { display: grid; gap: 2px; font-size: 13px; }
+.role-head small { color: var(--muted); font-size: 11px; font-weight: 400; }
+.role-matrix .link-button { margin-right: 8px; font-size: 12px; }
+.role-matrix .link-button.danger { color: #a3412b; }
+.role-cell { text-align: center; }
+.role-cell input { width: 18px; height: 18px; }
+.role-group td { padding-top: 14px; color: #5d6857; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: #fafaf7; }
+@media (max-width: 600px) {
+  .company-sites { grid-template-columns: 1fr; }
+  .role-matrix th:first-child, .role-matrix td:first-child { min-width: 160px; }
+}
+
+.rota-other { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fafaf7; }
+.rota-other h3 { margin: 0 0 8px; font-size: 14px; }
+.rota-other ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.rota-other li span { display: inline-flex; flex-wrap: wrap; gap: 4px 10px; margin-left: 8px; }
+.rota-other em { color: #4d5649; font-style: normal; }
+.rota-other em.clash { color: #a3412b; font-weight: 700; }
+
+.staff-sites { min-width: 160px; }
+.staff-sites label { display: inline-flex; align-items: center; gap: 4px; margin: 2px 10px 2px 0; font-size: 12px; white-space: nowrap; }
+
+.recipe-owner { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 10px; padding: 8px 12px; border-radius: 9px; background: #f4f6f0; color: #5d6857; font-size: 13px; }
+.recipe-owner label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.site-tag { margin-left: 6px; padding: 1px 6px; border-radius: 6px; color: #3f6fa3; background: #eef3fa; font-size: 11px; font-weight: 600; vertical-align: middle; }
+
+/* Roles without "costs.view": prices arrive as zeros, so the figures are hidden. */
+body.no-costs .cost-only { display: none !important; }
+.company-view, .company-roles, .company-people { min-width: 0; }
+.company-roles, .company-people { display: grid; gap: 12px; }
+.company-view .stock-table-wrap { max-width: 100%; overflow-x: auto; }
+body.no-pay .pay-only { display: none !important; }
+.compare-table td { white-space: nowrap; }
+.compare-table td.compare-bad { color: #a3412b; font-weight: 700; }

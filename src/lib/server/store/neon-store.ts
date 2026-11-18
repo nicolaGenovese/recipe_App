@@ -1,5 +1,7 @@
 import { normalizeSettings } from "@/lib/settings";
-import type { Menu, PrepList, Recipe, RotaWeek, SafetyLog, SalesWeek, Settings, SharedShift, StaffMember, StockDelivery, StockItem, StockReport, WasteLog } from "@/lib/types";
+import { staffAtSite } from "@/lib/staff";
+export { staffAtSite } from "@/lib/staff";
+import type { Menu, PrepList, Recipe, RotaWeek, SafetyLog, SalesWeek, Settings, SharedShift, StockDelivery, StockItem, StockReport, WasteLog } from "@/lib/types";
 import type { Sql } from "@/lib/server/db";
 import { ensureSchema } from "@/lib/server/schema";
 import type { RecordKind, Scope, ScopedStore, Store } from "@/lib/server/store/types";
@@ -40,10 +42,6 @@ export function joinStockItem(company: Record<string, unknown>, site: Record<str
   return { ...item, initialStock: 0, ...(site ?? {}) } as StockItem;
 }
 
-/** Staff working at a site: those assigned to it, or to every site when none is chosen. */
-export function staffAtSite(staff: StaffMember[], siteId: string): StaffMember[] {
-  return staff.filter((member) => !member.siteIds?.length || member.siteIds.includes(siteId));
-}
 
 type Row = { payload: Record<string, unknown> };
 type Query = ReturnType<Sql>;

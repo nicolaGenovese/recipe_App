@@ -39,10 +39,10 @@ export function MenuCard({ menu }: { menu: Menu }) {
       </header>
       <div className="menu-stats">
         <div><span>{t("Piatti")}</span><strong>{stats.dishes}</strong></div>
-        <div><span>{t("Costo medio")}</span><strong>{f.money(stats.averageCost)}</strong></div>
-        <div><span>{t("Prezzo medio")}</span><strong>{stats.averagePrice ? f.money(stats.averagePrice) : "—"}</strong></div>
-        <div><span>{t("Food cost")}</span><strong>{stats.foodCostPercent ? stats.foodCostPercent.toFixed(1) + "%" : "—"}</strong></div>
-        <div className={lowMargin ? "warn" : ""}><span>{t("Margine medio")}</span><strong>{stats.costed ? stats.averageMargin.toFixed(1) + "%" : "—"}</strong></div>
+        <div className="cost-only"><span>{t("Costo medio")}</span><strong>{f.money(stats.averageCost)}</strong></div>
+        <div className="cost-only"><span>{t("Prezzo medio")}</span><strong>{stats.averagePrice ? f.money(stats.averagePrice) : "—"}</strong></div>
+        <div className="cost-only"><span>{t("Food cost")}</span><strong>{stats.foodCostPercent ? stats.foodCostPercent.toFixed(1) + "%" : "—"}</strong></div>
+        <div className={"cost-only" + (lowMargin ? " warn" : "")}><span>{t("Margine medio")}</span><strong>{stats.costed ? stats.averageMargin.toFixed(1) + "%" : "—"}</strong></div>
       </div>
       {/* One calm line of chips instead of red sentences; the names are in the allergen matrix. */}
       {dishes.length ? (
@@ -59,7 +59,7 @@ export function MenuCard({ menu }: { menu: Menu }) {
         {dishes.slice(0, PREVIEW).map((dish) => (
           <li key={dish.id}>
             <button type="button" onClick={() => openDialog({ kind: "recipeDetail", id: dish.id })}>{dish.name}</button>
-            <span>{dish.sellingPrice ? f.money(dish.sellingPrice) : "—"}</span>
+            <span className="cost-only">{dish.sellingPrice ? f.money(dish.sellingPrice) : "—"}</span>
           </li>
         ))}
         {dishes.length > PREVIEW ? <li className="menu-more">{fmt(t("e altri {0}"), dishes.length - PREVIEW)}</li> : null}

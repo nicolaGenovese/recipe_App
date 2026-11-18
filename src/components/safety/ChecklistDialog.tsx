@@ -6,6 +6,7 @@ import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, TextField } from "@/components/ui/Field";
 import { dateKey } from "@/lib/num";
 import { staffNames } from "@/lib/safety/staff";
+import { staffAtSite } from "@/lib/staff";
 import type { ChecklistKind, ChecklistLog } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -15,7 +16,7 @@ export const CHECKLIST_LABELS: Record<ChecklistKind, string> = { opening: "Apert
 
 /** Opening, closing or cleaning checklist. Each item is signed by whoever did it; the record is signed by who checked the list. */
 export function ChecklistDialog({ id, list: startList }: { id?: string; list?: ChecklistKind }) {
-  const { data, closeDialog, t } = useApp();
+  const { data, closeDialog, t, access } = useApp();
   const guard = useGuard();
   const { saveLog, deleteLog } = useSafetyActions();
   const base = data.safetyLogs.find((log): log is ChecklistLog => log.id === id && log.kind === "checklist");
@@ -27,7 +28,7 @@ export function ChecklistDialog({ id, list: startList }: { id?: string; list?: C
   const [action, setAction] = useState(base?.action ?? "");
   const [notes, setNotes] = useState(base?.notes ?? "");
   const [items, setItems] = useState(() => base?.items ?? data.settings.foodSafety.checklists[list].map((label) => ({ label, done: false, by: "", at: "" })));
-  const names = staffNames(data.rotaWeeks, date, data.settings.staff);
+  const names = staffNames(data.rotaWeeks, date, staffAtSite(data.settings.staff, access?.site.id));
 
   const toggle = (index: number, done: boolean) => setItems((old) => old.map((item, at) => (at === index ? { ...item, done, by: done ? item.by || by : item.by, at: done ? item.at || nowTime() : "" } : item)));
   const setItemBy = (index: number, value: string) => setItems((old) => old.map((item, at) => (at === index ? { ...item, by: value } : item)));

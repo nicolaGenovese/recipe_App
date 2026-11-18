@@ -2,7 +2,9 @@ import { canAssignLevel, normalizePermissions, type ScopeType } from "@/lib/acce
 import { requireContext, type RequestContext } from "@/lib/server/auth/context";
 import { database, randomId } from "@/lib/server/db";
 import { assertCanAssign, companyDirectory, membershipsOf, scopeSites } from "@/lib/server/directory";
-import { audit } from "@/lib/server/guards";
+import { audit, kitchenToday } from "@/lib/server/guards";
+import { siteFigures } from "@/lib/performance/compare";
+import { getStore } from "@/lib/server/store";
 import { handle, json, readJson } from "@/lib/server/http";
 import { HttpError } from "@/lib/server/validation";
 
@@ -22,6 +24,17 @@ function need() {
 export const GET = handle(async (request: Request) => {
   const sql = need();
   const context = await requireContext(request);
+  if (new URL(request.url).searchParams.get("compare")) {
+    // Head office and area managers: the figures of every site they reach in this company.
+    context.require("reports.company");
+    const today = kitchenToday();
+    const sites = (context.access?.sites ?? []).filter((site) => site.companyId === context.scope.companyId);
+    const rows = await Promise.all(sites.map(async (site) => {
+      const data = await getStore().scoped({ companyId: context.scope.companyId, siteId: site.id }).getState();
+      return siteFigures(site.id, site.name, data, today);
+    }));
+    return json(rows);
+  }
   if (new URL(request.url).searchParams.get("audit")) {
     context.require("audit.view");
     return json(await context.store.auditLog(300));
