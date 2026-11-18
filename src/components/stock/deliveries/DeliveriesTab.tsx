@@ -1,5 +1,6 @@
 "use client";
 
+import { ScanInvoiceButton } from "@/components/stock/deliveries/ScanInvoiceButton";
 import { Pager } from "@/components/ui/bits";
 import { deliveryTotal, isDeliveryClosed } from "@/lib/stock/deliveries";
 import { useApp } from "@/state/AppProvider";
@@ -7,7 +8,7 @@ import { useApp } from "@/state/AppProvider";
 const PAGE_SIZE = 10;
 
 export function DeliveriesTab() {
-  const { data, stockView, setStockView, openDialog, f, t } = useApp();
+  const { data, stockView, setStockView, openDialog, health, f, t } = useApp();
   const query = stockView.deliveryQuery.trim().toLocaleLowerCase();
   const rows = [...data.stockDeliveries]
     .filter((delivery) => !query || [delivery.invoiceNumber, delivery.supplier, ...delivery.lines.map((line) => line.name)].join(" ").toLocaleLowerCase().includes(query))
@@ -20,6 +21,7 @@ export function DeliveriesTab() {
       <div className="stock-toolbar">
         <input type="search" value={stockView.deliveryQuery} placeholder={t("Cerca fattura, fornitore, prodotto…")} aria-label={t("Cerca fattura, fornitore, prodotto…")}
           onChange={(event) => setStockView({ deliveryQuery: event.target.value, page: 1 })} />
+        {health?.invoiceReader ? <ScanInvoiceButton /> : null}
         <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "stockDelivery" })}>{t("Nuova consegna")}</button>
       </div>
       <div className="stock-table-wrap">

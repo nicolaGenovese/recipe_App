@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { KitchenAction, KitchenSave, KitchenTemp, KitchenToday, KitchenToggle, type TodayItem } from "@/components/kitchen/parts";
+import { ScanInvoiceButton } from "@/components/stock/deliveries/ScanInvoiceButton";
 import { nowTime, tempText, tempValue } from "@/components/safety/fields";
 import { uncheckedDeliveries } from "@/lib/kitchen/today";
 import { newId } from "@/lib/num";
@@ -96,9 +97,8 @@ export function KitchenDeliveries({ today, by }: { today: string; by: string }) 
   return (
     <div className="kitchen-deliveries">
       <div className="kitchen-scan">
-        <button className="kitchen-button" type="button" onClick={() => openDialog({ kind: "stockDelivery", scan: Boolean(health?.invoiceReader) })}>
-          {health?.invoiceReader ? t("📷 Scansiona fattura") : t("Registra consegna")}
-        </button>
+        {health?.invoiceReader ? <ScanInvoiceButton className="kitchen-button" />
+          : <button className="kitchen-button" type="button" onClick={() => openDialog({ kind: "stockDelivery" })}>{t("Registra consegna")}</button>}
         <span>{t(health?.invoiceReader
           ? "Fotografa la fattura: righe e prezzi vanno in Food Stock dopo il tuo controllo, poi qui fai il controllo all'arrivo."
           : "Registra la fattura in Food Stock, poi qui fai il controllo all'arrivo.")}</span>

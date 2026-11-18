@@ -605,7 +605,7 @@ export const EN: Record<string, string> = {
   "Prep list, temperature e checklist con pulsanti grandi": "Prep lists, temperatures and checklists with big buttons",
   "📷 Scansiona fattura": "📷 Scan invoice",
   "Lettura della fattura…": "Reading the invoice…",
-  "Foto o PDF, fino a 5 pagine: compilo testata e righe, tu controlli e salvi.": "Photo or PDF, up to 5 pages: header and lines are filled in, you check and save.",
+  "Foto o PDF, fino a 5 pagine (puoi anche trascinarli qui): compilo testata e righe, tu controlli e salvi.": "Photo or PDF, up to 5 pages (you can also drop them here): header and lines are filled in, you check and save.",
   "Lette {0} righe: {1} da verificare, {2} prodotti nuovi. Controlla tutto prima di salvare.": "Read {0} lines: {1} to check, {2} new products. Check everything before saving.",
   "Nessuna riga letta: prova con una foto più nitida o inserisci le righe a mano.": "No lines read: try a sharper photo or enter the lines by hand.",
   "letto: “{0}”": "read: “{0}”",
@@ -1172,5 +1172,7 @@ export const EN: Record<string, string> = {
   "Attenzione: allergeni non controllati per {0}. Controllali nella scheda del piatto (Cucina & allergeni) prima di esporre la matrice.": "Careful: allergens not checked for {0}. Check them in the dish sheet (Kitchen & allergens) before displaying the matrix.",
   "Se avete allergie o intolleranze chiedete al personale prima di ordinare.": "If you have an allergy or intolerance, please ask our staff before ordering.",
   "Allergeni e tracce piatto per piatto.": "Allergens and traces, dish by dish.",
-  "Griglia dei piatti del menu per i 14 allergeni, da esporre.": "Grid of the menu's dishes against the 14 allergens, for display."
+  "Griglia dei piatti del menu per i 14 allergeni, da esporre.": "Grid of the menu's dishes against the 14 allergens, for display.",
+  "La lettura sta impiegando troppo: riprova, oppure carica meno pagine o una foto più leggera.": "Reading is taking too long: try again, or upload fewer pages or a lighter photo.",
+  "Il servizio di lettura non accetta questo file: prova con una foto JPG o un PDF diverso.": "The reading service does not accept this file: try a JPG photo or a different PDF.",
 };

@@ -22,7 +22,7 @@ interface Row { key: string; name: string; quantity: string; price: string; scan
 const blankRow = (): Row => ({ key: newId(), name: "", quantity: "", price: "" });
 
 /** Goods received with an invoice. Quantities add to the open report and to stock on hand. */
-export function StockDeliveryDialog({ id, scan: startWithScan }: { id?: string; scan?: boolean }) {
+export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; files?: File[] }) {
   const { data, closeDialog, openDialog, notify, health, f, t, fmt } = useApp();
   const guard = useGuard();
   const { saveDelivery, deleteDelivery } = useStockActions();
@@ -41,11 +41,15 @@ export function StockDeliveryDialog({ id, scan: startWithScan }: { id?: string; 
   const fileInput = useRef<HTMLInputElement>(null);
   const [scanning, setScanning] = useState(false);
   const [scanNote, setScanNote] = useState("");
+  const [dragging, setDragging] = useState(false);
   const canScan = Boolean(health?.invoiceReader) && !closed;
 
-  // Opened from "Scan invoice" (kitchen mode): the camera opens straight away, still within the tap that opened the window.
+  // Opened from "Scan invoice": the files were picked with the tap, reading starts at once.
+  const started = useRef(false);
   useEffect(() => {
-    if (startWithScan && canScan) fileInput.current?.click();
+    if (started.current || !startFiles?.length) return;
+    started.current = true;
+    void scan(startFiles);
     // Only when the window opens.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -132,12 +136,15 @@ export function StockDeliveryDialog({ id, scan: startWithScan }: { id?: string; 
         <fieldset className="stock-fieldset" disabled={closed}>
           <div className="dialog-body">
             {canScan ? (
-              <div className="invoice-scan">
+              <div className={"invoice-scan" + (dragging ? " dragging" : "")}
+                onDragOver={(event) => { if (event.dataTransfer.types.includes("Files")) { event.preventDefault(); setDragging(true); } }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(event) => { event.preventDefault(); setDragging(false); if (!scanning) void scan(Array.from(event.dataTransfer.files)); }}>
                 <input ref={fileInput} type="file" accept="image/*,application/pdf" multiple hidden onChange={(event) => void scan(Array.from(event.target.files || []))} />
                 <button className="button button-secondary" type="button" disabled={scanning} onClick={() => fileInput.current?.click()}>
                   {scanning ? t("Lettura della fattura…") : t("📷 Scansiona fattura")}
                 </button>
-                <span className="field-hint">{scanNote || t("Foto o PDF, fino a 5 pagine: compilo testata e righe, tu controlli e salvi.")}</span>
+                <span className="field-hint">{scanNote || t("Foto o PDF, fino a 5 pagine (puoi anche trascinarli qui): compilo testata e righe, tu controlli e salvi.")}</span>
               </div>
             ) : null}
             <div className="form-grid cols-3">

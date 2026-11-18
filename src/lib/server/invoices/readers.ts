@@ -55,33 +55,90 @@ const GEMINI_SCHEMA = {
   required: ["supplier", "invoiceNumber", "date", "lines"]
 };
 
+/** Models tried in order when GEMINI_MODEL is not set: fast ones first, the moving alias last. */
+export const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
+
+/**
+ * Transcribing an invoice needs no long reasoning, and thinking models left at their default can
+ * take over a minute, past Vercel's limit. Each family has its own switch; the alias gets none,
+ * since it may point to either family.
+ */
+export function thinkingFor(model: string): Record<string, unknown> | undefined {
+  if (/gemini-2\.5-flash/.test(model)) return { thinkingBudget: 0 };
+  if (/gemini-[3-9]/.test(model)) return { thinkingLevel: "low" };
+  return undefined;
+}
+
+/** Vercel stops the function at 60 seconds: every attempt together must end before that. */
+const TOTAL_MS = 52_000;
+
+type Attempt = { ok: true; invoice: ScannedInvoice } | { ok: false; status: number; message: string; retry: boolean };
+
 /** Google Gemini through its REST API; the free tier of Google AI Studio is enough for a few invoices a day. */
-export function geminiReader(apiKey: string, model: string): InvoiceReader {
+export function geminiReader(apiKey: string, models: string | string[]): InvoiceReader {
+  const list = (Array.isArray(models) ? models : [models]).filter(Boolean);
+
+  async function attempt(model: string, images: InvoiceImage[], hints: ReadHints, ms: number): Promise<Attempt> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    const thinking = thinkingFor(model);
+    const started = Date.now();
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+        signal: AbortSignal.timeout(ms),
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: invoicePrompt(hints) }, ...images.map((image) => ({ inline_data: { mime_type: image.mimeType, data: image.data } }))] }],
+          generationConfig: { temperature: 0, responseMimeType: "application/json", responseSchema: GEMINI_SCHEMA, ...(thinking ? { thinkingConfig: thinking } : {}) }
+        })
+      });
+    } catch (error) {
+      const timedOut = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
+      console.error("Gemini:", model, timedOut ? "timeout after " + ms + "ms" : error);
+      return { ok: false, status: timedOut ? 504 : 502, message: timedOut ? "timeout" : "network", retry: true };
+    }
+    const payload = await response.json().catch(() => ({})) as {
+      candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] }; finishReason?: string }[];
+      error?: { code?: number; message?: string; status?: string };
+    };
+    if (!response.ok) {
+      const message = payload.error?.message ?? "";
+      console.error("Gemini:", model, response.status, message);
+      const badKey = response.status === 403 || /api key|API_KEY/i.test(message);
+      // Quota, a bad key and an unreadable request would fail the same way with another model.
+      return { ok: false, status: response.status, message, retry: !badKey && response.status !== 429 && response.status !== 413 };
+    }
+    console.info("Gemini:", model, "answered in", Date.now() - started, "ms");
+    const answer = payload.candidates?.[0]?.content?.parts?.filter((part) => !part.thought).map((part) => part.text ?? "").join("") ?? "";
+    try { return { ok: true, invoice: normalizeScan(JSON.parse(answer)) }; }
+    catch {
+      console.error("Gemini:", model, "unreadable answer", payload.candidates?.[0]?.finishReason, answer.slice(0, 200));
+      return { ok: false, status: 422, message: "unreadable", retry: false };
+    }
+  }
+
   return {
     name: "gemini",
     async read(images, hints) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: invoicePrompt(hints) }, ...images.map((image) => ({ inline_data: { mime_type: image.mimeType, data: image.data } }))] }],
-          generationConfig: { temperature: 0, responseMimeType: "application/json", responseSchema: GEMINI_SCHEMA }
-        })
-      });
-      const payload = await response.json().catch(() => ({})) as {
-        candidates?: { content?: { parts?: { text?: string }[] } }[];
-        error?: { code?: number; message?: string };
-      };
-      if (!response.ok) {
-        console.error("Gemini:", response.status, payload.error?.message);
-        if (response.status === 429) throw new HttpError(429, "Limite gratuito di letture raggiunto: riprova più tardi o inserisci le righe a mano.");
-        if (response.status === 400 || response.status === 403) throw new HttpError(502, "Il servizio di lettura ha rifiutato la richiesta: controlla la chiave GEMINI_API_KEY.");
-        throw new HttpError(502, "Il servizio di lettura non risponde: riprova tra poco.");
+      const deadline = Date.now() + TOTAL_MS;
+      let last: Attempt | null = null;
+      for (let index = 0; index < list.length; index++) {
+        const left = deadline - Date.now();
+        if (left < 5_000) break;
+        // The first model gets most of the time; a fallback only runs when the first fails fast.
+        const ms = index === list.length - 1 ? left : Math.min(left, 35_000);
+        last = await attempt(list[index], images, hints, ms);
+        if (last.ok) return last.invoice;
+        if (!last.retry) break;
       }
-      const answer = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
-      try { return normalizeScan(JSON.parse(answer)); }
-      catch { throw new HttpError(502, "Non sono riuscito a leggere la fattura: prova con una foto più nitida."); }
+      const failure = last && !last.ok ? last : null;
+      if (failure?.status === 429) throw new HttpError(429, "Limite gratuito di letture raggiunto: riprova più tardi o inserisci le righe a mano.");
+      if (failure?.status === 403 || /api key|API_KEY/i.test(failure?.message ?? "")) throw new HttpError(502, "Il servizio di lettura ha rifiutato la richiesta: controlla la chiave GEMINI_API_KEY.");
+      if (failure?.status === 504) throw new HttpError(504, "La lettura sta impiegando troppo: riprova, oppure carica meno pagine o una foto più leggera.");
+      if (failure?.status === 422) throw new HttpError(502, "Non sono riuscito a leggere la fattura: prova con una foto più nitida.");
+      if (failure?.status === 400) throw new HttpError(502, "Il servizio di lettura non accetta questo file: prova con una foto JPG o un PDF diverso.");
+      throw new HttpError(502, "Il servizio di lettura non risponde: riprova tra poco.");
     }
   };
 }
@@ -108,7 +165,7 @@ type Env = Record<string, string | undefined>;
 type ReaderFactory = (env: Env) => InvoiceReader | null;
 
 const READERS: Record<string, ReaderFactory> = {
-  gemini: (env) => (env.GEMINI_API_KEY?.trim() ? geminiReader(env.GEMINI_API_KEY.trim(), env.GEMINI_MODEL?.trim() || "gemini-flash-latest") : null),
+  gemini: (env) => (env.GEMINI_API_KEY?.trim() ? geminiReader(env.GEMINI_API_KEY.trim(), env.GEMINI_MODEL?.trim() ? [env.GEMINI_MODEL.trim()] : GEMINI_MODELS) : null),
   demo: () => demoReader
 };
 

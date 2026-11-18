@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { geminiReader, getInvoiceReader } from "@/lib/server/invoices/readers";
+import { geminiReader, getInvoiceReader, thinkingFor } from "@/lib/server/invoices/readers";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -16,6 +16,7 @@ describe("invoice readers", () => {
       candidates: [{ content: { parts: [{ text: JSON.stringify({ supplier: "Heanens", invoiceNumber: "77", date: "2026-11-02", netTotal: 24, lines: [{ description: "Chicken Thigh", code: "", quantity: 2, unitPrice: 12, lineTotal: 24 }] }) }] } }]
     }), { status: 200 }));
     vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "info").mockImplementation(() => {});
     const result = await geminiReader("key", "gemini-test").read([{ mimeType: "image/jpeg", data: "AAAA" }], { suppliers: ["Heanens"] });
     expect(result.lines).toEqual([{ description: "Chicken Thigh", code: "", quantity: 2, unitPrice: 12, lineTotal: 24 }]);
     const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
@@ -30,5 +31,32 @@ describe("invoice readers", () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ error: { message: "quota" } }), { status: 429 })));
     vi.spyOn(console, "error").mockImplementation(() => {});
     await expect(geminiReader("key", "m").read([{ mimeType: "image/png", data: "AA" }], { suppliers: [] })).rejects.toMatchObject({ status: 429 });
+  });
+
+  it("turns thinking down so the reading ends in time", async () => {
+    expect(thinkingFor("gemini-2.5-flash")).toEqual({ thinkingBudget: 0 });
+    expect(thinkingFor("gemini-3-flash-preview")).toEqual({ thinkingLevel: "low" });
+    expect(thinkingFor("gemini-flash-latest")).toBeUndefined();
+  });
+
+  it("tries the next model when the first one is not available", async () => {
+    const answer = { candidates: [{ content: { parts: [{ text: JSON.stringify({ supplier: "Browns", invoiceNumber: "1", date: "", lines: [] }) }] } }] };
+    const fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: { message: "model not found" } }), { status: 404 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(answer), { status: 200 }));
+    vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    const result = await geminiReader("key", ["first", "second"]).read([{ mimeType: "image/jpeg", data: "AA" }], { suppliers: [] });
+    expect(result.supplier).toBe("Browns");
+    expect(String(fetch.mock.calls[1][0])).toContain("/models/second:");
+  });
+
+  it("does not retry with a wrong key", async () => {
+    const fetch = vi.fn(async () => new Response(JSON.stringify({ error: { message: "API key not valid" } }), { status: 400 }));
+    vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(geminiReader("key", ["a", "b"]).read([{ mimeType: "image/png", data: "AA" }], { suppliers: [] })).rejects.toMatchObject({ status: 502 });
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 });

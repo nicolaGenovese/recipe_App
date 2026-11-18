@@ -53,6 +53,7 @@
 .stock-delivery-lines input[data-delivery-name], .stock-delivery-lines td:first-child input { width: 100%; }
 .stock-delivery-lines input:disabled { color: #6b7167; background: #f5f6f1; }
 .invoice-scan { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; padding: 10px 12px; border: 1px dashed #cfd8c2; border-radius: 10px; background: #fafaf7; }
+.invoice-scan.dragging { border-color: #6f8f4e; background: #f1f6ea; }
 .invoice-scan .field-hint { flex: 1; min-width: 200px; margin: 0; }
 .scan-note { display: block; margin-top: 3px; overflow: hidden; color: #6b7167; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
 .scan-note.check { color: #a3593f; }
