@@ -1,3 +1,4 @@
+import { requireContext } from "@/lib/server/auth/context";
 import { INVOICE_MIME_TYPES, MAX_INVOICE_FILES, type InvoiceImage } from "@/lib/invoices/scan";
 import { handle, json, readJson } from "@/lib/server/http";
 import { getInvoiceReader } from "@/lib/server/invoices/readers";
@@ -9,6 +10,7 @@ export const maxDuration = 60;
 
 /** POST /api/invoices/scan reads invoice photos or a PDF and returns supplier, number, date, total and lines. */
 export const POST = handle(async (request: Request) => {
+  await requireContext(request, "stock.deliveries");
   const reader = getInvoiceReader();
   if (!reader) throw new HttpError(503, "Lettura fatture non configurata: aggiungi GEMINI_API_KEY nelle variabili d'ambiente.");
   const body = await readJson(request) as { files?: unknown; suppliers?: unknown };

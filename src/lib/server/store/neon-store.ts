@@ -1,75 +1,54 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import { DEFAULT_SETTINGS } from "@/lib/seed";
-import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
-import type { Menu, PrepList, RotaWeek, SafetyLog, SalesWeek, WasteLog, Recipe, Settings, StockDelivery, StockItem, StockReport } from "@/lib/types";
-import type { RecordKind, Store } from "@/lib/server/store/types";
+import type { Menu, PrepList, Recipe, RotaWeek, SafetyLog, SalesWeek, Settings, SharedShift, StaffMember, StockDelivery, StockItem, StockReport, WasteLog } from "@/lib/types";
+import type { Sql } from "@/lib/server/db";
+import { ensureSchema } from "@/lib/server/schema";
+import type { RecordKind, Scope, ScopedStore, Store } from "@/lib/server/store/types";
 
-type Sql = NeonQueryFunction<false, false>;
-type PayloadRow = { payload: unknown };
+type SiteKind = Exclude<RecordKind, "items">;
 
-/** Creates the tables on first use. A new database starts with no data, only the default settings. */
-async function ensureSchema(sql: Sql): Promise<void> {
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_recipes (
-    id text PRIMARY KEY, title text NOT NULL, category text NOT NULL DEFAULT '',
-    current_menu boolean NOT NULL DEFAULT false, archived_batch boolean NOT NULL DEFAULT false,
-    created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), payload jsonb NOT NULL)`;
-  await sql`CREATE INDEX IF NOT EXISTS recipe_studio_recipes_title_idx ON recipe_studio_recipes (lower(title))`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_settings (id integer PRIMARY KEY CHECK (id = 1), payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_stock_items (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_stock_reports (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_stock_deliveries (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  const [menusTable] = (await sql`SELECT to_regclass('recipe_studio_menus') IS NOT NULL AS present`) as { present: boolean }[];
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_menus (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_prep_lists (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_waste_logs (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_sales_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_safety_logs (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_photos (id text PRIMARY KEY, mime_type text NOT NULL, data bytea NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`;
-  await sql`CREATE TABLE IF NOT EXISTS recipe_studio_rota_weeks (id text PRIMARY KEY, payload jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
-  // A new database starts empty: only the default settings are written.
-  const [settingsRows] = (await sql.transaction([sql`SELECT count(*)::int AS total FROM recipe_studio_settings WHERE id = 1`])) as { total: number }[][];
-  if (Number(settingsRows[0]?.total ?? 0) === 0) {
-    await sql`INSERT INTO recipe_studio_settings (id, payload) VALUES (1, ${JSON.stringify(DEFAULT_SETTINGS)}::jsonb) ON CONFLICT (id) DO NOTHING`;
+// Table names cannot be query parameters: they come from this fixed list only.
+const SITE_TABLES: Record<SiteKind, string> = {
+  reports: "recipe_studio_stock_reports",
+  deliveries: "recipe_studio_stock_deliveries",
+  menus: "recipe_studio_menus",
+  prepLists: "recipe_studio_prep_lists",
+  rotaWeeks: "recipe_studio_rota_weeks",
+  safetyLogs: "recipe_studio_safety_logs",
+  wasteLogs: "recipe_studio_waste_logs",
+  salesWeeks: "recipe_studio_sales_weeks"
+};
+const SITE_KINDS = Object.keys(SITE_TABLES) as SiteKind[];
+
+/** Product fields that differ by site: the stock on hand and its target. The rest belongs to the company. */
+export const SITE_STOCK_FIELDS = ["initialStock", "stockCount", "parLevel"] as const;
+
+/** Splits a product into its company part and its site part. */
+export function splitStockItem(item: StockItem): { company: Record<string, unknown>; site: Record<string, unknown> } {
+  const company: Record<string, unknown> = { ...item };
+  const site: Record<string, unknown> = {};
+  for (const field of SITE_STOCK_FIELDS) {
+    if (company[field] !== undefined) site[field] = company[field];
+    delete company[field];
   }
-  // The menus table is new: the dishes marked "current menu" become the first menu, once.
-  if (!menusTable?.present) {
-    const [recipes, settings] = (await sql.transaction([
-      sql`SELECT payload FROM recipe_studio_recipes`,
-      sql`SELECT payload FROM recipe_studio_settings WHERE id = 1`
-    ])) as PayloadRow[][];
-    const language = (settings[0]?.payload as Partial<Settings> | undefined)?.language;
-    const menus = legacyMenus(recipes.map((row) => row.payload as Recipe), language === "en" ? "Main menu" : "Menu principale", LEGACY_MENU_ID);
-    for (const menu of menus) await sql`INSERT INTO recipe_studio_menus (id, payload) VALUES (${menu.id}, ${JSON.stringify(menu)}::jsonb) ON CONFLICT (id) DO NOTHING`;
-  }
+  return { company, site };
 }
 
-// Table names cannot be query parameters, so each kind gets its own fixed statements.
-function upsertRecord(sql: Sql, kind: RecordKind, id: string, payload: string) {
-  if (kind === "menus") return sql`INSERT INTO recipe_studio_menus (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "wasteLogs") return sql`INSERT INTO recipe_studio_waste_logs (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "salesWeeks") return sql`INSERT INTO recipe_studio_sales_weeks (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "safetyLogs") return sql`INSERT INTO recipe_studio_safety_logs (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "rotaWeeks") return sql`INSERT INTO recipe_studio_rota_weeks (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "prepLists") return sql`INSERT INTO recipe_studio_prep_lists (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "items") return sql`INSERT INTO recipe_studio_stock_items (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  if (kind === "reports") return sql`INSERT INTO recipe_studio_stock_reports (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-  return sql`INSERT INTO recipe_studio_stock_deliveries (id, payload, updated_at) VALUES (${id}, ${payload}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-}
-function deleteRow(sql: Sql, kind: RecordKind, id: string) {
-  if (kind === "menus") return sql`DELETE FROM recipe_studio_menus WHERE id = ${id}`;
-  if (kind === "prepLists") return sql`DELETE FROM recipe_studio_prep_lists WHERE id = ${id}`;
-  if (kind === "wasteLogs") return sql`DELETE FROM recipe_studio_waste_logs WHERE id = ${id}`;
-  if (kind === "salesWeeks") return sql`DELETE FROM recipe_studio_sales_weeks WHERE id = ${id}`;
-  if (kind === "safetyLogs") return sql`DELETE FROM recipe_studio_safety_logs WHERE id = ${id}`;
-  if (kind === "rotaWeeks") return sql`DELETE FROM recipe_studio_rota_weeks WHERE id = ${id}`;
-  if (kind === "items") return sql`DELETE FROM recipe_studio_stock_items WHERE id = ${id}`;
-  if (kind === "reports") return sql`DELETE FROM recipe_studio_stock_reports WHERE id = ${id}`;
-  return sql`DELETE FROM recipe_studio_stock_deliveries WHERE id = ${id}`;
+/** A product as one site sees it: the company record with that site's stock on hand. */
+export function joinStockItem(company: Record<string, unknown>, site: Record<string, unknown> | undefined): StockItem {
+  const item: Record<string, unknown> = { ...company };
+  for (const field of SITE_STOCK_FIELDS) delete item[field];
+  return { ...item, initialStock: 0, ...(site ?? {}) } as StockItem;
 }
 
-export function createNeonStore(connectionString: string): Store {
-  const sql = neon(connectionString);
+/** Staff working at a site: those assigned to it, or to every site when none is chosen. */
+export function staffAtSite(staff: StaffMember[], siteId: string): StaffMember[] {
+  return staff.filter((member) => !member.siteIds?.length || member.siteIds.includes(siteId));
+}
+
+type Row = { payload: Record<string, unknown> };
+type Query = ReturnType<Sql>;
+
+export function createNeonStore(sql: Sql): Store {
   let schema: Promise<void> | null = null;
   let connected = false;
   const ready = () => {
@@ -77,82 +56,166 @@ export function createNeonStore(connectionString: string): Store {
     return schema;
   };
 
+  /** A statement whose table name comes from SITE_TABLES, typed like the tagged ones. */
+  const query = (text: string, params: unknown[]) => sql.query(text, params) as unknown as Query;
+
+  function scoped({ companyId, siteId }: Scope): ScopedStore {
+    /** Runs the queries in one transaction as the restricted role, limited to this company's rows. */
+    async function run<T = Row>(queries: Query[]): Promise<T[][]> {
+      await ready();
+      const results = (await sql.transaction([
+        sql`SELECT set_config('app.company_id', ${companyId}, true)`,
+        sql`SET LOCAL ROLE rs_tenant`,
+        ...queries
+      ])) as unknown[][];
+      return results.slice(2) as T[][];
+    }
+
+    return {
+      async getState() {
+        const [recipes, companySettings, siteSettings, items, siteStock, ...rest] = await run<Row & { site_id?: string | null; item_id?: string; site_name?: string }>([
+          sql`SELECT payload, site_id FROM recipe_studio_recipes WHERE company_id = ${companyId} AND (site_id IS NULL OR site_id = ${siteId}) ORDER BY updated_at DESC`,
+          sql`SELECT payload FROM rs_company_settings WHERE company_id = ${companyId}`,
+          sql`SELECT payload FROM rs_site_settings WHERE site_id = ${siteId}`,
+          sql`SELECT payload FROM recipe_studio_stock_items WHERE company_id = ${companyId}`,
+          sql`SELECT item_id, payload FROM rs_site_stock WHERE site_id = ${siteId}`,
+          ...SITE_KINDS.map((kind) => query(`SELECT payload FROM ${SITE_TABLES[kind]} WHERE site_id = $1`, [siteId])),
+          sql`SELECT w.site_id, s.name AS site_name, w.payload FROM recipe_studio_rota_weeks w JOIN rs_sites s ON s.id = w.site_id
+            WHERE w.company_id = ${companyId} AND w.site_id <> ${siteId} AND w.id >= to_char(now() - interval '120 days', 'YYYY-MM-DD')`
+        ]);
+        const lists = Object.fromEntries(SITE_KINDS.map((kind, index) => [kind, rest[index].map((row) => row.payload)])) as Record<SiteKind, unknown[]>;
+        const otherRotas = rest[SITE_KINDS.length];
+        const rotaWeeks = lists.rotaWeeks as RotaWeek[];
+        const settings = normalizeSettings({ ...(companySettings[0]?.payload ?? {}), ...(siteSettings[0]?.payload ?? {}) } as Partial<Settings>, rotaWeeks);
+        const stock = new Map(siteStock.map((row) => [row.item_id as string, row.payload]));
+        // The same person on the rota of another site of the company: those shifts are shown alongside.
+        const names = new Set(staffAtSite(settings.staff, siteId).map((member) => member.name.trim().toLocaleLowerCase()));
+        const sharedShifts: SharedShift[] = otherRotas.flatMap((row) => {
+          const week = row.payload as unknown as RotaWeek;
+          return (week.rows ?? []).filter((line) => names.has(line.name.trim().toLocaleLowerCase()) && line.shifts.some(Boolean))
+            .map((line) => ({ siteId: row.site_id as string, siteName: row.site_name ?? "", weekId: week.id, name: line.name, shifts: line.shifts }));
+        });
+        return {
+          recipes: recipes.map((row) => ({ ...row.payload, siteId: row.site_id ?? undefined }) as Recipe),
+          settings,
+          stockItems: items.map((row) => joinStockItem(row.payload, stock.get(String(row.payload.id)))),
+          stockReports: lists.reports as StockReport[],
+          stockDeliveries: lists.deliveries as StockDelivery[],
+          menus: lists.menus as Menu[],
+          prepLists: lists.prepLists as PrepList[],
+          rotaWeeks,
+          safetyLogs: lists.safetyLogs as SafetyLog[],
+          wasteLogs: lists.wasteLogs as WasteLog[],
+          salesWeeks: lists.salesWeeks as SalesWeek[],
+          sharedShifts,
+          storage: "neon"
+        };
+      },
+      async recipeSite(id) {
+        const [rows] = await run<{ site_id: string | null }>([sql`SELECT site_id FROM recipe_studio_recipes WHERE company_id = ${companyId} AND id = ${id}`]);
+        return rows[0] ? rows[0].site_id : undefined;
+      },
+      async saveRecipe(recipe) {
+        const { siteId: own, ...payload } = recipe;
+        const site = own ? siteId : null;
+        await run([sql`INSERT INTO recipe_studio_recipes (company_id, site_id, id, title, category, current_menu, archived_batch, created_at, updated_at, payload)
+          VALUES (${companyId}, ${site}, ${recipe.id}, ${recipe.name}, ${recipe.category ?? ""}, ${Boolean(recipe.currentMenu)}, ${Boolean(recipe.archivedBatch)},
+            ${recipe.createdAt ?? new Date().toISOString()}, ${recipe.updatedAt ?? new Date().toISOString()}, ${JSON.stringify(payload)}::jsonb)
+          ON CONFLICT (company_id, id) DO UPDATE SET site_id = EXCLUDED.site_id, title = EXCLUDED.title, category = EXCLUDED.category, current_menu = EXCLUDED.current_menu,
+            archived_batch = EXCLUDED.archived_batch, updated_at = EXCLUDED.updated_at, payload = EXCLUDED.payload`]);
+        return { ...recipe, siteId: site ?? undefined };
+      },
+      async deleteRecipe(id) {
+        await run([sql`DELETE FROM recipe_studio_recipes WHERE company_id = ${companyId} AND id = ${id}`]);
+      },
+      async saveSettings(settings, parts = { company: true, site: true }) {
+        const { foodSafety, ...company } = settings;
+        const queries: Query[] = [];
+        if (parts.company) queries.push(sql`INSERT INTO rs_company_settings (company_id, payload, updated_at) VALUES (${companyId}, ${JSON.stringify(company)}::jsonb, now())
+          ON CONFLICT (company_id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`);
+        if (parts.site) queries.push(sql`INSERT INTO rs_site_settings (site_id, company_id, payload, updated_at) VALUES (${siteId}, ${companyId}, ${JSON.stringify({ foodSafety })}::jsonb, now())
+          ON CONFLICT (site_id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`);
+        if (queries.length) await run(queries);
+        return settings;
+      },
+      async saveRecord(kind, record) {
+        if (kind === "items") {
+          const { company, site } = splitStockItem(record as StockItem);
+          await run([
+            sql`INSERT INTO recipe_studio_stock_items (company_id, id, payload, updated_at) VALUES (${companyId}, ${record.id}, ${JSON.stringify(company)}::jsonb, now())
+              ON CONFLICT (company_id, id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`,
+            sql`INSERT INTO rs_site_stock (site_id, item_id, company_id, payload, updated_at) VALUES (${siteId}, ${record.id}, ${companyId}, ${JSON.stringify(site)}::jsonb, now())
+              ON CONFLICT (site_id, item_id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`
+          ]);
+          return record;
+        }
+        await run([query(`INSERT INTO ${SITE_TABLES[kind as SiteKind]} (company_id, site_id, id, payload, updated_at) VALUES ($1, $2, $3, $4::jsonb, now())
+          ON CONFLICT (site_id, id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`, [companyId, siteId, record.id, JSON.stringify(record)])]);
+        return record;
+      },
+      async deleteRecord(kind, id) {
+        if (kind === "items") {
+          // A product belongs to the whole company: deleting it removes it, and its stock, from every site.
+          await run([
+            sql`DELETE FROM rs_site_stock WHERE company_id = ${companyId} AND item_id = ${id}`,
+            sql`DELETE FROM recipe_studio_stock_items WHERE company_id = ${companyId} AND id = ${id}`
+          ]);
+          return;
+        }
+        await run([query(`DELETE FROM ${SITE_TABLES[kind]} WHERE site_id = $1 AND id = $2`, [siteId, id])]);
+      },
+      async getRecord(kind, id) {
+        if (kind === "items") {
+          const [items, stock] = await run([
+            sql`SELECT payload FROM recipe_studio_stock_items WHERE company_id = ${companyId} AND id = ${id}`,
+            sql`SELECT payload FROM rs_site_stock WHERE site_id = ${siteId} AND item_id = ${id}`
+          ]);
+          return (items[0] ? joinStockItem(items[0].payload, stock[0]?.payload) : null) as never;
+        }
+        const [rows] = await run([query(`SELECT payload FROM ${SITE_TABLES[kind as SiteKind]} WHERE site_id = $1 AND id = $2`, [siteId, id])]);
+        return (rows[0]?.payload ?? null) as never;
+      },
+      async audit(entry) {
+        await run([sql`INSERT INTO rs_audit_log (company_id, site_id, user_id, user_name, action, target, detail)
+          VALUES (${companyId}, ${entry.siteWide ? null : siteId}, ${entry.userId}, ${entry.userName}, ${entry.action}, ${entry.target}, ${entry.detail === undefined ? null : JSON.stringify(entry.detail)}::jsonb)`]);
+      },
+      async auditLog(limit) {
+        const [rows] = await run<{ at: string; user_name: string; action: string; target: string; detail: unknown; site_id: string | null }>([
+          sql`SELECT at, user_name, action, target, detail, site_id FROM rs_audit_log WHERE company_id = ${companyId} ORDER BY at DESC LIMIT ${limit}`
+        ]);
+        return rows.map((row) => ({ at: new Date(row.at).toISOString(), userName: row.user_name, action: row.action, target: row.target, detail: row.detail, siteId: row.site_id }));
+      },
+      async saveVersion(kind, id, payload, deleted, user) {
+        await run([sql`INSERT INTO rs_record_versions (company_id, site_id, kind, record_id, payload, deleted, user_id, user_name)
+          VALUES (${companyId}, ${siteId}, ${kind}, ${id}, ${JSON.stringify(payload)}::jsonb, ${deleted}, ${user.id}, ${user.name})`]);
+      },
+      async versions(kind, id) {
+        const [rows] = await run<{ at: string; user_name: string; deleted: boolean; payload: unknown }>([
+          sql`SELECT at, user_name, deleted, payload FROM rs_record_versions WHERE site_id = ${siteId} AND kind = ${kind} AND record_id = ${id} ORDER BY at DESC`
+        ]);
+        return rows.map((row) => ({ at: new Date(row.at).toISOString(), userName: row.user_name, deleted: row.deleted, payload: row.payload }));
+      },
+      async savePhoto(id, photo) {
+        await run([sql`INSERT INTO recipe_studio_photos (company_id, id, mime_type, data) VALUES (${companyId}, ${id}, ${photo.mimeType}, decode(${photo.data}, 'base64'))
+          ON CONFLICT (company_id, id) DO UPDATE SET mime_type = EXCLUDED.mime_type, data = EXCLUDED.data`]);
+      },
+      async getPhoto(id) {
+        const [rows] = await run<{ mime_type: string; data: string }>([sql`SELECT mime_type, encode(data, 'base64') AS data FROM recipe_studio_photos WHERE company_id = ${companyId} AND id = ${id}`]);
+        return rows[0] ? { mimeType: rows[0].mime_type, data: rows[0].data.replace(/\s/g, "") } : null;
+      },
+      async deletePhoto(id) {
+        await run([sql`DELETE FROM recipe_studio_photos WHERE company_id = ${companyId} AND id = ${id}`]);
+      }
+    };
+  }
+
   return {
     mode: "neon",
     async health() {
       try { await ready(); return { connected, error: null }; }
       catch (error) { return { connected: false, error: error instanceof Error ? error.message : "Connessione non riuscita" }; }
     },
-    async getState() {
-      await ready();
-      const [recipes, settings, items, reports, deliveries, menus, prepLists, rotaWeeks, safetyLogs, wasteLogs, salesWeeks] = (await sql.transaction([
-        sql`SELECT payload FROM recipe_studio_recipes ORDER BY updated_at DESC`,
-        sql`SELECT payload FROM recipe_studio_settings WHERE id = 1`,
-        sql`SELECT payload FROM recipe_studio_stock_items`,
-        sql`SELECT payload FROM recipe_studio_stock_reports`,
-        sql`SELECT payload FROM recipe_studio_stock_deliveries`,
-        sql`SELECT payload FROM recipe_studio_menus`,
-        sql`SELECT payload FROM recipe_studio_prep_lists`,
-        sql`SELECT payload FROM recipe_studio_rota_weeks`,
-        sql`SELECT payload FROM recipe_studio_safety_logs`,
-        sql`SELECT payload FROM recipe_studio_waste_logs`,
-        sql`SELECT payload FROM recipe_studio_sales_weeks`
-      ])) as PayloadRow[][];
-      return {
-        recipes: recipes.map((row) => row.payload as Recipe),
-        settings: normalizeSettings(settings[0]?.payload as Partial<Settings> | undefined, rotaWeeks.map((row) => row.payload as RotaWeek)),
-        stockItems: items.map((row) => row.payload as StockItem),
-        stockReports: reports.map((row) => row.payload as StockReport),
-        stockDeliveries: deliveries.map((row) => row.payload as StockDelivery),
-        menus: menus.map((row) => row.payload as Menu),
-        prepLists: prepLists.map((row) => row.payload as PrepList),
-        rotaWeeks: rotaWeeks.map((row) => row.payload as RotaWeek),
-        safetyLogs: safetyLogs.map((row) => row.payload as SafetyLog),
-        wasteLogs: wasteLogs.map((row) => row.payload as WasteLog),
-        salesWeeks: salesWeeks.map((row) => row.payload as SalesWeek),
-        storage: "neon"
-      };
-    },
-    async saveRecipe(recipe) {
-      await ready();
-      await sql`INSERT INTO recipe_studio_recipes (id, title, category, current_menu, archived_batch, created_at, updated_at, payload)
-        VALUES (${recipe.id}, ${recipe.name}, ${recipe.category ?? ""}, ${Boolean(recipe.currentMenu)}, ${Boolean(recipe.archivedBatch)}, ${recipe.createdAt}, ${recipe.updatedAt}, ${JSON.stringify(recipe)}::jsonb)
-        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, category = EXCLUDED.category, current_menu = EXCLUDED.current_menu,
-          archived_batch = EXCLUDED.archived_batch, updated_at = EXCLUDED.updated_at, payload = EXCLUDED.payload`;
-      return recipe;
-    },
-    async deleteRecipe(id) {
-      await ready();
-      await sql`DELETE FROM recipe_studio_recipes WHERE id = ${id}`;
-    },
-    async saveSettings(settings) {
-      await ready();
-      await sql`INSERT INTO recipe_studio_settings (id, payload, updated_at) VALUES (1, ${JSON.stringify(settings)}::jsonb, now())
-        ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = now()`;
-      return settings;
-    },
-    async saveRecord(kind, record) {
-      await ready();
-      await upsertRecord(sql, kind, record.id, JSON.stringify(record));
-      return record;
-    },
-    async deleteRecord(kind, id) {
-      await ready();
-      await deleteRow(sql, kind, id);
-    },
-    async savePhoto(id, photo) {
-      await ready();
-      await sql`INSERT INTO recipe_studio_photos (id, mime_type, data) VALUES (${id}, ${photo.mimeType}, decode(${photo.data}, 'base64'))
-        ON CONFLICT (id) DO UPDATE SET mime_type = EXCLUDED.mime_type, data = EXCLUDED.data`;
-    },
-    async getPhoto(id) {
-      await ready();
-      const rows = (await sql`SELECT mime_type, encode(data, 'base64') AS data FROM recipe_studio_photos WHERE id = ${id}`) as { mime_type: string; data: string }[];
-      return rows[0] ? { mimeType: rows[0].mime_type, data: rows[0].data.replace(/\s/g, "") } : null;
-    },
-    async deletePhoto(id) {
-      await ready();
-      await sql`DELETE FROM recipe_studio_photos WHERE id = ${id}`;
-    }
+    ready,
+    scoped
   };
 }

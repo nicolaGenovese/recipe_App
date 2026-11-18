@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, hasAccess } from "@/lib/server/access";
+import { database } from "@/lib/server/db";
 import { HttpError } from "@/lib/server/validation";
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024;
@@ -20,9 +21,10 @@ export async function readJson(request: Request): Promise<unknown> {
 /** Wraps a route handler: known errors keep their status, anything else means storage is unreachable. */
 export function handle<A extends unknown[]>(fn: (...args: A) => Promise<NextResponse>) {
   return async (...args: A): Promise<NextResponse> => {
-    // The proxy already checks access; checking again here keeps the API closed even if the proxy is bypassed.
+    // Local mode with APP_PASSWORD: the shared password still guards the API. With a database,
+    // every route checks the signed-in account through requireContext.
     const request = (args as unknown[])[0];
-    if (request instanceof Request) {
+    if (!database() && request instanceof Request) {
       const cookie = request.headers.get("cookie")?.split(/;\s*/).find((part) => part.startsWith(ACCESS_COOKIE + "="))?.slice(ACCESS_COOKIE.length + 1);
       if (!hasAccess(cookie)) return json({ error: "Accesso richiesto." }, 401);
     }

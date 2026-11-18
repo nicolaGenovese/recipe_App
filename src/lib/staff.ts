@@ -17,7 +17,8 @@ export function cleanStaff(rows: unknown): StaffMember[] {
     seen.add(key);
     return [{
       id: typeof value.id === "string" && value.id ? value.id : staffId(name), name, role: String(value.role ?? "").trim(),
-      hourlyRate: Math.max(0, num(value.hourlyRate)), active: value.active !== false
+      hourlyRate: Math.max(0, num(value.hourlyRate)), active: value.active !== false,
+      ...(Array.isArray(value.siteIds) && value.siteIds.length ? { siteIds: value.siteIds.filter((id): id is string => typeof id === "string" && Boolean(id)) } : {})
     }];
   });
 }

@@ -101,3 +101,14 @@ h1 { color: #293229; font-size: clamp(24px, 2.4vw, 30px); font-weight: 640; lett
 .alerts-item-top strong { font-size: 13px; }
 .alerts-recipes { color: #6b6f65; font-size: 12px; }
 .link-button { padding: 0; border: 0; color: var(--green-dark); background: none; font: inherit; text-decoration: underline; cursor: pointer; }
+
+/* Account pages: sign in, sign up, first access, invites. */
+.account-card { width: min(420px, 100%); }
+.account-form { display: grid; gap: 8px; }
+.account-form .button { margin-top: 10px; min-height: 42px; }
+.account-hint { margin-top: -2px; color: var(--muted); font-size: 12px; }
+.account-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 6px !important; font-size: 13px; }
+.account-links a, .account-switch { color: var(--green-dark); font-weight: 600; }
+.account-switch { justify-self: start; margin-top: 4px; font-size: 13px; }
+.account-note { padding-top: 10px; border-top: 1px solid var(--line); font-size: 12px !important; }
+.account-tabs { margin: 4px 0; }

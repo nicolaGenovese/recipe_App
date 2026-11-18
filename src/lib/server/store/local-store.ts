@@ -3,7 +3,7 @@ import path from "node:path";
 import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
 import { normalizeSettings } from "@/lib/settings";
 import type { AppData } from "@/lib/types";
-import type { RecordKind, Store, StoredPhoto } from "@/lib/server/store/types";
+import type { RecordKind, ScopedStore, Store, StoredPhoto } from "@/lib/server/store/types";
 
 const LIST_KEYS = {
   items: "stockItems", reports: "stockReports", deliveries: "stockDeliveries", menus: "menus", prepLists: "prepLists", rotaWeeks: "rotaWeeks", safetyLogs: "safetyLogs", wasteLogs: "wasteLogs", salesWeeks: "salesWeeks"
@@ -76,10 +76,9 @@ export function createLocalStore(file = localDataFile()): Store {
     return run;
   };
 
-  return {
-    mode: "local",
-    async health() { return { connected: true, error: null }; },
+  const kitchen: ScopedStore = {
     async getState() { return { ...(await readData(file)), storage: "local" }; },
+    async recipeSite(id) { return (await readData(file)).recipes.some((recipe) => recipe.id === id) ? null : undefined; },
     saveRecipe: (recipe) => change((data) => { upsertById(data.recipes, recipe); return recipe; }),
     deleteRecipe: (id) => change((data) => { data.recipes = data.recipes.filter((recipe) => recipe.id !== id); }),
     saveSettings: (settings) => change((data) => { data.settings = settings; return settings; }),
@@ -88,6 +87,15 @@ export function createLocalStore(file = localDataFile()): Store {
       const key = LIST_KEYS[kind];
       (data[key] as { id: string }[]) = (data[key] as { id: string }[]).filter((row) => row.id !== id);
     }),
+    async getRecord(kind, id) {
+      const list = (await readData(file))[LIST_KEYS[kind]] as { id: string }[];
+      return (list.find((row) => row.id === id) ?? null) as never;
+    },
+    // One kitchen, no accounts: there is nobody to log.
+    async audit() { return undefined; },
+    async auditLog() { return []; },
+    async saveVersion() { return undefined; },
+    async versions() { return []; },
     async savePhoto(id, photo) {
       const target = photoFile(file, id);
       await mkdir(path.dirname(target), { recursive: true });
@@ -102,4 +110,7 @@ export function createLocalStore(file = localDataFile()): Store {
       await rm(photoFile(file, id), { force: true });
     }
   };
+
+  // One kitchen on this computer: every scope reads the same file.
+  return { mode: "local", async health() { return { connected: true, error: null }; }, ready: async () => undefined, scoped: () => kitchen };
 }

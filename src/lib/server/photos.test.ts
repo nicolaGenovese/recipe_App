@@ -29,7 +29,7 @@ describe("temperature photos on the server", () => {
 
   it("stores photos apart from the archive in the local store", async () => {
     dir = await mkdtemp(path.join(os.tmpdir(), "recipe-photos-"));
-    const store = createLocalStore(path.join(dir, "recipes.json"));
+    const store = createLocalStore(path.join(dir, "recipes.json")).scoped({ companyId: "local", siteId: "local" });
     await store.savePhoto("p1", { mimeType: "image/jpeg", data: "AAAA" });
     expect(await store.getPhoto("p1")).toEqual({ mimeType: "image/jpeg", data: "AAAA" });
     expect("safetyLogs" in (await store.getState()) && JSON.stringify(await store.getState())).not.toContain("AAAA");

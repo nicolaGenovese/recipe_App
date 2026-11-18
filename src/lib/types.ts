@@ -1,3 +1,5 @@
+import type { AccessInfo } from "@/lib/access/permissions";
+
 // Shared data shapes. They match the JSON stored on disk and in Neon, so old archives load unchanged.
 
 export type IngredientType = "Prodotto" | "Base / preparazione" | "Esterno";
@@ -53,6 +55,8 @@ export interface Recipe {
   notes?: string;
   /** Days a batch keeps once made; used for the use-by date on prep labels. */
   shelfLifeDays?: number;
+  /** Set when the recipe belongs to one site only; missing for the company library. */
+  siteId?: string;
   [extra: string]: unknown;
 }
 
@@ -86,6 +90,8 @@ export interface StaffMember {
   hourlyRate: number;
   /** People who left stay in the list, so old rotas and records still show their name. */
   active: boolean;
+  /** Sites the person works at; missing or empty means every site of the company. */
+  siteIds?: string[];
 }
 
 /** Extras used for the labour cost of the rota. */
@@ -406,8 +412,14 @@ export interface AppData {
   salesWeeks: SalesWeek[];
 }
 
+/** Shifts a person of this site has on the rota of another site of the same company. */
+export interface SharedShift { siteId: string; siteName: string; weekId: string; name: string; shifts: string[] }
+
 export interface AppState extends AppData {
   storage: StorageMode;
+  /** Who is signed in, at which company and site, with which permissions. Missing in local mode. */
+  access?: AccessInfo | null;
+  sharedShifts?: SharedShift[];
 }
 
 export interface Health {

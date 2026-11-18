@@ -1,8 +1,14 @@
-import { getStore } from "@/lib/server/store";
+import { requireContext } from "@/lib/server/auth/context";
+import { recipePermission } from "@/lib/server/guards";
 import { handle, json } from "@/lib/server/http";
 import { assertId } from "@/lib/server/validation";
 
-export const DELETE = handle(async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
-  await getStore().deleteRecipe(assertId(decodeURIComponent((await params).id)));
+export const DELETE = handle(async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const context = await requireContext(request);
+  const id = assertId(decodeURIComponent((await params).id));
+  const site = await context.store.recipeSite(id);
+  if (site === undefined) return json({ ok: true });
+  context.require(recipePermission(site, Boolean(site), context.scope.siteId));
+  await context.store.deleteRecipe(id);
   return json({ ok: true });
 });
