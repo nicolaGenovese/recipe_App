@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { CHECKLIST_LABELS } from "@/components/safety/ChecklistDialog";
 import { ChecklistTable, CookingTable, DeliveryChecksTable, TemperatureTable } from "@/components/safety/SafetyTables";
+import { ScanInvoiceButton } from "@/components/stock/deliveries/ScanInvoiceButton";
 import { addDays, dateKey } from "@/lib/num";
 import { missingToday } from "@/lib/safety/rules";
 import type { ChecklistKind } from "@/lib/types";
@@ -14,7 +15,7 @@ const TABS: [Tab, string][] = [["temperature", "Temperature"], ["cooking", "Cott
 
 /** Food safety records: what is still due today, any failed checks, and one register per kind of check. */
 export function SafetyView() {
-  const { data, openDialog, f, t, fmt } = useApp();
+  const { data, openDialog, health, f, t, fmt } = useApp();
   const [today] = useState(() => dateKey(new Date()));
   const [tab, setTab] = useState<Tab>("temperature");
   const [from, setFrom] = useState(() => addDays(today, -6));
@@ -77,7 +78,9 @@ export function SafetyView() {
         <span className="rota-actions-spacer" />
         {tab === "checklist" ? (Object.keys(CHECKLIST_LABELS) as ChecklistKind[]).map((list) => (
           <button key={list} className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "safetyChecklist", list })}>{t("Compila")} · {t(CHECKLIST_LABELS[list])}</button>
-        )) : addButton ? <button className="button button-primary button-small" type="button" onClick={addButton[1] as () => void}>{addButton[0] as string}</button> : null}
+        )) : null}
+        {tab === "delivery" && health?.invoiceReader ? <ScanInvoiceButton className="button button-secondary button-small" /> : null}
+        {tab === "checklist" ? null : addButton ? <button className="button button-primary button-small" type="button" onClick={addButton[1] as () => void}>{addButton[0] as string}</button> : null}
         <button className="button button-quiet button-small" type="button" onClick={print}>{t("Stampa registro")}</button>
       </div>
 
