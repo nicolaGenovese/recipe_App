@@ -96,7 +96,7 @@ export function geminiReader(apiKey: string, models: string | string[]): Invoice
     } catch (error) {
       const timedOut = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
       console.error("Gemini:", model, timedOut ? "timeout after " + ms + "ms" : error);
-      return { ok: false, status: timedOut ? 504 : 502, message: timedOut ? "timeout" : "network", retry: true };
+      return { ok: false, status: timedOut ? 504 : 502, message: timedOut ? "timeout" : "network " + String((error as { cause?: unknown })?.cause ?? error), retry: true };
     }
     const payload = await response.json().catch(() => ({})) as {
       candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] }; finishReason?: string }[];
@@ -123,6 +123,7 @@ export function geminiReader(apiKey: string, models: string | string[]): Invoice
     async read(images, hints) {
       const deadline = Date.now() + TOTAL_MS;
       let last: Attempt | null = null;
+      const tried: string[] = [];
       for (let index = 0; index < list.length; index++) {
         const left = deadline - Date.now();
         if (left < 5_000) break;
@@ -130,15 +131,17 @@ export function geminiReader(apiKey: string, models: string | string[]): Invoice
         const ms = index === list.length - 1 ? left : Math.min(left, 35_000);
         last = await attempt(list[index], images, hints, ms);
         if (last.ok) return last.invoice;
+        tried.push(list[index] + " " + last.status + (last.message ? ": " + last.message.slice(0, 200) : ""));
         if (!last.retry) break;
       }
       const failure = last && !last.ok ? last : null;
-      if (failure?.status === 429) throw new HttpError(429, "Limite gratuito di letture raggiunto: riprova più tardi o inserisci le righe a mano.");
-      if (failure?.status === 403 || /api key|API_KEY/i.test(failure?.message ?? "")) throw new HttpError(502, "Il servizio di lettura ha rifiutato la richiesta: controlla la chiave GEMINI_API_KEY.");
-      if (failure?.status === 504) throw new HttpError(504, "La lettura sta impiegando troppo: riprova, oppure carica meno pagine o una foto più leggera.");
-      if (failure?.status === 422) throw new HttpError(502, "Non sono riuscito a leggere la fattura: prova con una foto più nitida.");
-      if (failure?.status === 400) throw new HttpError(502, "Il servizio di lettura non accetta questo file: prova con una foto JPG o un PDF diverso.");
-      throw new HttpError(502, "Il servizio di lettura non risponde: riprova tra poco.");
+      const detail = tried.join(" | ");
+      if (failure?.status === 429) throw new HttpError(429, "Limite gratuito di letture raggiunto: riprova più tardi o inserisci le righe a mano.", detail);
+      if (failure?.status === 403 || /api key|API_KEY/i.test(failure?.message ?? "")) throw new HttpError(502, "Il servizio di lettura ha rifiutato la richiesta: controlla la chiave GEMINI_API_KEY.", detail);
+      if (failure?.status === 504) throw new HttpError(504, "La lettura sta impiegando troppo: riprova, oppure carica meno pagine o una foto più leggera.", detail);
+      if (failure?.status === 422) throw new HttpError(502, "Non sono riuscito a leggere la fattura: prova con una foto più nitida.", detail);
+      if (failure?.status === 400) throw new HttpError(502, "Il servizio di lettura non accetta questo file: prova con una foto JPG o un PDF diverso.", detail);
+      throw new HttpError(502, "Il servizio di lettura non risponde: riprova tra poco.", detail);
     }
   };
 }

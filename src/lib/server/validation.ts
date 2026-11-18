@@ -9,7 +9,8 @@ import type { StockKind } from "@/lib/server/store/types";
 
 /** An error the API returns as-is, with its HTTP status. Messages are Italian keys the browser translates. */
 export class HttpError extends Error {
-  constructor(public status: number, message: string) {
+  /** Technical detail returned alongside the message, for diagnosing a failing outside service. */
+  constructor(public status: number, message: string, public detail?: string) {
     super(message);
   }
 }

@@ -29,7 +29,7 @@ export function handle<A extends unknown[]>(fn: (...args: A) => Promise<NextResp
     try {
       return await fn(...args);
     } catch (error) {
-      if (error instanceof HttpError) return json({ error: error.message }, error.status);
+      if (error instanceof HttpError) return json(error.detail ? { error: error.message, detail: error.detail } : { error: error.message }, error.status);
       console.error("Richiesta non completata:", error instanceof Error ? error.message : error);
       return json({ error: "Archivio non raggiungibile. Controlla DATABASE_URL e la connessione." }, 503);
     }
