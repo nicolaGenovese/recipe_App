@@ -55,8 +55,43 @@ const GEMINI_SCHEMA = {
   required: ["supplier", "invoiceNumber", "date", "lines"]
 };
 
-/** Models tried in order when GEMINI_MODEL is not set: fast ones first, the moving alias last. */
-export const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
+/** Tried after the models found for the key: aliases Google moves to its current Flash models. */
+export const GEMINI_ALIASES = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+
+/**
+ * Picks the models to try from Google's list for this key: the newest stable Flash, the next
+ * one, the newest Flash-Lite (lighter, often free when Flash is busy), then the aliases. Google
+ * retires models every few months, so no version is written in the code.
+ */
+export function pickModels(available: { name?: string; supportedGenerationMethods?: string[] }[]): string[] {
+  const found = available
+    .filter((model) => model.supportedGenerationMethods?.includes("generateContent"))
+    .map((model) => (model.name ?? "").replace(/^models\//, ""))
+    .map((name) => ({ name, match: /^gemini-(\d+(?:\.\d+)?)-flash(-lite)?$/.exec(name) }))
+    .filter((row): row is { name: string; match: RegExpExecArray } => row.match !== null)
+    .sort((a, b) => Number(b.match[1]) - Number(a.match[1]));
+  const flash = found.filter((row) => !row.match[2]).slice(0, 2).map((row) => row.name);
+  const lite = found.filter((row) => row.match[2]).slice(0, 1).map((row) => row.name);
+  return [...flash, ...lite, ...GEMINI_ALIASES].filter((name, index, list) => list.indexOf(name) === index).slice(0, 4);
+}
+
+let cachedModels: { key: string; models: string[]; until: number } | null = null;
+
+/** Asks Google which models this key can use; kept for an hour. Falls back to the aliases. */
+async function discoverModels(apiKey: string): Promise<string[]> {
+  if (cachedModels && cachedModels.key === apiKey && cachedModels.until > Date.now()) return cachedModels.models;
+  try {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000", { headers: { "x-goog-api-key": apiKey }, signal: AbortSignal.timeout(5_000) });
+    if (!response.ok) { console.error("Gemini: model list", response.status); return GEMINI_ALIASES; }
+    const payload = await response.json() as { models?: { name?: string; supportedGenerationMethods?: string[] }[] };
+    const models = pickModels(payload.models ?? []);
+    cachedModels = { key: apiKey, models, until: Date.now() + 3_600_000 };
+    return models;
+  } catch (error) {
+    console.error("Gemini: model list", error);
+    return GEMINI_ALIASES;
+  }
+}
 
 /**
  * Transcribing an invoice needs no long reasoning, and thinking models left at their default can
@@ -75,12 +110,13 @@ const TOTAL_MS = 52_000;
 type Attempt = { ok: true; invoice: ScannedInvoice } | { ok: false; status: number; message: string; retry: boolean };
 
 /** Google Gemini through its REST API; the free tier of Google AI Studio is enough for a few invoices a day. */
-export function geminiReader(apiKey: string, models: string | string[]): InvoiceReader {
-  const list = (Array.isArray(models) ? models : [models]).filter(Boolean);
+/** With no models given, the reader asks Google which ones the key can use. */
+export function geminiReader(apiKey: string, models?: string | string[]): InvoiceReader {
+  const fixed = (Array.isArray(models) ? models : models ? [models] : []).filter(Boolean);
 
-  async function attempt(model: string, images: InvoiceImage[], hints: ReadHints, ms: number): Promise<Attempt> {
+  async function attempt(model: string, images: InvoiceImage[], hints: ReadHints, ms: number, withThinking = true): Promise<Attempt> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-    const thinking = thinkingFor(model);
+    const thinking = withThinking ? thinkingFor(model) : undefined;
     const started = Date.now();
     let response: Response;
     try {
@@ -105,6 +141,8 @@ export function geminiReader(apiKey: string, models: string | string[]): Invoice
     if (!response.ok) {
       const message = payload.error?.message ?? "";
       console.error("Gemini:", model, response.status, message);
+      // A model that does not take the thinking setting is asked again without it.
+      if (thinking && response.status === 400 && /thinking/i.test(message)) return attempt(model, images, hints, Math.max(1_000, ms - (Date.now() - started)), false);
       const badKey = response.status === 403 || /api key|API_KEY/i.test(message);
       // Quota, a bad key and an unreadable request would fail the same way with another model.
       return { ok: false, status: response.status, message, retry: !badKey && response.status !== 429 && response.status !== 413 };
@@ -122,13 +160,14 @@ export function geminiReader(apiKey: string, models: string | string[]): Invoice
     name: "gemini",
     async read(images, hints) {
       const deadline = Date.now() + TOTAL_MS;
+      const list = fixed.length ? fixed : await discoverModels(apiKey);
       let last: Attempt | null = null;
       const tried: string[] = [];
       for (let index = 0; index < list.length; index++) {
         const left = deadline - Date.now();
         if (left < 5_000) break;
         // The first model gets most of the time; a fallback only runs when the first fails fast.
-        const ms = index === list.length - 1 ? left : Math.min(left, 35_000);
+        const ms = index === list.length - 1 ? left : Math.min(left, 25_000);
         last = await attempt(list[index], images, hints, ms);
         if (last.ok) return last.invoice;
         tried.push(list[index] + " " + last.status + (last.message ? ": " + last.message.slice(0, 200) : ""));
@@ -168,7 +207,7 @@ type Env = Record<string, string | undefined>;
 type ReaderFactory = (env: Env) => InvoiceReader | null;
 
 const READERS: Record<string, ReaderFactory> = {
-  gemini: (env) => (env.GEMINI_API_KEY?.trim() ? geminiReader(env.GEMINI_API_KEY.trim(), env.GEMINI_MODEL?.trim() ? [env.GEMINI_MODEL.trim()] : GEMINI_MODELS) : null),
+  gemini: (env) => (env.GEMINI_API_KEY?.trim() ? geminiReader(env.GEMINI_API_KEY.trim(), env.GEMINI_MODEL?.trim() || undefined) : null),
   demo: () => demoReader
 };
 

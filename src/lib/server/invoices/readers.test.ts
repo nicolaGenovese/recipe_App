@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { geminiReader, getInvoiceReader, thinkingFor } from "@/lib/server/invoices/readers";
+import { geminiReader, getInvoiceReader, pickModels, thinkingFor } from "@/lib/server/invoices/readers";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -58,5 +58,31 @@ describe("invoice readers", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     await expect(geminiReader("key", ["a", "b"]).read([{ mimeType: "image/png", data: "AA" }], { suppliers: [] })).rejects.toMatchObject({ status: 502 });
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("picks the newest Flash models the key can use", () => {
+    const gen = ["generateContent"];
+    expect(pickModels([
+      { name: "models/gemini-2.5-flash", supportedGenerationMethods: gen },
+      { name: "models/gemini-3.8-flash", supportedGenerationMethods: gen },
+      { name: "models/gemini-3.5-flash", supportedGenerationMethods: gen },
+      { name: "models/gemini-3.8-flash-lite", supportedGenerationMethods: gen },
+      { name: "models/gemini-3.9-flash-preview", supportedGenerationMethods: gen },
+      { name: "models/gemini-3.8-pro", supportedGenerationMethods: gen },
+      { name: "models/text-embedding-004", supportedGenerationMethods: ["embedContent"] }
+    ])).toEqual(["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash-lite", "gemini-flash-latest"]);
+    expect(pickModels([])).toEqual(["gemini-flash-latest", "gemini-flash-lite-latest"]);
+  });
+
+  it("asks Google for the models when none is set", async () => {
+    const answer = { candidates: [{ content: { parts: [{ text: JSON.stringify({ supplier: "Browns", invoiceNumber: "1", date: "", lines: [] }) }] } }] };
+    const fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ models: [{ name: "models/gemini-9-flash", supportedGenerationMethods: ["generateContent"] }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(answer), { status: 200 }));
+    vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    await geminiReader("other-key").read([{ mimeType: "image/jpeg", data: "AA" }], { suppliers: [] });
+    expect(String(fetch.mock.calls[1][0])).toContain("/models/gemini-9-flash:");
+    expect(JSON.parse(String((fetch.mock.calls[1][1] as RequestInit).body)).generationConfig.thinkingConfig).toEqual({ thinkingLevel: "low" });
   });
 });
