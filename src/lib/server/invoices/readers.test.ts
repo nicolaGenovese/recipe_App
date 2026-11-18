@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { geminiReader, getInvoiceReader, pickModels, thinkingFor } from "@/lib/server/invoices/readers";
+import { byRest, geminiReader, getInvoiceReader, pickModels, thinkingFor } from "@/lib/server/invoices/readers";
 
 afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -70,7 +70,7 @@ describe("invoice readers", () => {
       { name: "models/gemini-3.9-flash-preview", supportedGenerationMethods: gen },
       { name: "models/gemini-3.8-pro", supportedGenerationMethods: gen },
       { name: "models/text-embedding-004", supportedGenerationMethods: ["embedContent"] }
-    ])).toEqual(["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash-lite", "gemini-flash-latest"]);
+    ])).toEqual(["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash-lite", "gemini-flash-latest", "gemini-flash-lite-latest"]);
     expect(pickModels([])).toEqual(["gemini-flash-latest", "gemini-flash-lite-latest"]);
   });
 
@@ -84,5 +84,18 @@ describe("invoice readers", () => {
     await geminiReader("other-key").read([{ mimeType: "image/jpeg", data: "AA" }], { suppliers: [] });
     expect(String(fetch.mock.calls[1][0])).toContain("/models/gemini-9-flash:");
     expect(JSON.parse(String((fetch.mock.calls[1][1] as RequestInit).body)).generationConfig.thinkingConfig).toEqual({ thinkingLevel: "low" });
+  });
+
+  it("moves to another model when the free quota of one runs out, and tries it last afterwards", async () => {
+    const answer = { candidates: [{ content: { parts: [{ text: JSON.stringify({ supplier: "Browns", invoiceNumber: "1", date: "", lines: [] }) }] } }] };
+    const fetch = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: { message: "quota" } }), { status: 429 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(answer), { status: 200 }));
+    vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    await geminiReader("key", ["busy-flash", "lite"]).read([{ mimeType: "image/jpeg", data: "AA" }], { suppliers: [] });
+    expect(String(fetch.mock.calls[1][0])).toContain("/models/lite:");
+    expect(byRest(["busy-flash", "lite"])).toEqual(["lite", "busy-flash"]);
   });
 });

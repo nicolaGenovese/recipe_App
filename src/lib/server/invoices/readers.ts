@@ -71,8 +71,18 @@ export function pickModels(available: { name?: string; supportedGenerationMethod
     .filter((row): row is { name: string; match: RegExpExecArray } => row.match !== null)
     .sort((a, b) => Number(b.match[1]) - Number(a.match[1]));
   const flash = found.filter((row) => !row.match[2]).slice(0, 2).map((row) => row.name);
-  const lite = found.filter((row) => row.match[2]).slice(0, 1).map((row) => row.name);
-  return [...flash, ...lite, ...GEMINI_ALIASES].filter((name, index, list) => list.indexOf(name) === index).slice(0, 4);
+  const lite = found.filter((row) => row.match[2]).slice(0, 2).map((row) => row.name);
+  return [...flash, ...lite, ...GEMINI_ALIASES].filter((name, index, list) => list.indexOf(name) === index).slice(0, 6);
+}
+
+/** Models whose free quota ran out recently: tried last until the time stored here. */
+const resting = new Map<string, number>();
+const REST_MS = 15 * 60_000;
+
+/** Puts models that just ran out of quota at the end, keeping the order otherwise. */
+export function byRest(models: string[], now = Date.now()): string[] {
+  const tired = (model: string) => (resting.get(model) ?? 0) > now;
+  return [...models.filter((model) => !tired(model)), ...models.filter(tired)];
 }
 
 let cachedModels: { key: string; models: string[]; until: number } | null = null;
@@ -144,8 +154,10 @@ export function geminiReader(apiKey: string, models?: string | string[]): Invoic
       // A model that does not take the thinking setting is asked again without it.
       if (thinking && response.status === 400 && /thinking/i.test(message)) return attempt(model, images, hints, Math.max(1_000, ms - (Date.now() - started)), false);
       const badKey = response.status === 403 || /api key|API_KEY/i.test(message);
-      // Quota, a bad key and an unreadable request would fail the same way with another model.
-      return { ok: false, status: response.status, message, retry: !badKey && response.status !== 429 && response.status !== 413 };
+      // Free quotas are per model, so a used-up quota moves on to the next one; a bad key or a
+      // request too large would fail the same way everywhere.
+      if (response.status === 429) resting.set(model, Date.now() + REST_MS);
+      return { ok: false, status: response.status, message, retry: !badKey && response.status !== 413 };
     }
     console.info("Gemini:", model, "answered in", Date.now() - started, "ms");
     const answer = payload.candidates?.[0]?.content?.parts?.filter((part) => !part.thought).map((part) => part.text ?? "").join("") ?? "";
@@ -160,7 +172,7 @@ export function geminiReader(apiKey: string, models?: string | string[]): Invoic
     name: "gemini",
     async read(images, hints) {
       const deadline = Date.now() + TOTAL_MS;
-      const list = fixed.length ? fixed : await discoverModels(apiKey);
+      const list = byRest(fixed.length ? fixed : await discoverModels(apiKey));
       let last: Attempt | null = null;
       const tried: string[] = [];
       for (let index = 0; index < list.length; index++) {
