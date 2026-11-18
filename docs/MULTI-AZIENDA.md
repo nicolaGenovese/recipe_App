@@ -2,6 +2,8 @@
 
 Stato: **proposta, non ancora implementata** (12/11/2026). Descrive come trasformare Recipe Studio da app per una sola cucina ad app per più compagnie, ognuna con più ristoranti o pub, con account e permessi dal head office fino ai kitchen porter. Le scelte segnate come "da decidere" sono in fondo.
 
+Per vendere l'app a più clienti, l'ordine di lavoro, i prerequisiti e cosa rimandare sono in [PIANO-VENDITA.md](PIANO-VENDITA.md).
+
 ## 1. Struttura: compagnia → area → sede
 
 ```
