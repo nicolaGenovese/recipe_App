@@ -154,7 +154,7 @@ export function AppProvider({ initialState, accessProtected = false, children }:
     switchSite: useCallback(async (siteId: string) => {
       // A preference only: the server checks it against the user's assignments on every request.
       document.cookie = SITE_COOKIE + "=" + encodeURIComponent(siteId) + "; path=/; max-age=31536000; samesite=lax";
-      setViewState((old) => ({ ...old, filter: old.filter === "company" ? "company" : "all", menuId: null, page: 1 }));
+      setViewState((old) => ({ ...old, filter: old.filter === "kitchen" ? "kitchen" : "all", menuId: null, page: 1 }));
       await reload();
       await refreshHealth();
     }, [reload, refreshHealth]),

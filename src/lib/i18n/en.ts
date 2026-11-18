@@ -1380,4 +1380,6 @@ export const EN: Record<string, string> = {
   "Confronto sedi": "Compare sites",
   "Ultime 4 settimane complete. Vendite e GP teorico vengono dalle vendite inserite in Andamento, il GP reale dall'ultimo report stock inviato, il costo del personale dai turni.": "Last 4 complete weeks. Sales and theoretical GP come from the sales entered in Performance, actual GP from the latest submitted stock report, labour cost from the rota.",
   "Anomalie HACCP": "HACCP issues",
+  "La cucina (valuta, lingua, GP, personale, liste) e la compagnia (persone, sedi, ruoli e permessi).": "The kitchen (currency, language, GP, staff, lists) and the company (people, sites, roles and permissions).",
+  "Le modifiche della compagnia si salvano subito.": "Company changes are saved straight away.",
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { CompanyView } from "@/components/company/CompanyView";
+
 import { useEffect } from "react";
 import { DialogHost } from "@/components/shell/DialogHost";
 import { PageIntro } from "@/components/shell/PageIntro";
@@ -83,7 +83,7 @@ export function RecipeStudio() {
           <Topbar />
           <div className="content-wrap">
             <PageIntro />
-            {view.filter === "stock" ? <StockView /> : view.filter === "menus" ? <MenusView /> : view.filter === "prep" ? <PrepView /> : view.filter === "rota" ? <RotaView /> : view.filter === "safety" ? <SafetyView /> : view.filter === "performance" ? <PerformanceView /> : view.filter === "company" ? <CompanyView /> : <><OverviewCards /><RecipeLibrary /></>}
+            {view.filter === "stock" ? <StockView /> : view.filter === "menus" ? <MenusView /> : view.filter === "prep" ? <PrepView /> : view.filter === "rota" ? <RotaView /> : view.filter === "safety" ? <SafetyView /> : view.filter === "performance" ? <PerformanceView /> : <><OverviewCards /><RecipeLibrary /></>}
           </div>
         </main>
       </div>

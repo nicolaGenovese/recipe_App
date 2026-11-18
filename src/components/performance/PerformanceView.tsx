@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
+import { SiteComparison } from "@/components/company/CompanySettings";
 import { MenuAnalysisTab } from "@/components/performance/MenuAnalysisTab";
 import { SalesTab } from "@/components/performance/SalesTab";
 import { SummaryTab } from "@/components/performance/SummaryTab";
@@ -11,12 +12,14 @@ import { makeRotaFormat } from "@/lib/rota/format";
 import { mondayOf } from "@/lib/rota/weeks";
 import { useApp } from "@/state/AppProvider";
 
-type Tab = "summary" | "sales" | "waste" | "menu";
-const TABS: [Tab, string][] = [["summary", "Riepilogo"], ["sales", "Vendite"], ["waste", "Sprechi"], ["menu", "Analisi menu"]];
+type Tab = "summary" | "sales" | "waste" | "menu" | "compare";
+const TABS: [Tab, string][] = [["summary", "Riepilogo"], ["sales", "Vendite"], ["waste", "Sprechi"], ["menu", "Analisi menu"], ["compare", "Confronto sedi"]];
 
 /** The week in numbers: sales, theoretical and actual GP, waste and labour. */
 export function PerformanceView() {
-  const { f, t } = useApp();
+  const { f, t, access, can } = useApp();
+  // Head office and area managers compare the sites they reach; with one site there is nothing to compare.
+  const compare = Boolean(access) && can("reports.company") && (access?.sites.filter((site) => site.companyId === access.company.id).length ?? 0) > 1;
   const format = useMemo(() => makeRotaFormat(f.locale), [f.locale]);
   const [thisWeek] = useState(() => mondayOf(new Date()));
   const [weekId, setWeekId] = useState(thisWeek);
@@ -31,7 +34,7 @@ export function PerformanceView() {
 
   return (
     <section className="perf-view">
-      <div className="rota-nav">
+      <div className={"rota-nav" + (tab === "compare" ? " is-hidden" : "")}>
         <button className="rota-nav-button" type="button" aria-label={t("Settimana precedente")} onClick={() => setWeekId(addDays(weekId, -7))}>←</button>
         <div className="rota-current">
           <p>{weekId === thisWeek ? t("Questa settimana") : weekId < thisWeek ? t("Settimana passata") : t("Settimana futura")}</p>
@@ -41,7 +44,7 @@ export function PerformanceView() {
       </div>
       <div className="stock-head">
         <div className="editor-tabs stock-tabs">
-          {TABS.map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>)}
+          {TABS.filter(([key]) => key !== "compare" || compare).map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>)}
         </div>
         <div>
           {weekId !== thisWeek ? <button className="button button-quiet button-small" type="button" onClick={() => setWeekId(thisWeek)}>{t("Torna alla settimana corrente")}</button> : null}
@@ -53,6 +56,7 @@ export function PerformanceView() {
       {tab === "sales" ? <SalesTab key={weekId} weekId={weekId} /> : null}
       {tab === "waste" ? <WasteTab weekId={weekId} /> : null}
       {tab === "menu" ? <MenuAnalysisTab weekId={weekId} /> : null}
+      {tab === "compare" ? <SiteComparison /> : null}
       {printing ? createPortal(
         <div className="perf-print">
           <h3>{t("Riepilogo settimanale")}</h3>

@@ -15,8 +15,7 @@ const TITLES: Record<ViewFilter, [string, string]> = {
   rota: ["Turni del personale", "Chi lavora e quando, settimana per settimana, con le ore calcolate da sole."],
   performance: ["Andamento della cucina", "Vendite, GP teorico e reale, sprechi e costo del personale, settimana per settimana."],
   safety: ["Sicurezza alimentare", "Temperature, cotture, consegne e checklist: i registri da mostrare all'ispettore sanitario."],
-  kitchen: ["Modalità cucina", ""],
-  company: ["La compagnia", "Sedi, persone, ruoli e permessi, e il registro delle attività."]
+  kitchen: ["Modalità cucina", ""]
 };
 
 export function PageIntro() {
@@ -30,7 +29,7 @@ export function PageIntro() {
         <h1>{title}<span className="title-period">.</span></h1>
         <p className="page-subtitle">{subtitle}</p>
       </div>
-      {view.filter === "stock" || view.filter === "rota" || view.filter === "safety" || view.filter === "performance" || view.filter === "company" ? null : view.filter === "menus" ? (can("menus.edit") ? (
+      {view.filter === "stock" || view.filter === "rota" || view.filter === "safety" || view.filter === "performance" ? null : view.filter === "menus" ? (can("menus.edit") ? (
         <div className="intro-actions">
           <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "menuEditor" })}><PlusIcon />{t("Nuovo menu")}</button>
         </div>

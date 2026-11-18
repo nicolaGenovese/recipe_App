@@ -6,7 +6,8 @@ import type { CompanyDirectory } from "@/lib/server/directory";
 import type { AuditRow } from "@/lib/server/store/types";
 import { useApp } from "@/state/AppProvider";
 
-type Tab = "compare" | "people" | "sites" | "roles" | "audit";
+/** The company sections shown in Settings. */
+export type CompanySection = "people" | "sites" | "roles" | "audit";
 
 async function call<T>(method: "GET" | "POST", url: string, body?: unknown): Promise<T> {
   const response = await fetch(url, { method, headers: { "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -19,10 +20,12 @@ async function call<T>(method: "GET" | "POST", url: string, body?: unknown): Pro
 const placeKey = (type: ScopeType, id: string) => type + ":" + id;
 const splitPlace = (value: string) => { const [type, ...rest] = value.split(":"); return { scopeType: type as ScopeType, scopeId: rest.join(":") }; };
 
-/** Company administration: people and invites, sites and areas, roles and permissions, activity log. */
-export function CompanyView() {
+/**
+ * One company section inside Settings: people and invites, sites and areas (with the company name),
+ * roles and permissions, or the activity log. Changes are saved at once through /api/company.
+ */
+export function CompanySettings({ section }: { section: CompanySection }) {
   const { access, can, data, notify, reload, t, f } = useApp();
-  const [tab, setTab] = useState<Tab>(can("reports.company") ? "compare" : can("users.manage") ? "people" : "sites");
   const [directory, setDirectory] = useState<CompanyDirectory | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -30,7 +33,8 @@ export function CompanyView() {
     try { setDirectory(await call<CompanyDirectory>("GET", "/api/company")); }
     catch (error) { notify(t(error instanceof Error ? error.message : "Operazione non riuscita."), true); }
   }, [notify, t]);
-  useEffect(() => { void load(); }, [load, access?.company.id]);
+  // The activity log reads its own endpoint, which needs only "audit.view".
+  useEffect(() => { if (section !== "audit") void load(); }, [load, section, access?.company.id]);
 
   /** Sends one change; the answer is the updated directory. */
   const change = async (body: Record<string, unknown>, done?: string) => {
@@ -50,33 +54,23 @@ export function CompanyView() {
   };
 
   if (!access) return <p className="company-empty">{t("La gestione della compagnia richiede il database e gli account.")}</p>;
+  if (section === "audit") return <Audit placeName={(id) => (id ? access.sites.find((site) => site.id === id)?.name ?? "" : t("Compagnia"))} f={f} />;
   if (!directory) return <p className="company-empty">{t("Caricamento…")}</p>;
 
-  const tabs: [Tab, string, boolean][] = [
-    ["compare", t("Confronto sedi"), can("reports.company")],
-    ["people", t("Persone"), can("users.manage")],
-    ["sites", t("Sedi e aree"), true],
-    ["roles", t("Ruoli e permessi"), true],
-    ["audit", t("Registro attività"), can("audit.view")]
-  ];
   const placeName = (type: ScopeType, id: string) => type === "company" ? t("Tutta la compagnia")
     : type === "area" ? t("Area") + " · " + (directory.areas.find((area) => area.id === id)?.name ?? "?")
       : directory.sites.find((site) => site.id === id)?.name ?? "?";
 
   return (
-    <section className="company-view">
-      <CompanyName name={directory.company.name} editable={can("company.manage")} busy={busy} onSave={(name) => change({ action: "renameCompany", name }, "Nome salvato.")} />
-      <div className="editor-tabs stock-tabs company-tabs">
-        {tabs.filter(([, , show]) => show).map(([key, label]) => (
-          <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{label}</button>
-        ))}
-      </div>
-      {tab === "compare" ? <Compare f={f} />
-        : tab === "people" ? <People directory={directory} busy={busy} change={change} placeName={placeName} staff={data.settings.staff} />
-        : tab === "sites" ? <Sites directory={directory} busy={busy} change={change} editable={can("company.manage")} />
-          : tab === "roles" ? <Roles directory={directory} busy={busy} change={change} editable={can("company.manage")} />
-            : <Audit placeName={(id) => (id ? directory.sites.find((site) => site.id === id)?.name ?? "" : t("Compagnia"))} f={f} />}
-    </section>
+    <div className="company-view">
+      {section === "people" ? <People directory={directory} busy={busy} change={change} placeName={placeName} staff={data.settings.staff} />
+        : section === "sites" ? (
+          <>
+            <CompanyName name={directory.company.name} editable={can("company.manage")} busy={busy} onSave={(name) => change({ action: "renameCompany", name }, "Nome salvato.")} />
+            <Sites directory={directory} busy={busy} change={change} editable={can("company.manage")} />
+          </>
+        ) : <Roles directory={directory} busy={busy} change={change} editable={can("company.manage")} />}
+    </div>
   );
 }
 
@@ -379,9 +373,9 @@ interface SiteFigures {
   waste: number; wastePercent: number | null; labour: number; labourPercent: number | null; primePercent: number | null; safetyIssues: number; missingToday: number;
 }
 
-/** Head office view: the last four complete weeks of every site side by side. */
-function Compare({ f }: { f: ReturnType<typeof useApp>["f"] }) {
-  const { t, notify, switchSite } = useApp();
+/** Head office view: the last four complete weeks of every site side by side (Performance → Compare sites). */
+export function SiteComparison() {
+  const { t, f, notify, switchSite } = useApp();
   const [rows, setRows] = useState<SiteFigures[] | null>(null);
   useEffect(() => {
     call<SiteFigures[]>("GET", "/api/company?compare=1").then(setRows).catch((error) => notify(t(error instanceof Error ? error.message : "Operazione non riuscita."), true));
