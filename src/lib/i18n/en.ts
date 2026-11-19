@@ -734,8 +734,8 @@ export const EN: Record<string, string> = {
   "Il menu deve avere un nome.": "The menu needs a name.",
   "La prep list deve avere un nome e una data.": "The prep list needs a name and a date.",
   // Staff rota
-  "Turni": "Rota",
-  "Turni del personale": "Staff rota",
+  "Turni": "Schedule",
+  "Turni del personale": "Staff schedule",
   "Staff": "Staff",
   "Ore": "Hours",
   "Totale giornaliero": "Daily total",

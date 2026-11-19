@@ -63,7 +63,8 @@ export function Sidebar() {
 
       <div className="nav-label">{t("GESTIONE")}</div>
       <nav className="side-nav">
-        {items.map(([filter, label, icon, count]) => (
+        {/* The schedule sits at the bottom of the column, with kitchen mode and settings. */}
+        {items.filter(([filter]) => filter !== "rota").map(([filter, label, icon, count]) => (
           <div key={filter} className="nav-group">
             <div className={"nav-row" + (filter === "menus" && dropdown ? " has-toggle" : "")}>
               <button className={"nav-item" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
@@ -92,6 +93,12 @@ export function Sidebar() {
           <span className="status-dot" />
           <span>{storageLabel}{health && !health.connected ? " · " + t("non collegato") : ""}</span>
         </div>
+        {items.filter(([filter]) => filter === "rota").map(([filter, label, icon, count]) => (
+          <button key={filter} className={"nav-item settings-link" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
+            <span className="nav-icon" aria-hidden="true">{icon}</span>
+            <span>{label}</span><span className="nav-count">{count}</span>
+          </button>
+        ))}
         <button className="nav-item settings-link kitchen-link" type="button" onClick={enterKitchen}>
           <span className="nav-icon" aria-hidden="true"><PlateIcon /></span>
           <span>{t("Modalità cucina")}</span>
