@@ -1,0 +1,233 @@
+<title>Recipe Studio database</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: a printed engineering sheet, A4 landscape. Page 1 is the map of links, pages 2-4 the tables group by group.
+   Colours are chosen for paper: dark ink on white, light group tints, every text pair at least 5.7:1. */
+:root {
+  --paper: #ffffff;
+  --ink: #17201b;
+  --muted: #4a544d;
+  --rule: #c9cfca;
+  --account: #2c5a94;   --account-tint: #eaf1fb;
+  --directory: #2c6a3d; --directory-tint: #e8f4eb;
+  --company: #8a4b00;   --company-tint: #fcf1de;
+  --site: #5a3b8f;      --site-tint: #f1ecf9;
+  --system: #4f5751;    --system-tint: #eff1ef;
+  --sans: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+}
+@page { size: A4 landscape; margin: 9mm 10mm; }
+* { box-sizing: border-box; }
+html, body { background: var(--paper); color: var(--ink); }
+body { margin: 0; font: 400 9pt/1.35 var(--sans); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px; }
+@media print { body { padding: 0; } }
+.page { break-after: page; }
+.page:last-child { break-after: auto; }
+@media screen { .page { max-width: 1120px; margin: 0 auto 48px; } }
+
+.sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 24px; padding-bottom: 6px; border-bottom: 1.5pt solid var(--ink); margin-bottom: 10px; }
+.sheet-head h1, .sheet-head h2 { margin: 0; font: 700 18pt/1.1 var(--cond); letter-spacing: .01em; text-wrap: balance; }
+.sheet-head h2 { font-size: 14pt; }
+.sheet-head p { margin: 0; color: var(--muted); font-size: 8.5pt; }
+.sheet-head .no { font: 600 8.5pt var(--mono); color: var(--muted); }
+
+.map-wrap { overflow-x: auto; }
+.map { display: block; width: 100%; min-width: 760px; height: auto; }
+.map .node rect { stroke-width: 1.6; }
+.map .node .name { font: 600 13px var(--mono); fill: var(--ink); }
+.map .node .sub { font: 400 11px var(--sans); fill: var(--muted); }
+.map .edge { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.map .edge.logic { stroke-dasharray: 6 4; }
+.map .label { font: 400 9.5px var(--mono); fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+.map .lane { font: 700 10px var(--cond); letter-spacing: .08em; text-transform: uppercase; }
+
+.under { display: grid; grid-template-columns: 1.1fr 1.4fr; gap: 18px; margin-top: 8px; }
+.under > * { min-width: 0; }
+.under h3 { margin: 0 0 4px; font: 700 10pt var(--cond); letter-spacing: .06em; text-transform: uppercase; }
+.legend { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 8.5pt; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend li.plain { display: block; }
+.legend svg { flex: none; }
+.swatches { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; font-size: 8.5pt; }
+.swatches span { display: inline-flex; align-items: center; gap: 5px; }
+.swatches i { width: 14px; height: 10px; border: 1.4px solid; border-radius: 2px; }
+.notes { margin: 0; padding-left: 16px; font-size: 8.5pt; }
+.notes li + li { margin-top: 3px; }
+code { font: 400 .95em var(--mono); }
+
+.k { display: inline-block; min-width: 22px; padding: 0 3px; border-radius: 2px; font: 600 6.6pt/1.5 var(--mono); text-align: center; }
+.k.pk { color: var(--paper); background: var(--ink); }
+.k.fk { color: var(--ink); border: 1px solid var(--ink); }
+.k.logic { color: var(--ink); border: 1px dashed var(--ink); }
+.tag { display: inline-block; padding: 0 4px; border-radius: 2px; font: 600 6.6pt/1.5 var(--mono); }
+.tag.rls { color: var(--paper); background: var(--directory); }
+.tag.old { color: var(--ink); border: 1px solid var(--muted); }
+
+/* Detail pages: one flow of four columns per page; a group heading starts its run of cards. */
+.flow { columns: 4; column-gap: 10px; }
+.flow-head { break-inside: avoid; break-after: avoid; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; margin: 0 0 6px; padding: 3px 6px; font: 700 10pt var(--cond); letter-spacing: .04em; text-transform: uppercase; border-left: 4px solid; }
+.flow-head small { font: 400 7.8pt var(--sans); letter-spacing: 0; text-transform: none; color: var(--muted); }
+.flow-head.account { color: var(--account); background: var(--account-tint); border-color: var(--account); }
+.flow-head.directory { color: var(--directory); background: var(--directory-tint); border-color: var(--directory); }
+.flow-head.company { color: var(--company); background: var(--company-tint); border-color: var(--company); }
+.flow-head.site { color: var(--site); background: var(--site-tint); border-color: var(--site); }
+.flow-head.system { color: var(--system); background: var(--system-tint); border-color: var(--system); }
+.groups { display: grid; gap: 10px; align-items: start; }
+.groups.p2 { grid-template-columns: 1fr 1fr; }
+.groups.p3 { grid-template-columns: 1fr 1fr; }
+.groups.p4 { grid-template-columns: 1fr; }
+.group { min-width: 0; }
+.group h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin: 0 0 6px; padding: 3px 6px; font: 700 10.5pt var(--cond); letter-spacing: .04em; text-transform: uppercase; border-left: 4px solid; }
+.group h3 small { font: 400 8pt var(--sans); letter-spacing: 0; text-transform: none; color: var(--muted); }
+.cards { column-gap: 10px; }
+.p2 .cards { columns: 2; }
+.p3 .cards { columns: 2; }
+.p4 .cards { columns: 4; }
+.card { break-inside: avoid; margin: 0 0 8px; border: 1.2px solid; border-radius: 4px; background: var(--paper); overflow: hidden; }
+.card header { display: flex; align-items: center; gap: 6px; padding: 3px 6px; }
+.card h4 { margin: 0; font: 600 8.6pt/1.3 var(--mono); overflow-wrap: anywhere; flex: 1; min-width: 0; }
+.card p { margin: 0; padding: 2px 6px 3px; font-size: 7.6pt; color: var(--muted); border-bottom: 1px solid var(--rule); }
+.card table { width: 100%; border-collapse: collapse; }
+.card td { padding: 1.4px 5px; font-size: 7.4pt; vertical-align: top; border-top: 1px solid #eceeec; }
+.card tr:first-child td { border-top: 0; }
+.card td.c { font: 600 7.4pt var(--mono); }
+.card td.t { font: 400 7pt var(--mono); color: var(--muted); white-space: nowrap; }
+.card td.b { white-space: nowrap; width: 1%; }
+.card td.c { width: 99%; white-space: normal; }
+.card td.c .sub { display: block; font: 400 7pt/1.3 var(--sans); color: var(--muted); overflow-wrap: anywhere; }
+.card .to { display: block; font: 400 7pt/1.3 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.card.is-old { opacity: 1; border-style: dashed; }
+
+/* One colour family per group: border and heading in the strong tone, header band in the tint. */
+.g-account, .group.account h3 { border-color: var(--account); }
+.g-account header, .group.account h3 { background: var(--account-tint); }
+.group.account h3 { color: var(--account); }
+.g-directory, .group.directory h3 { border-color: var(--directory); }
+.g-directory header, .group.directory h3 { background: var(--directory-tint); }
+.group.directory h3 { color: var(--directory); }
+.g-company, .group.company h3 { border-color: var(--company); }
+.g-company header, .group.company h3 { background: var(--company-tint); }
+.group.company h3 { color: var(--company); }
+.g-site, .group.site h3 { border-color: var(--site); }
+.g-site header, .group.site h3 { background: var(--site-tint); }
+.group.site h3 { color: var(--site); }
+.g-system, .group.system h3 { border-color: var(--system); }
+.g-system header, .group.system h3 { background: var(--system-tint); }
+.group.system h3 { color: var(--system); }
+
+@media screen and (max-width: 900px) {
+  .flow { columns: 2; }
+  .under, .groups.p2, .groups.p3 { grid-template-columns: 1fr; }
+  .p2 .cards, .p3 .cards, .p4 .cards { columns: 1; }
+}
+@media screen and (max-width: 599px) { .flow { columns: 1; } }
+@media screen and (min-width: 600px) and (max-width: 900px) {
+  .p2 .cards, .p3 .cards, .p4 .cards { columns: 2; }
+}
+</style>
+
+<section class="page">
+  <header class="sheet-head">
+    <h1>Recipe Studio · struttura del database</h1>
+    <p>Neon Postgres, progetto <code>recipe-studio-db</code> · 29 tabelle, 17 protette da row-level security · 19 novembre 2026</p>
+    <span class="no">1 / 4 · mappa</span>
+  </header>
+
+  <div class="map-wrap">
+    <svg class="map" viewBox="0 0 1010 400" role="img" aria-label="Mappa delle tabelle principali e dei loro collegamenti">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#17201b"/></marker>
+      </defs>
+      <text class="lane" x="15" y="24" fill="#2c5a94">Account</text>
+      <text class="lane" x="225" y="24" fill="#2c6a3d">Compagnie e accessi</text>
+      <text class="lane" x="645" y="24" fill="#4f5751">Dati</text>
+      <!-- Edges first, so the boxes cover the line ends. -->
+      <path class="edge" d="M85 86 V188" marker-end="url(#arrow)"/><text class="label" x="92" y="141">userId</text>
+      <path class="edge" d="M85 340 V238" marker-end="url(#arrow)"/><text class="label" x="92" y="293">userId</text>
+      <path class="edge logic" d="M225 213 H157" marker-end="url(#arrow)"/><text class="label" x="191" y="205" text-anchor="middle">user_id</text>
+      <path class="edge" d="M365 205 H433" marker-end="url(#arrow)"/>
+      <path class="edge" d="M300 236 V290 H470 V338" marker-end="url(#arrow)"/><text class="label" x="307" y="268">role_id</text>
+      <path class="edge" d="M365 363 H433" marker-end="url(#arrow)"/><text class="label" x="399" y="380" text-anchor="middle">role_id</text>
+      <path class="edge" d="M365 350 H412 V224 H433" marker-end="url(#arrow)"/>
+      <path class="edge" d="M550 340 V238" marker-end="url(#arrow)"/>
+      <path class="edge" d="M505 86 V188" marker-end="url(#arrow)"/>
+      <path class="edge" d="M645 63 H577" marker-end="url(#arrow)"/><text class="label" x="611" y="55" text-anchor="middle">area_id</text>
+      <path class="edge" d="M690 86 V150 H560 V188" marker-end="url(#arrow)"/>
+      <path class="edge logic" d="M855 63 H787" marker-end="url(#arrow)"/><text class="label" x="821" y="55" text-anchor="middle">site_id</text>
+      <path class="edge logic" d="M645 213 H577" marker-end="url(#arrow)"/>
+      <path class="edge logic" d="M715 340 V290 H566 V238" marker-end="url(#arrow)"/>
+      <g class="node"><rect x="15" y="40" width="140" height="46" rx="5" fill="#eaf1fb" stroke="#2c5a94"/><text class="name" x="25" y="60">session</text><text class="sub" x="25" y="76">accessi aperti</text></g>
+      <g class="node"><rect x="15" y="190" width="140" height="46" rx="5" fill="#eaf1fb" stroke="#2c5a94"/><text class="name" x="25" y="210">user</text><text class="sub" x="25" y="226">l&#39;account: email, nome</text></g>
+      <g class="node"><rect x="15" y="340" width="140" height="46" rx="5" fill="#eaf1fb" stroke="#2c5a94"/><text class="name" x="25" y="360">account</text><text class="sub" x="25" y="376">password (solo hash)</text></g>
+      <g class="node"><rect x="225" y="190" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d"/><text class="name" x="235" y="210">rs_memberships</text><text class="sub" x="235" y="226">incarico: ruolo + dove</text></g>
+      <g class="node"><rect x="225" y="340" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d"/><text class="name" x="235" y="360">rs_invites</text><text class="sub" x="235" y="376">link d&#39;invito</text></g>
+      <g class="node"><rect x="435" y="40" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d"/><text class="name" x="445" y="60">rs_areas</text><text class="sub" x="445" y="76">gruppi di sedi</text></g>
+      <g class="node"><rect x="435" y="190" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d" stroke-width="2.8"/><text class="name" x="445" y="210">rs_companies</text><text class="sub" x="445" y="226">la compagnia cliente</text></g>
+      <g class="node"><rect x="435" y="340" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d"/><text class="name" x="445" y="360">rs_roles</text><text class="sub" x="445" y="376">livello e permessi</text></g>
+      <g class="node"><rect x="645" y="40" width="140" height="46" rx="5" fill="#e8f4eb" stroke="#2c6a3d"/><text class="name" x="655" y="60">rs_sites</text><text class="sub" x="655" y="76">ristoranti e pub</text></g>
+      <g class="node"><rect x="855" y="40" width="140" height="46" rx="5" fill="#f1ecf9" stroke="#5a3b8f"/><text class="name" x="865" y="60">Dati sede</text><text class="sub" x="865" y="76">10 tabelle · site_id</text></g>
+      <g class="node"><rect x="645" y="190" width="140" height="46" rx="5" fill="#fcf1de" stroke="#8a4b00"/><text class="name" x="655" y="210">Dati compagnia</text><text class="sub" x="655" y="226">4 tabelle</text></g>
+      <g class="node"><rect x="645" y="340" width="140" height="46" rx="5" fill="#eff1ef" stroke="#4f5751"/><text class="name" x="655" y="360">Storico</text><text class="sub" x="655" y="376">attività e versioni</text></g>
+      <g class="node"><rect x="855" y="190" width="140" height="196" rx="5" fill="#ffffff" stroke="#9aa39c"/>
+        <text class="sub" x="865" y="210" style="font-weight:700;fill:#5a3b8f">Dati sede</text>
+        <text class="sub" x="865" y="227">menu, prep list</text>
+        <text class="sub" x="865" y="243">turni, registri HACCP</text>
+        <text class="sub" x="865" y="259">sprechi, vendite</text>
+        <text class="sub" x="865" y="275">report, consegne</text>
+        <text class="sub" x="865" y="291">giacenza, sicurezza</text>
+        <text class="sub" x="865" y="316" style="font-weight:700;fill:#8a4b00">Dati compagnia</text>
+        <text class="sub" x="865" y="333">ricette e basi</text>
+        <text class="sub" x="865" y="349">prodotti e listino</text>
+        <text class="sub" x="865" y="365">foto, impostazioni</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="under">
+    <div>
+      <h3>Come leggere</h3>
+      <ul class="legend">
+        <li><svg width="44" height="10" aria-hidden="true"><path d="M2 5 H38" stroke="#17201b" stroke-width="1.6"/><path d="M36 1 L42 5 L36 9 z" fill="#17201b"/></svg>Collegamento dichiarato nel database (<b class="k fk">FK</b>): Postgres lo fa rispettare</li>
+        <li><svg width="44" height="10" aria-hidden="true"><path d="M2 5 H38" stroke="#17201b" stroke-width="1.6" stroke-dasharray="6 4"/><path d="M36 1 L42 5 L36 9 z" fill="#17201b"/></svg>Riferimento per id (<b class="k logic">rif.</b>): lo controlla il codice dell'app</li>
+        <li><b class="k pk">PK</b> chiave primaria: identifica la riga (a volte due colonne insieme)</li>
+        <li><span class="tag rls">RLS</span> la tabella mostra solo le righe della compagnia di chi chiede</li>
+        <li class="plain">Le frecce senza nome che arrivano a <code>rs_companies</code> usano sempre la colonna <code>company_id</code>.</li>
+      </ul>
+      <div class="swatches">
+        <span><i style="border-color:#2c5a94;background:#eaf1fb"></i>Account</span>
+        <span><i style="border-color:#2c6a3d;background:#e8f4eb"></i>Compagnie e accessi</span>
+        <span><i style="border-color:#8a4b00;background:#fcf1de"></i>Dati della compagnia</span>
+        <span><i style="border-color:#5a3b8f;background:#f1ecf9"></i>Dati della sede</span>
+        <span><i style="border-color:#4f5751;background:#eff1ef"></i>Storico e sistema</span>
+      </div>
+    </div>
+    <div>
+      <h3>Da sapere</h3>
+      <ul class="notes">
+        <li>I dati si leggono e si scrivono con il ruolo limitato <code>rs_tenant</code> e la compagnia della richiesta: Postgres restituisce solo le righe con quella <code>company_id</code>, anche se il codice sbagliasse un filtro.</li>
+        <li>Account e Compagnie e accessi li legge il server come proprietario del database, per trovare a quali compagnie appartiene chi entra: ogni funzione controlla da sé la compagnia.</li>
+        <li><code>payload</code> (jsonb) contiene il record completo come lo usa l'app. Le colonne fuori dal JSON servono per chiavi, filtri e ordinamenti.</li>
+        <li>Ricette e prodotti sono della compagnia; la giacenza di ogni prodotto è per sede in <code>rs_site_stock</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <header class="sheet-head"><h2>Account · Compagnie e accessi</h2><span class="no">2 / 4</span></header>
+  <div class="flow"><h3 class='flow-head account'>Account (Better Auth) <small>4 tabelle · Chi entra: email, password e sessioni.</small></h3><article class='card g-account'><header><h4>user</h4></header><p>Un account di accesso.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>name</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>email<span class='sub'>unica</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>emailVerified</td><td class='t'>bool</td><td class='b'></td></tr><tr><td class='c'>image</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>createdAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>updatedAt</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-account'><header><h4>session</h4></header><p>Accessi aperti, uno per dispositivo (30 giorni).</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>userId<span class='to fk'>→ user</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>token<span class='sub'>cookie di sessione</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>expiresAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>ipAddress</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>userAgent</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>createdAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>updatedAt</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-account'><header><h4>account</h4></header><p>Credenziali di accesso dell&#x27;utente.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>userId<span class='to fk'>→ user</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>providerId<span class='sub'>“credential” = email e password</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>accountId</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>password<span class='sub'>solo l&#x27;hash, mai in chiaro</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>accessToken<span class='sub'>accessi esterni (non usati)</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>refreshToken</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>idToken</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>accessTokenExpiresAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>refreshTokenExpiresAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>scope</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>createdAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>updatedAt</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-account'><header><h4>verification</h4></header><p>Codici temporanei (verifica email, nuova password).</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>identifier</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>value</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>expiresAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>createdAt</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>updatedAt</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><h3 class='flow-head directory'>Compagnie e accessi <small>6 tabelle · Chi può fare cosa, e dove.</small></h3><article class='card g-directory'><header><h4>rs_companies</h4></header><p>Le compagnie clienti.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>name</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-directory'><header><h4>rs_areas</h4></header><p>Aree facoltative che raggruppano le sedi.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to fk'>→ rs_companies</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>name</td><td class='t'>text</td><td class='b'></td></tr></table></article><article class='card g-directory'><header><h4>rs_sites</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Le sedi: ristoranti o pub.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to fk'>→ rs_companies</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>area_id<span class='to fk'>→ rs_areas</span><span class='sub'>area eliminata: resta senza area</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>name</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>kind<span class='sub'>pub, ristorante…</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-directory'><header><h4>rs_roles</h4></header><p>Ruoli della compagnia: livello e permessi.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to fk'>→ rs_companies</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>name<span class='sub'>Proprietario, Head chef…</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>level<span class='sub'>1 = il più alto</span></td><td class='t'>int</td><td class='b'></td></tr><tr><td class='c'>scope<span class='sub'>ambito tipico</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>permissions<span class='sub'>elenco dei permessi</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>template<span class='sub'>ruolo predefinito d&#x27;origine</span></td><td class='t'>text</td><td class='b'></td></tr></table></article><article class='card g-directory'><header><h4>rs_memberships</h4></header><p>Incarichi: utente + ruolo + dove.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>user_id<span class='to logic'>→ user</span><span class='sub'>l&#x27;account</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to fk'>→ rs_companies</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>role_id<span class='to fk'>→ rs_roles</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>scope_type<span class='sub'>company, area o site</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>scope_id<span class='sub'>la compagnia, l&#x27;area o la sede</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>staff_id<span class='sub'>persona in organico collegata</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-directory'><header><h4>rs_invites</h4></header><p>Link d&#x27;invito: 14 giorni, una sola volta.</p><table><tr><td class='c'>token<span class='sub'>la parte finale del link</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to fk'>→ rs_companies</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>role_id<span class='to fk'>→ rs_roles</span><span class='sub'>elimina a cascata</span></td><td class='t'>text</td><td class='b'><b class='k fk'>FK</b></td></tr><tr><td class='c'>scope_type</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>scope_id</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>staff_id</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>email<span class='sub'>se vuota, vale per chiunque</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>created_by</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>expires_at</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>accepted_by</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>accepted_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article></div>
+</section>
+
+<section class="page">
+  <header class="sheet-head"><h2>Dati della compagnia · Storico e sistema</h2><span class="no">3 / 4</span></header>
+  <div class="flow"><h3 class='flow-head company'>Dati della compagnia <small>4 tabelle · Condivisi da tutte le sedi.</small></h3><article class='card g-company'><header><h4>recipe_studio_recipes</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Ricette e basi. Senza site_id: libreria; con site_id: ricetta propria di una sede.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>vuoto = libreria</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>title<span class='sub'>nome</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>category</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>current_menu<span class='sub'>vecchio, non usato</span></td><td class='t'>bool</td><td class='b'></td></tr><tr><td class='c'>archived_batch<span class='sub'>base / preparazione</span></td><td class='t'>bool</td><td class='b'></td></tr><tr><td class='c'>payload<span class='sub'>ingredienti, metodo, allergeni, prezzi</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-company'><header><h4>recipe_studio_stock_items</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Prodotti e listino fornitori.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>nome, fornitore, prezzo, allergeni</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-company'><header><h4>recipe_studio_photos</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Foto dei termometri nei registri.</p><table><tr><td class='c'>id</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>mime_type</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>data<span class='sub'>l&#x27;immagine</span></td><td class='t'>bytea</td><td class='b'></td></tr><tr><td class='c'>created_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-company'><header><h4>rs_company_settings</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Impostazioni della compagnia.</p><table><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>una riga per compagnia</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>liste, valuta, GP, personale e paghe</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><h3 class='flow-head system'>Storico e sistema <small>5 tabelle · Chi ha cambiato cosa, e versioni della struttura.</small></h3><article class='card g-system'><header><h4>rs_audit_log</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Registro delle attività.</p><table><tr><td class='c'>id<span class='sub'>numero progressivo</span></td><td class='t'>bigint</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>vuoto = tutta la compagnia</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>user_id<span class='to logic'>→ user</span><span class='sub'>chi</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>user_name</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>action<span class='sub'>prezzo, turni, paga, ruolo…</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>target<span class='sub'>cosa</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>detail<span class='sub'>prima e dopo</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>at<span class='sub'>quando</span></td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-system'><header><h4>rs_record_versions</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Copie dei registri corretti o eliminati.</p><table><tr><td class='c'>id</td><td class='t'>bigint</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>kind<span class='sub'>tipo di registro</span></td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>record_id</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>payload<span class='sub'>la copia precedente</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>deleted<span class='sub'>eliminato?</span></td><td class='t'>bool</td><td class='b'></td></tr><tr><td class='c'>user_id<span class='to logic'>→ user</span><span class='sub'>chi</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>user_name</td><td class='t'>text</td><td class='b'></td></tr><tr><td class='c'>at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-system'><header><h4>rs_schema</h4></header><p>Versione della struttura del database.</p><table><tr><td class='c'>version<span class='sub'>oggi 1</span></td><td class='t'>int</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-system'><header><h4>rs_meta</h4></header><p>Versione delle tabelle di Better Auth.</p><table><tr><td class='c'>key</td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>value</td><td class='t'>text</td><td class='b'></td></tr></table></article><article class='card g-system is-old'><header><h4>recipe_studio_settings</h4><span class='tag old'>non usata</span></header><p>Impostazioni dell&#x27;app a cucina singola. Vecchia: copiata nelle impostazioni di compagnia e sede.</p><table><tr><td class='c'>id<span class='sub'>sempre 1</span></td><td class='t'>int</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>payload<span class='sub'>non più usata</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article></div>
+</section>
+
+<section class="page">
+  <header class="sheet-head"><h2>Dati della sede</h2><span class="no">4 / 4</span></header>
+  <div class="flow"><h3 class='flow-head site'>Dati della sede <small>10 tabelle · Ogni riga appartiene a una sola sede.</small></h3><article class='card g-site'><header><h4>recipe_studio_menus</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Menu della sede: piatti, prezzi, giorni e orari.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>nome, piatti, disponibilità</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_prep_lists</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Prep list.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>compiti, porzioni, spunte</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_rota_weeks</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Turni, una riga per settimana.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>righe dei turni; id = lunedì</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_safety_logs</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Registri HACCP.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>temperature, cotture, consegne, checklist</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_waste_logs</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Sprechi.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>prodotto, quantità, motivo, costo</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_sales_weeks</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Vendite settimanali.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>piatti venduti; id = lunedì</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_stock_reports</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Report stock.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>conteggi, consegne, GP reale</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>recipe_studio_stock_deliveries</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Consegne e fatture.</p><table><tr><td class='c'>id<span class='sub'>id del record</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b></td></tr><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>fornitore, righe, prezzi</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>rs_site_stock</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Giacenza dei prodotti nella sede.</p><table><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>item_id<span class='to logic'>→ recipe_studio_stock_items</span><span class='sub'>il prodotto</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>giacenza iniziale, conteggio, minimo</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article><article class='card g-site'><header><h4>rs_site_settings</h4><span class='tag rls' title='Row-level security'>RLS</span></header><p>Sicurezza alimentare della sede.</p><table><tr><td class='c'>site_id<span class='to logic'>→ rs_sites</span><span class='sub'>una riga per sede</span></td><td class='t'>text</td><td class='b'><b class='k pk'>PK</b><b class='k logic'>rif.</b></td></tr><tr><td class='c'>company_id<span class='to logic'>→ rs_companies</span><span class='sub'>compagnia (RLS)</span></td><td class='t'>text</td><td class='b'><b class='k logic'>rif.</b></td></tr><tr><td class='c'>payload<span class='sub'>apparecchi, limiti, checklist</span></td><td class='t'>jsonb</td><td class='b'></td></tr><tr><td class='c'>updated_at</td><td class='t'>timestamptz</td><td class='b'></td></tr></table></article></div>
+</section>

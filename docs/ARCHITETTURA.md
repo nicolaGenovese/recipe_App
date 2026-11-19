@@ -78,6 +78,8 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `validation.ts` | Controlli sui dati in arrivo ed `HttpError`. |
 | `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori. |
 
+La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare; la fonte è [schema-database.html](schema-database.html).
+
 Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso con il browser); `lib/access/redact.ts` toglie dai dati quello che un ruolo non può vedere.
 
 `store/index.ts` importa `server-only`: se per sbaglio un componente del browser lo importa, la build si ferma invece di esporre il database.
