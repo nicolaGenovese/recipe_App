@@ -92,13 +92,14 @@ In ordine di utilità, secondo quanto discusso finora.
 
 1. **Ordini ai fornitori.** Ordine suggerito per fornitore (sotto il livello minimo più il fabbisogno delle prossime prep list); scheda fornitore con contatti, giorni di consegna e orario limite; invio per email o WhatsApp; confronto tra ordinato e consegnato.
 2. **Collegamento alla cassa e comande in cucina** (vedi [CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)): la cassa di ogni sede manda ordini e scontrini via webhook; le comande compaiono in tempo reale in una pagina della modalità cucina (prendo, pronto, tempi, allergie in evidenza, partite e pass), e le vendite aggiornano GP, magazzino teorico, piatti esauriti e prep list.
-3. **Abbonamenti e vendita** (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md)): Stripe, prova gratuita, limiti di scansione per sede, email di sistema per inviti e recupero password.
-4. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
-5. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
-6. **Storico dei prezzi** di prodotti e piatti.
-7. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
-8. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
-9. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana: arrivano con il collegamento alla cassa (punto 2); senza cassa collegata, da CSV giornaliero.
+3. **Più avvisi nel campanello** (vedi [AVVISI.md](AVVISI.md)): controlli HACCP di oggi non fatti, registri fuori limite senza azione, consegne senza controllo, allergeni da riconfermare, prodotti sotto il minimo o senza prezzo, ricette a costo zero, prezzi cambiati molto, turni e prep list mancanti; per ruolo, su tre livelli, e ognuno porta dove si risolve.
+4. **Abbonamenti e vendita** (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md)): Stripe, prova gratuita, limiti di scansione per sede, email di sistema per inviti e recupero password.
+5. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
+6. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
+7. **Storico dei prezzi** di prodotti e piatti.
+8. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
+9. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
+10. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana: arrivano con il collegamento alla cassa (punto 2); senza cassa collegata, da CSV giornaliero.
 
 ## Dati da inserire
 
