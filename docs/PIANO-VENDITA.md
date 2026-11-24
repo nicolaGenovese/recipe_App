@@ -1,6 +1,16 @@
 # Piano: vendere Recipe Studio a più ristoranti
 
-Stato: **piano, non ancora iniziato** (18/11/2026). Descrive come passare dall'app di oggi, una cucina con una password condivisa, a un servizio in abbonamento con una sola installazione, registrazione e dati separati per ogni cliente.
+Stato al 24/11/2026: **fase 2 fatta, fase 3 in parte; fasi 0, 4 e 5 da fare.** Il piano (scritto il 18/11/2026) descrive come passare da una cucina con una password condivisa a un servizio in abbonamento con una sola installazione, registrazione e dati separati per ogni cliente.
+
+| Fase | Stato |
+| --- | --- |
+| 0 · Prerequisiti (Vercel Pro, fatturazione Google, Neon a pagamento, documenti legali) | Da fare |
+| 1 · Clienti pilota con un'installazione ciascuno | Non più necessaria: l'installazione unica c'è già. Resta possibile per un cliente che vuole il suo database |
+| 2 · Installazione unica con dati separati | **Fatta** (18/11/2026), con row-level security, Better Auth e test di isolamento |
+| 3 · Registrazione e primi passi | In parte: registrazione e inviti fatti; mancano primi passi guidati, dati di esempio e sito pubblico |
+| 4 · Abbonamenti | Da fare |
+| 5 · Gestione del servizio | Da fare; ci sono già il registro attività e l'esportazione dei dati della sede |
+| 6 · Dopo il lancio | In parte: più sedi, ruoli completi e confronto tra sedi già fatti |
 
 La struttura di compagnie, sedi, ruoli e permessi è già descritta in [MULTI-AZIENDA.md](MULTI-AZIENDA.md). Questo piano non la ripete: dice in che ordine costruirla per poterla vendere, cosa serve oltre al codice e cosa rimandare.
 
@@ -29,7 +39,7 @@ L'app di oggi è già un'istanza autonoma per cucina: basta ripeterla.
 **Per ogni cliente:**
 1. Un nuovo progetto Neon (database vuoto: l'app crea le tabelle da sola).
 2. Un nuovo progetto Vercel collegato **allo stesso repository**.
-3. Le variabili `DATABASE_URL`, `APP_PASSWORD` e `GEMINI_API_KEY`.
+3. Le variabili `DATABASE_URL`, `BETTER_AUTH_SECRET` e `GEMINI_API_KEY`. Il cliente crea la sua compagnia da «Crea una nuova compagnia».
 4. Un sottodominio, per esempio `nometavola.recipestudio.co.uk`.
 
 Ogni progetto Vercel collegato al repository si ripubblica a ogni push su `main`. Gli aggiornamenti arrivano quindi a tutti i clienti insieme, senza lavoro in più.
@@ -42,6 +52,13 @@ Ogni progetto Vercel collegato al repository si ripubblica a ogni push su `main`
 **Da preparare già ora:** l'esportazione dell'archivio deve includere le foto, così i dati dei pilota si potranno spostare nell'installazione unica (fase 2).
 
 ## Fase 2 · Un'installazione unica con dati separati
+
+**Fatta il 18/11/2026**, provata su una copia del database e con un backup prima del passaggio. Rispetto a quanto scritto qui sotto:
+- i ruoli sono subito gli otto di MULTI-AZIENDA.md, modificabili per compagnia, invece di tre;
+- la row-level security separa le **compagnie**; la sede la filtra il codice;
+- ogni API chiama `requireContext` con il suo permesso, invece di un unico `handle()`;
+- mancano ancora la verifica dell'email e il recupero della password (serve un servizio email);
+- il tablet di cucina usa un normale account con ruolo di cucina; il collegamento del dispositivo con PIN non c'è.
 
 È la fase più grande. Si fa con un backup completo e una prova su una copia dei dati.
 

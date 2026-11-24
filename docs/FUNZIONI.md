@@ -1,6 +1,6 @@
 # Funzioni di Recipe Studio
 
-Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da fare e i limiti noti. Per il codice vedi [ARCHITETTURA.md](ARCHITETTURA.md), per i dati [API.md](API.md), per i conti [CALCOLI.md](CALCOLI.md).
+Stato al 24/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da fare, i dati da inserire e i limiti noti. Per il codice vedi [ARCHITETTURA.md](ARCHITETTURA.md), per le API e i dati [API.md](API.md), per i conti [CALCOLI.md](CALCOLI.md), per la struttura del database [schema-database.pdf](schema-database.pdf).
 
 ## Funzioni implementate
 
@@ -20,7 +20,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 
 ### Menu
 
-- Più menu nella stessa cucina (oggi: Main menu, Pizza menu, Sunday Roast Menu), ognuno con nome, descrizione, stato attivo o sospeso e piatti in ordine di servizio.
+- Più menu per sede (oggi: Main menu, Pizza menu, Sunday Roast Menu), ognuno con nome, descrizione, stato attivo o sospeso e piatti in ordine di servizio.
 - Disponibilità di ogni menu: giorni della settimana e una o più fasce orarie (anche oltre la mezzanotte). La scheda del menu mostra quando è servito e se è disponibile in questo momento; senza giorni né orari il menu è sempre disponibile.
 - Lo stesso piatto può stare in più menu; la scelta si fa dal menu o dalla scheda del piatto.
 - Per ogni menu: piatti, costo e prezzo medi, food cost, margine medio, piatti senza prezzo.
@@ -48,11 +48,12 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Una riga per ogni persona in organico; turni come `09:00-17:00`, anche oltre la mezzanotte o spezzati (`10:00-14:00, 18:00-22:00`); riposo e ferie.
 - Ore per persona, per giorno e totali; costo per persona, costo giornaliero e costo della settimana.
 - Salvataggio automatico, copia e incolla di una settimana, svuota, PDF, Excel, stampa.
-- Le settimane della vecchia app Rota (Supabase) sono state importate.
+- Le settimane della vecchia app Rota (Supabase) si possono importare così come sono: usano gli stessi valori dei turni.
 
 ### Personale (Impostazioni → Persone)
 
-- Elenco del personale con nome, ruolo, paga oraria e "in organico"; aggiunta e rimozione solo da qui.
+- Elenco del personale della compagnia con nome, ruolo, paga oraria, "in organico" e sedi in cui lavora (nessuna sede = tutte); aggiunta e rimozione solo da qui.
+- Accanto a ogni persona il suo account nell'app, oppure il pulsante «Invita» che prepara il link d'invito per lei.
 - Percentuale di contributi e oneri del datore di lavoro, aggiunta al costo del personale.
 
 ### Sicurezza alimentare
@@ -74,12 +75,13 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 
 ### Generale
 
-- Impostazioni: valuta, lingua (italiano, inglese), regole del calcolo GP, personale, liste personalizzabili.
+- Impostazioni in due gruppi. **Cucina**: valuta, lingua (italiano, inglese), regole del calcolo GP, liste personalizzabili. **Compagnia**: Persone, Sedi e aree, Ruoli e permessi, Registro attività. Senza account Persone sta nel gruppo Cucina.
 - Online su Vercel con database Neon; in locale anche su file JSON. Backup e importazione JSON, CSV delle ricette.
 - **Più compagnie e sedi, account e ruoli** (con il database): ognuno entra con email e password (Better Auth). Una compagnia ha una o più sedi, raggruppabili in aree; la libreria di ricette e i prodotti sono della compagnia, una sede può avere ricette proprie, e menu, magazzino, prep list, turni, registri, sprechi e vendite sono di ogni sede. La sede si sceglie in alto nella barra laterale.
   - **Primo accesso**: i dati che esistevano prima degli account diventano la prima compagnia e la sua sede; li prende il primo account, che deve conoscere la vecchia password dell'app (`APP_PASSWORD`).
   - **Registrazione**: chiunque può creare una nuova compagnia (pagina "Crea una nuova compagnia"); parte vuota e ne diventa proprietario.
-  - **Impostazioni → Persone**: in alto il personale (turni, paga, sedi; si salva con le impostazioni) con accanto l'account di ciascuno o il pulsante «Invita», sotto l'accesso all'app (si salva subito): persone con ruolo, sede o area e persona in organico collegata, inviti con link (14 giorni, una volta sola, facoltativamente legati a un'email), sedi e aree con il nome della compagnia, ruoli e permessi con una tabella da spuntare, registro delle attività (gruppo Compagnia, si salva subito). Ognuno vede solo le sezioni che il suo ruolo può usare; il gruppo Cucina (valuta, lingua, GP, personale, liste) solo chi gestisce le impostazioni della compagnia.
+  - **Impostazioni → Persone**: in alto il personale (paga, sedi; si salva con «Salva impostazioni») con l'account di ciascuno o il pulsante «Invita»; sotto l'accesso all'app (si salva subito): persone con ruolo, sede o area e persona in organico collegata, inviti con link (14 giorni, una volta sola, facoltativamente legati a un'email).
+  - **Impostazioni → Sedi e aree, Ruoli e permessi, Registro attività** (si salvano subito): nome della compagnia, sedi e aree; ruoli con una tabella dei permessi da spuntare; chi ha cambiato prezzi, turni, paghe, ruoli e incarichi. Ognuno vede solo le sezioni che il suo ruolo può usare; il gruppo Cucina solo chi gestisce le impostazioni della compagnia.
   - **Andamento → Confronto sedi** (head office e area manager, con più di una sede): vendite, GP teorico e reale, sprechi, personale, prime cost, anomalie HACCP e controlli da fare oggi delle ultime 4 settimane, sede per sede.
   - **Ruoli**: gli otto ruoli predefiniti di MULTI-AZIENDA.md, modificabili per ogni compagnia, più ruoli propri. Nessuno assegna un ruolo pari o superiore al proprio, né fuori dalle sedi in cui lavora.
   - **Permessi** controllati dal server su ogni operazione; quello che un ruolo non può vedere (prezzi e costi, paghe, turni degli altri) non arriva al browser e le cifre non compaiono.
@@ -107,12 +109,13 @@ In ordine di utilità, secondo quanto discusso finora.
 
 ## Dati da inserire
 
-L'archivio online parte vuoto. Per avere numeri affidabili servono:
+Situazione dell'archivio online al 24/11/2026. Per avere numeri affidabili servono:
 
-- **Prezzi dei prodotti** in Inventario (oggi tutti a 0) e **quantità degli ingredienti** nei piatti del Main menu (oggi 0): servono per costi, food cost, GP teorico, margini e analisi del menu.
-- **IVA predefinita**: in Impostazioni → Calcolo GP è al 10%; nel Regno Unito per la ristorazione è al 20%.
-- **Paga oraria** di ogni persona in Impostazioni → Persone.
-- **Nomi degli apparecchi** in Sicurezza alimentare → Impostazioni sicurezza (oggi "Frigo 1", "Frigo 2", "Congelatore 1").
+- **Prezzi dei prodotti**: 53 prodotti su 145 sono ancora senza prezzo in Inventario.
+- **Quantità degli ingredienti**: 39 ricette hanno tutte le quantità a 0, quindi costo zero. Servono per costi, food cost, GP teorico, margini e analisi del menu.
+- **Personale**: l'elenco in Impostazioni → Persone è vuoto. Servono le persone con la paga oraria, per i turni, il costo del personale e le firme dei registri.
+- **Allergeni dei prodotti**: i prodotti che esistevano prima della spunta «Allergeni controllati» contano come controllati. Conviene ricontrollarli sull'etichetta, a cominciare da quelli senza allergeni, e compilare il «può contenere».
+- **Ingredienti scritti a mano**: quelli che non sono in magazzino (nel campanello) vanno aggiunti, altrimenti i piatti che li usano non si possono confermare.
 - **Giorni di conservazione** sulle ricette base, per le etichette.
 - **Chef special** del Pizza menu, ancora senza ricetta.
 
@@ -122,5 +125,6 @@ L'archivio online parte vuoto. Per avere numeri affidabili servono:
 - **Indirizzi per sede** (`/compagnia/sede/...`) non ancora usati: la sede scelta resta nel browser.
 - **Prezzi cambiati da chi non modifica le ricette** (per esempio un sous chef): i costi delle ricette si riallineano alla prossima apertura di chi può modificarle.
 - **GP reale settimanale** approssimato: arriva dal report stock che copre più giorni della settimana.
-- **Controllo all'arrivo aperto da una consegna** non provato, perché l'archivio non ha ancora consegne.
+- **Prezzi di vendita uguali in tutte le sedi**: il prezzo sta sulla ricetta, che è della compagnia; un prezzo diverso per sede non si può ancora indicare.
+- **Scansione fatture con Gemini gratuito**: la quota gratuita per modello è piccola. L'app passa da sola a un altro modello, ma per un uso quotidiano conviene attivare la fatturazione su Google AI Studio.
 - **Vecchia app Rota** ancora attiva su Supabase: le modifiche fatte lì non arrivano qui.

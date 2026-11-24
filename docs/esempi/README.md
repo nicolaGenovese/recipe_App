@@ -2,7 +2,7 @@
 
 Il file [margherita-esempio.json](margherita-esempio.json) è un archivio di prova con una sola pizza, seguita in tutte le parti dell'app. Serve a capire come i dati passano da una pagina all'altra.
 
-**Come caricarlo:** nell'app apri **Recipes** (Ricette), clicca **Import** e scegli il file. Gli id iniziano con `ex-`; reimportarlo aggiorna gli stessi record invece di crearne di nuovi. Le impostazioni dell'archivio (valuta GBP, IVA 20%, personale, frigoriferi) sostituiscono quelle attuali.
+**Come caricarlo:** nell'app apri **Recipes** (Ricette), clicca **Import** e scegli il file. Gli id iniziano con `ex-`; reimportarlo aggiorna gli stessi record invece di crearne di nuovi. Le impostazioni dell'archivio (valuta GBP, IVA 20%, personale, frigoriferi) sostituiscono quelle attuali. Con gli account l'esempio entra nella sede scelta in alto a sinistra, e per importarlo servono i permessi per modificare impostazioni, ricette e magazzino: meglio provarlo in una compagnia di prova.
 
 Date di riferimento: settimana dal 9 al 15 novembre 2026, oggi 13 novembre.
 

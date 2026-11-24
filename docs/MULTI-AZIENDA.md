@@ -110,7 +110,7 @@ Tabelle principali previste:
 
 - Ogni API controlla `può(utente, azione, sede)` prima di leggere o scrivere.
 - L'interfaccia nasconde i pulsanti non permessi, ma la protezione vera sta sempre sul server.
-- I permessi stanno in un unico modulo (per esempio `lib/auth/permissions.ts`) con i relativi test.
+- I permessi stanno in un unico modulo (`lib/access/permissions.ts`) con i relativi test.
 
 ### Indirizzi e interfaccia
 
@@ -125,12 +125,12 @@ Tabelle principali previste:
 
 ## 5. Ordine di lavoro
 
-1. **Database:** passare da JSON a tabelle Postgres con compagnia e sede. I dati attuali diventano "Nine Elms Group → Nine Elms Tavern". Per chi la usa, l'app resta uguale.
-2. **Login e incarichi:** utenti, inviti per email, ruoli predefiniti, controllo dei permessi su tutte le API.
-3. **Selettore di sede** e indirizzi per sede; libreria ricette condivisa a livello di compagnia, menu e prezzi per sede.
-4. **Collegamento persona–account:** ogni utente vede i propri turni; firme dei registri dall'utente collegato.
-5. **Pagine head office e area manager** con i numeri di più sedi.
-6. **Registro attività e ruoli personalizzati**; più avanti, abbonamento per compagnia se l'app verrà offerta ad altri.
+1. **Database:** compagnia e sede su tutti i dati, row-level security. **Fatto**: i dati di prima sono diventati la prima compagnia e la sua sede.
+2. **Login e incarichi:** utenti, inviti, ruoli predefiniti, controllo dei permessi su tutte le API. **Fatto**, con inviti tramite link invece che per email.
+3. **Selettore di sede**, libreria ricette condivisa, menu per sede. **Fatto**; mancano gli indirizzi per sede e i prezzi per sede (sezione 7).
+4. **Collegamento persona–account:** ogni utente vede i propri turni; firme dei registri dall'utente collegato. **Fatto**.
+5. **Pagine head office e area manager** con i numeri di più sedi. **Fatto** come Andamento → Confronto sedi; manca "dove è usata ogni ricetta".
+6. **Registro attività e ruoli personalizzati.** **Fatto**. L'abbonamento per compagnia è in [PIANO-VENDITA.md](PIANO-VENDITA.md).
 
 Il punto 1 è il più delicato perché tocca tutti i dati: va fatto con un backup completo e una prova su una copia. Gli altri si aggiungono uno sopra l'altro.
 
@@ -160,3 +160,8 @@ Il punto 1 è il più delicato perché tocca tutti i dati: va fatto con un backu
 - **Indirizzi per sede** non ancora usati: la sede si sceglie dalla barra laterale.
 - **Proposte di modifica alla libreria** dal head chef non ancora fatte: il head chef crea ricette della sede.
 - **Inviti** con link da copiare, senza invio di email.
+- **Prezzi per sede** non fatti: i menu sono di ogni sede, ma il prezzo di vendita sta sulla ricetta, che è della compagnia, quindi è uguale in tutte le sedi.
+- **Personale**: è della compagnia, e ogni persona ha le sedi in cui lavora (nessuna = tutte), invece di un incarico per sede. Paga e ruolo sono uno solo per persona.
+- **Firme dei registri**: in modalità cucina chi ha un account collegato a una persona firma con il suo nome già proposto, ma il nome si può ancora cambiare, come sui tablet condivisi.
+- **Giacenza e impostazioni**: la giacenza dei prodotti e le impostazioni di sicurezza alimentare (apparecchi, limiti, checklist) sono per sede; prodotti, prezzi d'acquisto, allergeni, liste, valuta, regole GP e personale sono della compagnia.
+- **Ruoli predefiniti**: i nomi sono salvati in italiano e tradotti a schermo; i ruoli creati da una compagnia restano come li scrive lei.

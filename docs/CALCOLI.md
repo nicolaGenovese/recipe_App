@@ -25,11 +25,23 @@ Tutte le formule sono in `src/lib/` e coperte dai test (`npm test`).
 Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ricetta dice solo quale prodotto o quale ricetta base usa, la quantità e l'unità.
 
 - **Grammi e millilitri:** le ricette si scrivono in g e ml. Un prodotto contato in kg o l, collegato a una riga, entra in g o ml (90 g di mozzarella, non 0,09 kg). Cambiare l'unità di una riga converte la quantità (0,09 kg → 90 g); una riga vecchia in kg o l viene portata in g o ml alla prima sincronizzazione, con lo stesso costo.
-- **Riga collegata a un prodotto:** nome, fornitore, allergeni, costo per unità e kcal vengono dal prodotto. Costo e kcal sono convertiti nell'unità della riga (un prodotto a £4/kg usato in g costa £0,004/g). Se le unità non si convertono, la riga tiene il costo e le kcal che aveva.
-- **Riga collegata a una ricetta base:** con unità `porz`, il costo è il costo per porzione della base e le kcal quelle per porzione. Gli allergeni sono quelli della base.
-- **Voce libera** (tipo Esterno, o un nome che non è a magazzino): costo, allergeni e kcal sono quelli scritti nella riga e valgono solo per quella ricetta. "+ Aggiungi al magazzino" apre sotto la riga la scheda prodotto completa, già compilata dalla riga: una riga in g diventa un prodotto a Kg con prezzo e kcal per kg (0,03 €/g → 30 €/kg). Creato il prodotto, la riga si collega; le altre ricette con lo stesso nome si collegano da sole. La ricetta si può salvare anche con voci non a magazzino (tranne Esterno e basi): l'avviso al salvataggio e la campanella in alto a destra le elencano con le ricette che le usano.
-- **Sincronizzazione:** all'apertura dell'app e dopo ogni modifica di prodotti, consegne o ricette base, le ricette che non corrispondono al catalogo vengono aggiornate e salvate. Una riga vecchia senza collegamento, il cui nome coincide con un prodotto, viene collegata a quel prodotto.
+- **Riga collegata a un prodotto:** nome, fornitore, allergeni, tracce ("può contenere"), costo per unità e kcal vengono dal prodotto. Costo e kcal sono convertiti nell'unità della riga (un prodotto a £4/kg usato in g costa £0,004/g). Se le unità non si convertono, la riga tiene il costo e le kcal che aveva.
+- **Riga collegata a una ricetta base:** con unità `porz`, il costo è il costo per porzione della base e le kcal quelle per porzione. Allergeni e tracce sono quelli della base.
+- **Voce libera** (tipo Esterno, o un nome che non è a magazzino): costo, allergeni e kcal sono quelli scritti nella riga e valgono solo per quella ricetta. Un nome di tipo Prodotto che non è a magazzino impedisce di confermare gli allergeni del piatto; una voce Esterno (per esempio l'acqua) no. "+ Aggiungi al magazzino" apre sotto la riga la scheda prodotto completa, già compilata dalla riga: una riga in g diventa un prodotto a Kg con prezzo e kcal per kg (0,03 €/g → 30 €/kg). Creato il prodotto, la riga si collega; le altre ricette con lo stesso nome si collegano da sole. La ricetta si può salvare anche con voci non a magazzino (tranne Esterno e basi): l'avviso al salvataggio e la campanella in alto a destra le elencano con le ricette che le usano.
+- **Sincronizzazione:** all'apertura dell'app e dopo ogni modifica di prodotti, consegne o ricette base, le ricette che non corrispondono al catalogo vengono aggiornate e salvate, solo da chi può modificarle. Una riga vecchia senza collegamento, il cui nome coincide con un prodotto, viene collegata a quel prodotto. Una riga senza tracce non riceve il campo, così le ricette di prima restano identiche.
 - **Prodotto eliminato:** nelle ricette che lo usavano resta come voce libera con gli ultimi valori.
+
+## Allergeni — `lib/recipes/allergens.ts`
+
+- **Contiene** = unione degli allergeni delle righe. Dalla ricetta non si toglie nulla.
+- **Può contenere** = tracce delle righe (dall'etichetta dei prodotti e dalle basi) più quelle aggiunte in cucina, tolto quello che il piatto già contiene.
+- **Stato del piatto**, in quest'ordine:
+  1. *senza ingredienti*: allergeni non noti;
+  2. *da verificare*: una riga di tipo Prodotto non è a magazzino, oppure un prodotto (anche dentro una base) ha gli allergeni da controllare sull'etichetta;
+  3. *da controllare*: nessuna conferma;
+  4. *da ricontrollare*: contiene o tracce diversi da quelli confermati (con l'elenco di aggiunti e tolti);
+  5. *confermato*.
+- **Conferma**: salva data, nome e copia di contiene e tracce. Non si può dare se il piatto è da verificare; una conferma vecchia lasciata spuntata tiene la sua copia, così un cambiamento continua a chiedere il controllo.
 
 ## Report Food Stock — `lib/stock/report.ts`
 

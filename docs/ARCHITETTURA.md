@@ -5,17 +5,19 @@ Il codice segue una regola semplice: **i calcoli non sanno nulla di React, React
 ```
 src/
 ├── app/                  Pagine e API di Next.js (solo collegamenti, niente logica)
+│                         page.tsx (l'app), login/, registrati/, invito/[token]/, benvenuto/, api/
+├── proxy.ts              Rimanda all'accesso chi non ha la sessione (o la password in locale)
 ├── components/           Interfaccia React, un componente per file
 ├── state/                Stato del browser e azioni (salva, elimina, genera…)
-├── lib/                  Logica pura: tipi, calcoli, formati, traduzioni
-│   └── server/           Solo lato server: archivio, validazione, risposte HTTP
+├── lib/                  Logica pura: tipi, calcoli, formati, traduzioni, permessi
+│   └── server/           Solo lato server: archivio, account, compagnie, validazione, risposte HTTP
 └── styles/               CSS diviso per area
 ```
 
 ## Come scorrono i dati
 
-1. **Prima apertura.** `app/page.tsx` gira sul server, legge l'archivio con `getStore().getState()` e passa tutto ad `AppProvider`. La pagina arriva già con i dati, senza schermata di caricamento.
-2. **Nel browser.** `state/AppProvider.tsx` tiene i dati in memoria e li mette a disposizione di ogni componente con `useApp()`, insieme a lingua (`t`), formati (`f`: valuta, quantità, date), regole GP, filtri della vista, finestra aperta e avvisi.
+1. **Prima apertura.** `app/page.tsx` gira sul server: ricava chi è entrato e in quale sede (`resolveContext`), legge l'archivio della sede, toglie quello che il ruolo non può vedere (`redactState`) e passa tutto ad `AppProvider`. La pagina arriva già con i dati, senza schermata di caricamento. Senza sessione rimanda a `/login`, con un account senza compagnia a `/benvenuto`.
+2. **Nel browser.** `state/AppProvider.tsx` tiene i dati in memoria e li mette a disposizione di ogni componente con `useApp()`, insieme a lingua (`t`), formati (`f`: valuta, quantità, date), regole GP, filtri della vista, finestra aperta, avvisi, chi è entrato (`access`), i permessi (`can("menus.edit")`) e il cambio di sede (`switchSite`).
 3. **Una modifica.** Un componente chiama un'azione, per esempio `useStockActions().saveDelivery(…)`. L'azione chiama l'API (`state/api.ts`), aggiorna i dati in memoria con `update(…)` e mostra l'avviso.
 4. **Sul server.** La route in `app/api/…` chiede il contesto (`lib/server/auth/context.ts`: chi è, in quale compagnia e sede, con quali permessi), legge il JSON, lo valida (`lib/server/validation.ts`), controlla il permesso e lo passa all'archivio della sede (`lib/server/store`), che è il file JSON locale oppure Neon.
 
@@ -35,11 +37,20 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `settings.ts` | Completa le impostazioni mancanti negli archivi vecchi. |
 | `seed.ts` | Impostazioni predefinite e dati di esempio per un archivio vuoto. |
 | `i18n/` | `en.ts` contiene i testi inglesi; la chiave è il testo italiano. `index.ts` crea la funzione `t`. |
-| `recipes/math.ts` | Costo, costo per porzione, allergeni, kcal, margine, prezzo suggerito, righe senza costo. |
+| `recipes/math.ts` | Costo, costo per porzione, allergeni e tracce, kcal, margine, prezzo suggerito, righe senza costo. |
+| `recipes/allergens.ts` | Allergeni del piatto: da quali ingredienti arrivano, tracce ereditate e aggiunte, stato (confermato, da ricontrollare, da verificare), conferma, colonne della matrice. |
 | `recipes/form.ts` | Conversione ricetta ↔ modulo dell'editor (i numeri restano testo mentre si scrive). |
-| `recipes/catalog.ts` | Catalogo ingredienti: una riga di ricetta prende nome, fornitore, costo, allergeni e kcal dal prodotto o dalla ricetta base collegata; ricette da sincronizzare; ricette che usano un prodotto. |
+| `recipes/catalog.ts` | Catalogo ingredienti: una riga di ricetta prende nome, fornitore, costo, allergeni, tracce e kcal dal prodotto o dalla ricetta base collegata; ricette da sincronizzare; ricette che usano un prodotto; prodotti con allergeni da controllare. |
 | `recipes/filter.ts` | Filtri e ordinamento della libreria, compreso il filtro per menu. |
 | `menus/menus.ts` | Piatti in menu, piatti di più menu, numeri del menu (costo medio, food cost, margine), assegnazione di un piatto ai menu, passaggio dal vecchio "menu attuale". |
+| `menus/availability.ts` | Giorni e fasce orarie di un menu, anche oltre la mezzanotte; "disponibile ora". |
+| `access/permissions.ts` | Permessi, ruoli predefiniti, permessi impliciti, livello dei ruoli, `AccessInfo` mandato al browser. |
+| `access/redact.ts` | Toglie dall'archivio prezzi, paghe e turni che il ruolo non può vedere; tiene le paghe salvate quando le salva chi non le vede. |
+| `invoices/` | Scansione fatture: forma del risultato (`scan.ts`), abbinamento a fornitori e prodotti (`match.ts`), foto ridotte prima dell'invio (`upload.ts`). |
+| `kitchen/today.ts` | Modalità cucina: prep list di oggi, giro temperature, checklist, consegne senza controllo, apertura predefinita sui touch. |
+| `safety/photos.ts` | Foto dei registri: quali usa un record, quali togliere, quali mancano. |
+| `performance/compare.ts` | Confronto tra sedi delle ultime 4 settimane. |
+| `images.ts`, `pages.ts` | Foto ridotte nel browser; numeri di pagina con i puntini. |
 | `performance/waste.ts` | Costo di uno spreco (dal prodotto o dalla ricetta), totali per motivo e per voce. |
 | `performance/sales.ts` | Incasso netto e costo teorico delle vendite, GP teorico, analisi del menu (star, cavallo da tiro, enigma, cane), lettura del CSV della cassa, porzioni suggerite per la prep list. |
 | `performance/labour.ts` | Costo del personale dai Turni: ore × paga oraria del Personale più gli oneri, per persona, per giorno e per settimana. |
@@ -74,11 +85,13 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `directory.ts` | Compagnie, aree, sedi, ruoli, incarichi e inviti (come proprietario del database, quindi ogni funzione controlla la compagnia da sé). `buildAccess` calcola sedi raggiungibili e permessi. |
 | `auth/auth.ts` | Better Auth (email e password) sullo stesso database; crea le sue tabelle una volta. |
 | `auth/context.ts` | `requireContext(request, ...permessi)`: sessione, compagnia, sede (cookie `rs_site`), permessi e archivio della sede. In locale tutto permesso. |
+| `auth/errors.ts`, `auth/cookies.ts` | Messaggi degli errori di Better Auth; nomi del cookie di sessione (usati dal proxy). |
+| `invoices/readers.ts` | Lettori delle fatture (Gemini, demo): scelta dei modelli, tempi e messaggi d'errore. |
 | `guards.ts` | Regole sulle scritture: ricette della libreria o della sede, conteggi e spunte, correzioni HACCP, registro attività. |
 | `validation.ts` | Controlli sui dati in arrivo ed `HttpError`. |
 | `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori. |
 
-La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare; la fonte è [schema-database.html](schema-database.html).
+La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare. Il PDF è del 19/11/2026: se le tabelle cambiano va rifatto. C'è anche il diagramma generato da DBeaver, [neondb - public.png](neondb%20-%20public.png), con i collegamenti dichiarati nel database.
 
 Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso con il browser); `lib/access/redact.ts` toglie dai dati quello che un ruolo non può vedere.
 
@@ -88,7 +101,8 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 
 | File | Contenuto |
 | --- | --- |
-| `AppProvider.tsx` | Contesto dell'app e hook `useApp()`. |
+| `AppProvider.tsx` | Contesto dell'app e hook `useApp()`, con `access`, `can`, `switchSite` e `logout`. |
+| `useRights.ts` | Cosa può fare il ruolo con le ricette (creare, modificare, menu): i pulsanti che non può usare non compaiono. |
 | `api.ts` | Chiamate alle API. |
 | `dialogs.ts` | Elenco delle finestre e dei dati che ricevono. |
 | `view.ts` | Pagina e filtri attivi: libreria (con `menuId` per un solo menu), Menu, Prep list, Food Stock. |
@@ -102,21 +116,23 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 
 | Cartella | Contenuto |
 | --- | --- |
-| `shell/` | Pagina: barra laterale, barra in alto, intestazione, `DialogHost` che mostra la finestra aperta. |
+| `shell/` | Pagina: barra laterale (con il selettore di sede `SitePicker`), barra in alto con il campanello (`StockAlerts`), intestazione, `DialogHost` che mostra la finestra aperta. |
+| `company/` | Gestione della compagnia dentro Impostazioni: persone e inviti, sedi e aree, ruoli e permessi, registro attività; confronto tra sedi per Andamento. |
+| `kitchen/` | Modalità cucina: una scheda per prep list, temperature, cotture, consegne e checklist. |
 | `ui/` | Pezzi riutilizzabili: `Dialog`, campi dei moduli, riquadri, paginazione, avvisi, icone. |
 | `recipes/` | Libreria, scheda, menu azioni, riepilogo. `editor/` ha un file per ogni scheda dell'editor. |
 | `print/` | Finestra di stampa e anteprima. |
-| `settings/` | Impostazioni: una scheda per file. |
+| `settings/` | Impostazioni: una scheda per file; `PeoplePane` unisce il personale e l'accesso all'app. |
 | `stock/` | Food Stock: `reports/`, `deliveries/`, `inventory/`, `picker/`. |
 | `menus/` | Pagina Menu (`MenusView`, `MenuCard`), editor del menu e scelta dei menu di un piatto. |
 | `performance/` | Pagina Andamento: riepilogo, vendite, sprechi e analisi del menu; finestra dello spreco. |
-| `safety/` | Pagina Sicurezza alimentare (`SafetyView`, `SafetyTables`), una finestra per ogni tipo di controllo e le impostazioni (apparecchi, limiti, checklist). |
+| `safety/` | Pagina Sicurezza alimentare (`SafetyView`, `SafetyTables`), una finestra per ogni tipo di controllo, le impostazioni (apparecchi, limiti, checklist) e il pulsante delle foto (`PhotoButton`). |
 | `rota/` | Pagina Turni (`RotaView`), griglia (`RotaTable`, `ShiftCell`), stampa ed esportazioni PDF ed Excel. |
 | `prep/` | Pagina Prep list, finestra della lista (`PrepPlanPanel` per menu e porzioni, `PrepTaskRow` per ogni riga) e foglio di stampa. |
 
 ### `styles/`
 
-Il CSS dell'app originale, diviso per area e importato in ordine da `app/globals.css`. `responsive.css` è l'ultimo perché sovrascrive gli altri su schermi piccoli e in stampa.
+Il CSS dell'app originale, diviso per area e importato in ordine da `app/globals.css`. Gli ultimi due sovrascrivono gli altri: `responsive.css` per schermi piccoli e stampa, poi `mobile.css` per i telefoni (barra in basso, finestre a tutto schermo, campi a 16 px). `kitchen.css` è la modalità cucina.
 
 ## Esempi: aggiungere una funzione
 
@@ -129,10 +145,19 @@ Il CSS dell'app originale, diviso per area e importato in ordine da `app/globals
 **Un nuovo campo del prodotto:**
 
 1. Aggiungilo a `StockItem` in `lib/types.ts`.
-2. Aggiungi il campo nel modulo di `components/stock/inventory/StockItemDialog.tsx` (`toForm` e `submit`).
+2. Aggiungilo al modulo in `lib/stock/productForm.ts` (`productForm` e `productFromForm`) e il campo in `components/stock/inventory/ProductFields.tsx`, che serve sia alla scheda prodotto sia al prodotto creato dalla ricetta.
 3. Se deve comparire in tabella, aggiungi una colonna in `lib/stock/inventory-sort.ts` e una cella in `InventoryTableRow.tsx`.
+4. Se il valore cambia da sede a sede (come la giacenza), aggiungilo a `SITE_STOCK_FIELDS` in `lib/server/store/neon-store.ts`.
 
 Non servono modifiche al database: ogni record è salvato come JSON intero.
+
+**Un nuovo permesso:**
+
+1. Aggiungilo a `PERMISSIONS` in `lib/access/permissions.ts` (con gruppo ed etichetta, che compaiono nella tabella dei ruoli) e ai ruoli predefiniti che lo devono avere; se ne include altri, scrivilo in `IMPLIES`.
+2. Controllalo nella route con `requireContext(request, "nuovo.permesso")` o `context.require(...)`.
+3. Nascondi i pulsanti con `can("nuovo.permesso")` da `useApp()`, e aggiungi la traduzione dell'etichetta.
+
+Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tabella dei ruoli in Impostazioni.
 
 **Una nuova finestra:**
 
@@ -149,10 +174,13 @@ Il testo italiano è la chiave: scrivi `t("Salva bozza")` e aggiungi `"Salva boz
 - **Una finestra alla volta.** `DialogHost` usa una chiave per ogni finestra: aprirne un'altra azzera il modulo precedente.
 - **Menu.** I piatti di un menu stanno in `Menu.recipeIds`, non sulla ricetta. `onMenu` in `useApp()` è l'insieme dei piatti nei menu attivi. Nell'editor della ricetta la scelta dei menu salva solo i menu che cambiano (`useMenuActions().setRecipeMenus`). Eliminare una ricetta la toglie da tutti i menu.
 - **Prep list.** "Genera dai piatti" crea una riga per ogni base (ingrediente di tipo Base / preparazione o collegato a una ricetta base) e, se scelto, per ogni riga del MEP. La stessa base usata da più piatti è una riga sola con le quantità sommate e tutti i piatti collegati. "Aggiorna dai piatti" ricalcola quelle righe tenendo nome, fatto, pronto e note; le righe scritte a mano non vengono toccate.
-- **Andamento.** Il GP teorico usa le vendite inserite e il costo per porzione delle ricette; il GP reale arriva dal report stock inviato che copre più giorni della settimana, quindi con report mensili è un'approssimazione. Gli sprechi del periodo compaiono anche nel riepilogo del report stock. Personale e paghe si gestiscono in Impostazioni → Personale; nei Turni si scrivono solo i turni.
+- **Andamento.** Il GP teorico usa le vendite inserite e il costo per porzione delle ricette; il GP reale arriva dal report stock inviato che copre più giorni della settimana, quindi con report mensili è un'approssimazione. Gli sprechi del periodo compaiono anche nel riepilogo del report stock. Personale e paghe si gestiscono in Impostazioni → Persone; nei Turni si scrivono solo i turni.
 - **Sicurezza alimentare.** Ogni controllo è una registrazione in `safetyLogs`. L'esito (`ok`) viene calcolato nel browser e ricalcolato dal server con i limiti in `settings.foodSafety`. Un controllo fuori limite non si salva senza l'azione correttiva. Il controllo all'arrivo si apre anche dalla consegna in Food Stock, la temperatura al cuore anche dalla scheda ricetta, le etichette dalla prep list.
 - **Turni.** Si possono modificare la settimana corrente e le tre successive; le settimane prima sono storico in sola lettura. Le modifiche si salvano da sole 0,7 secondi dopo l'ultima battuta, una alla volta in coda (`useRotaActions`). L'esportazione Excel carica `public/vendor/xlsx.full.min.js` (SheetJS, preso dalla vecchia app) solo al primo clic. La stampa crea il foglio fuori da `.app-shell`, che le regole di stampa nascondono.
 - **Report inviati.** All'invio il report salva le regole GP in `gpRules` e da lì in poi usa quelle. Riaprirlo le toglie.
 - **Celle dell'inventario.** Si salvano all'uscita dalla cella o con Invio, una alla volta in coda.
-- **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni e kcal.
+- **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni, tracce e kcal. Lo fa solo chi può modificare quelle ricette.
+- **Permessi.** La protezione vera è sul server: ogni route chiede il contesto e il permesso. Il browser nasconde solo i pulsanti e le cifre (`body.no-costs`, `body.no-pay`) che il ruolo non può usare; i dati nascosti arrivano già a zero da `redactState`.
+- **Compagnie e sedi.** Le funzioni di `lib/server/directory.ts` leggono come proprietario del database, quindi ognuna controlla da sé la compagnia. I dati invece passano sempre da `store.scoped(...)`, che usa il ruolo limitato `rs_tenant` e la row-level security.
+- **Account.** Le pagine `/login`, `/registrati`, `/invito/…` e le API `/api/auth`, `/api/account`, `/api/invites` sono aperte; tutto il resto passa dal proxy, che controlla solo che il cookie di sessione ci sia: la sessione vera la verifica ogni API.
 - **Rispetto alla prima versione.** Le funzioni sono le stesse; sono sparite solo le cose che React rende inutili: niente `innerHTML`, niente aggiornamenti manuali della pagina, niente escape a mano dei testi.

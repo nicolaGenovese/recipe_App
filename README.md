@@ -1,13 +1,22 @@
 # Recipe Studio (Next.js)
 
-Gestione di ricette, costi, Food Stock e GP per la cucina, con Next.js e TypeScript. Il 10/11/2026 ha sostituito la prima versione (un server Node con un'unica pagina JavaScript): stesse funzioni e stessi dati, ma il codice è diviso in moduli.
+Gestione di ricette, costi, Food Stock, turni, sicurezza alimentare e GP per una o più cucine, con Next.js e TypeScript. Con il database ogni persona ha il suo account e più compagnie, ognuna con più sedi, usano la stessa installazione con i dati separati.
 
-- Come è organizzato il codice e come aggiungere una funzione: [docs/ARCHITETTURA.md](docs/ARCHITETTURA.md)
-- API e formato dei dati: [docs/API.md](docs/API.md)
-- Regole di calcolo (costi, Food Stock, GP): [docs/CALCOLI.md](docs/CALCOLI.md)
-- Funzioni fatte, da fare e limiti noti: [docs/FUNZIONI.md](docs/FUNZIONI.md)
-- Proposta per più compagnie, sedi, account e permessi: [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md)
-- Esempio completo da importare (una Margherita in tutte le pagine): [docs/esempi/README.md](docs/esempi/README.md)
+## Documenti
+
+| Documento | Contenuto |
+| --- | --- |
+| [docs/FUNZIONI.md](docs/FUNZIONI.md) | Cosa fa l'app oggi, cosa resta da fare, dati da inserire e limiti noti |
+| [docs/ARCHITETTURA.md](docs/ARCHITETTURA.md) | Come è organizzato il codice e come aggiungere una funzione |
+| [docs/API.md](docs/API.md) | API, permessi richiesti e formato dei dati |
+| [docs/CALCOLI.md](docs/CALCOLI.md) | Regole di calcolo: costi, allergeni, Food Stock, GP |
+| [docs/schema-database.pdf](docs/schema-database.pdf) | Struttura del database da stampare (A4 orizzontale) |
+| [docs/neondb - public.png](docs/neondb%20-%20public.png) | Diagramma del database generato da DBeaver |
+| [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md) | Compagnie, sedi, account, ruoli e permessi: proposta e cosa è stato fatto |
+| [docs/PIANO-VENDITA.md](docs/PIANO-VENDITA.md) | Piano per vendere l'app ad altri ristoranti |
+| [docs/CASSA-E-COMANDE.md](docs/CASSA-E-COMANDE.md) | Proposta: collegamento alla cassa e comande in cucina |
+| [docs/AVVISI.md](docs/AVVISI.md) | Proposta: più avvisi nel campanello |
+| [docs/esempi/README.md](docs/esempi/README.md) | Esempio completo da importare: una Margherita in tutte le pagine |
 
 ## Avvio rapido
 
@@ -29,34 +38,35 @@ npm start
 
 ## Dove finiscono i dati
 
-| Configurazione | Archivio |
-| --- | --- |
-| Nessuna variabile | `data/recipes.json` (creato vuoto al primo salvataggio) |
-| `DATA_FILE=percorso/file.json` | Il file indicato. Un percorso relativo parte dalla cartella del progetto. |
-| `DATABASE_URL=postgresql://…` | Neon Postgres. Le tabelle vengono create al primo avvio. |
+| Configurazione | Archivio | Accesso |
+| --- | --- | --- |
+| Nessuna variabile | `data/recipes.json`, creato vuoto al primo salvataggio | Una sola cucina, aperta (o con `APP_PASSWORD`) |
+| `DATA_FILE=percorso/file.json` | Il file indicato; un percorso relativo parte dalla cartella del progetto | Come sopra |
+| `DATABASE_URL=postgresql://…` | Neon Postgres: tabelle e migrazioni si creano da sole al primo avvio | Account con email e password, compagnie, sedi e ruoli |
 
-Le variabili vanno in `.env.local` (non viene salvato nel controllo versione). Parti da [.env.example](.env.example).
-
-Un archivio nuovo, locale o su Neon, parte vuoto: nessuna ricetta, prodotto o altro dato, solo le impostazioni predefinite. I file in `data/` sono esclusi dal controllo versione.
+Le variabili vanno in `.env.local`, che non viene salvato nel controllo versione. Parti da [.env.example](.env.example). I file in `data/` sono esclusi dal controllo versione.
 
 ### Neon
 
 1. In Neon Console apri il progetto e scegli **Connect** per copiare la stringa di connessione.
 2. Mettila in `.env.local` come `DATABASE_URL=…`.
-3. Riavvia l'app. La barra laterale mostra "Neon Postgres" quando la connessione funziona.
+3. Riavvia l'app e apri `/login`:
+   - con un database nuovo si crea la prima compagnia con «Crea una nuova compagnia»;
+   - con dati della versione a cucina singola compare «Primo accesso»: il primo account li prende con la vecchia `APP_PASSWORD` e ne diventa proprietario.
 
-La password resta sul server: il browser parla solo con le API dell'app. Per portare i dati dal file locale a Neon, esporta il JSON dall'app (icona di download in alto) prima di cambiare archivio e reimportalo dopo con **Importa**.
+La password del database resta sul server: il browser parla solo con le API dell'app. Per portare i dati dal file locale a Neon, esporta il JSON dall'app (icona di download in alto) prima di cambiare archivio, e dopo il primo accesso reimportalo con **Importa** nella sede scelta.
 
 ## Online: Vercel e Neon
 
 L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto `recipe-app`) con il database Neon `recipe-studio-db` (regione London).
 
-- **Aggiornamenti:** ogni `git push` sul ramo `main` di GitHub (`nicolaGenovese/recipe_App`) pubblica una nuova versione su Vercel. Gli altri rami creano un'anteprima con un indirizzo a parte.
+- **Aggiornamenti:** ogni `git push` sul ramo `main` di GitHub (`nicolaGenovese/recipe_App`) pubblica una nuova versione su Vercel. Gli altri rami creano un'anteprima con un indirizzo a parte. Le versioni vecchie restano raggiungibili al loro indirizzo, protette dall'accesso Vercel.
 - **Variabili su Vercel** (Project → Settings → Environment Variables):
   - `DATABASE_URL`: impostata dall'integrazione Neon (Project → Storage).
-  - `APP_PASSWORD`: la password condivisa della cucina. Va scelta e inserita a mano. Cambiarla scollega tutti, che dovranno rientrare con la nuova password.
-  - `GEMINI_API_KEY` (facoltativa): attiva la scansione delle fatture in Food Stock → Consegne. Si crea gratis su [Google AI Studio](https://aistudio.google.com). `GEMINI_MODEL` cambia modello; `INVOICE_READER` sceglie il servizio (oggi `gemini`, oppure `demo` per provare in locale una fattura di esempio). Per usare un altro servizio basta aggiungere un lettore in `src/lib/server/invoices/readers.ts`.
-- **Database:** le tabelle si creano da sole alla prima visita.
+  - `BETTER_AUTH_SECRET` (consigliata): una stringa casuale lunga che firma le sessioni. Senza, ne viene ricavata una da `DATABASE_URL`. Cambiarla scollega tutti.
+  - `APP_PASSWORD`: con il database serve solo al primo accesso, per prendere i dati della versione a cucina singola.
+  - `GEMINI_API_KEY` (facoltativa): attiva la scansione delle fatture. Si crea su [Google AI Studio](https://aistudio.google.com). `GEMINI_MODEL` forza un modello; `INVOICE_READER` sceglie il servizio (`gemini`, oppure `demo` per provare in locale una fattura di esempio). Per un altro servizio basta aggiungere un lettore in `src/lib/server/invoices/readers.ts`.
+- **Database:** tabelle, migrazioni e row-level security si creano da sole alla prima visita dopo un aggiornamento. Prima di un aggiornamento che cambia i dati conviene un branch di backup in Neon.
 
 ## Comandi
 
@@ -65,31 +75,26 @@ L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto
 | `npm run dev` | Server di sviluppo su <http://localhost:3000>, si aggiorna a ogni modifica. |
 | `npm run build` | Build di produzione, con controllo dei tipi. |
 | `npm start` | Avvia la build di produzione sulla porta 3000. |
-| `npm test` | Test dei calcoli (Vitest). |
+| `npm test` | Test di calcoli, permessi e regole (Vitest). |
 | `npm run lint` | Controllo dei tipi TypeScript senza build. |
 
-## Funzioni
+## Funzioni in breve
 
-- **Ricette**: catalogo con ricerca su nomi, descrizioni, ingredienti, fornitori e allergeni; categorie, ordinamento, pagine, vista a schede o elenco. Creazione, modifica, duplicazione ed eliminazione; basi/preparazioni.
-- **Menu**: più menu nella stessa cucina (per esempio menu principale, pizze, Sunday roast). Ogni menu ha nome, descrizione, stato attivo o sospeso e i suoi piatti in ordine; lo stesso piatto può stare in più menu. Per ogni menu: numero di piatti, costo e prezzo medi, food cost e margine medio. Ogni menu attivo ha una scorciatoia nella barra laterale che mostra i suoi piatti.
-- **Prep list**: per una data e uno o più menu. "Genera dai piatti" crea le preparazioni dalle basi e dalle righe MEP dei piatti, con le quantità scalate sulle porzioni previste; ogni preparazione indica i piatti a cui serve. Righe a mano, quantità da fare (serve − pronto), note, spunta fatto anche dalla pagina, duplicazione e stampa.
-- **Andamento**: per ogni settimana vendite nette, GP teorico (dalle ricette) e GP reale (dal report stock), sprechi e costo del personale in valore e in percentuale, prime cost. Vendite inserite a mano o importate da un CSV della cassa; registro degli sprechi con motivo e costo; analisi del menu che indica quali piatti vendono e quali rendono. Personale, ruoli e paga oraria in Impostazioni → Personale, con il costo del personale per persona e per giorno nei Turni; porzioni della prep list suggerite dalle vendite.
-- **Sicurezza alimentare**: temperature di frigoriferi e congelatori (mattina e sera), cottura, abbattimento, rigenerazione e mantenimento a caldo collegati alla ricetta, controllo della merce in arrivo agganciato alle consegne, checklist di apertura, chiusura e pulizie firmate dal personale dei Turni. Avviso di quello che manca oggi, azione correttiva obbligatoria quando un controllo è fuori limite, registro stampabile per periodo. Etichette con data di preparazione e scadenza stampate dalla prep list.
-- **Turni del personale**: settimana corrente più le tre successive, con le settimane passate in sola lettura. Un turno per persona e giorno (`09:00-17:00`, anche oltre la mezzanotte o spezzato con la virgola), riposo e ferie, ore per persona, per giorno e totali. Salvataggio automatico, copia e incolla di una settimana, svuota, PDF, Excel e stampa.
-- **Scheda ricetta**: ingredienti (prodotto, base o esterno) con fornitore, quantità, unità, costo, allergeni e kcal; foto, metodo, MEP, impiattamento, note nutrizionali, controlli di sicurezza e attrezzature.
-- **Costi**: costo totale e per porzione, margine teorico, prezzo suggerito. Gli ingredienti collegati a un prodotto seguono il suo prezzo.
-- **Stampe ed esportazione**: per un menu o per tutti i menu attivi: ricette, allergeni, matrice allergeni, schede cucina e prezzi; CSV delle ricette; backup e importazione JSON di tutto l'archivio.
-- **Food Stock → Report**: report per periodo con apertura, fatture, consegnato, chiusura e valore per prodotto, totali per fornitore e GP. Bozza modificabile, invio, riapertura dell'ultimo report.
-- **Food Stock → Consegne**: ogni fattura con numero, data, fornitore e righe. Le quantità si sommano al report del periodo e alla giacenza; il prezzo del prodotto si aggiorna con quello della fattura più recente.
-- **Food Stock → Inventario**: codice, livello minimo, giacenza, da riordinare, stato, costo e valore; colonne ordinabili; livello minimo e giacenza si modificano in tabella.
-- **Ricetta dal magazzino**: scegli prodotti e quantità, vedi costo e porzioni producibili, poi apri l'editor già compilato.
-- **Impostazioni**: valuta, lingua (italiano o inglese), regole del calcolo GP e liste personalizzabili (categorie, tecniche, allergeni, controlli, preparazione).
+L'elenco completo è in [docs/FUNZIONI.md](docs/FUNZIONI.md).
+
+- **Ricette e basi**, con costi dal magazzino, allergeni e tracce che arrivano solo dai prodotti, conferma degli allergeni con nome e data.
+- **Menu** per sede, con giorni e orari di disponibilità, matrice allergeni e stampe.
+- **Prep list** generate dai piatti, con etichette di preparazione e scadenza.
+- **Food Stock**: report, consegne con scansione AI delle fatture, inventario con giacenza per sede.
+- **Turni** con costo del personale, anche per chi lavora in più sedi.
+- **Sicurezza alimentare**: temperature con foto, cotture, abbattimenti, consegne, checklist, registro stampabile.
+- **Andamento**: vendite, GP teorico e reale, sprechi, personale, analisi del menu, confronto tra sedi.
+- **Modalità cucina** per tablet e telefono, con pulsanti grandi.
+- **Compagnie, sedi, account, ruoli e permessi**, inviti con link e registro delle attività.
 
 ## Sicurezza
 
-Finché non ci sono utenti e ruoli (vedi [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md)), l'app è protetta da una **password condivisa** (`APP_PASSWORD`). Senza password la pagina di accesso non lascia entrare nessuno.
-
-- **Dove vale:** la richiedono tutte le pagine e tutte le API, controllate sia prima di raggiungere l'app sia dentro ogni API.
-- **Accesso:** dopo l'accesso un cookie sicuro vale 30 giorni; il pulsante **Esci** nella barra laterale lo cancella.
-- **In locale:** senza `APP_PASSWORD` l'app resta aperta, comodo sul proprio computer.
-- **Limite:** tutti usano la stessa password, quindi l'app non sa chi ha fatto cosa. Per le firme dei registri si sceglie il nome a mano.
+- **Con il database:** ognuno entra con il proprio account (Better Auth, sessione di 30 giorni). Ogni API controlla la sessione e il permesso del ruolo nella sede scelta, e quello che un ruolo non può vedere (prezzi, paghe, turni degli altri) non lascia il server.
+- **Separazione tra compagnie su due livelli:** il codice filtra ogni lettura, e Postgres applica la row-level security con il ruolo limitato `rs_tenant`, quindi un errore nel codice non mostra i dati di un'altra compagnia.
+- **Senza database:** una sola cucina, aperta sul proprio computer oppure protetta dalla password condivisa `APP_PASSWORD`.
+- **Segreti:** chiavi e password stanno solo nelle variabili d'ambiente, mai nel repository, che è pubblico.
