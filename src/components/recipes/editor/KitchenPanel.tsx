@@ -37,6 +37,11 @@ function AllergenSection({ form, patch }: { form: RecipeForm; patch: FormPatch }
   const status = allergenStatus({ ...recipe, allergenCheck: form.allergensConfirmed && !form.allergensTouched ? saved?.allergenCheck : undefined }, data.stockItems, data.recipes);
   const sources = allergenSources(recipe);
   const changed = form.allergensConfirmed && !form.allergensTouched && status.state === "changed";
+  // Every ingredient must come from the stock with its allergens checked before the dish can be confirmed.
+  const unverified = status.state === "unverified";
+  const traceSources = status.inherited.map((trace) => ({
+    trace, ingredients: Array.from(new Set(recipe.ingredients.filter((row) => (row.mayContain || []).includes(trace)).map((row) => row.name)))
+  }));
 
   return (
     <div className="form-section">
@@ -47,16 +52,28 @@ function AllergenSection({ form, patch }: { form: RecipeForm; patch: FormPatch }
         </ul>
       ) : <p className="field-hint">{recipe.ingredients.length ? t("Nessun allergene negli ingredienti.") : t("Aggiungi gli ingredienti: gli allergeni arrivano da loro.")}</p>}
       {status.notInStock.length ? (
-        <p className="allergen-warning">{fmt(t("Allergeni scritti a mano, non dal magazzino: {0}. Controllali o aggiungi i prodotti al magazzino."), status.notInStock.join(", "))}</p>
+        <p className="allergen-warning">{fmt(t("Ingredienti scritti a mano, non dal magazzino: {0}. Aggiungili al magazzino: gli allergeni di un piatto vengono solo dai prodotti."), status.notInStock.join(", "))}</p>
       ) : null}
-      <FieldShell label={t("Può contenere (tracce)")} htmlFor="field-mayContain" hint={t("Contaminazione crociata: friggitrice in comune, stesse superfici, prodotti con \"può contenere\" in etichetta.")} wide>
+      {status.toFill.length ? (
+        <p className="allergen-warning">{fmt(t("Allergeni non ancora controllati sull'etichetta: {0}. Aprili in Food Stock → Inventario e spunta «Allergeni controllati»."), status.toFill.join(", "))}</p>
+      ) : null}
+      <div className="allergen-traces">
+        <span className="allergen-traces-label">{t("Può contenere (tracce)")}</span>
+        {traceSources.length ? (
+          <ul className="allergen-sources">
+            {traceSources.map((row) => <li key={row.trace}><span className="allergen-tag trace">{t(row.trace)}</span><small>{t("dall'etichetta di")} {row.ingredients.join(", ")}</small></li>)}
+          </ul>
+        ) : <p className="field-hint">{t("Nessuna traccia dalle etichette dei prodotti.")}</p>}
+      </div>
+      <FieldShell label={t("Tracce aggiunte in cucina")} htmlFor="field-mayContain" hint={t("Contaminazione crociata: friggitrice in comune, stesse superfici. Si sommano a quelle dei prodotti, che non si possono togliere.")} wide>
         <AllergenPicker value={form.mayContain} onChange={(mayContain) => patch({ mayContain })} />
       </FieldShell>
-      <div className={"allergen-confirm" + (changed ? " changed" : form.allergensConfirmed ? " ok" : "")}>
+      <div className={"allergen-confirm" + (unverified ? " blocked" : changed ? " changed" : form.allergensConfirmed ? " ok" : "")}>
+        {unverified ? <p>{t("Non si può confermare finché tutti gli ingredienti non vengono dal magazzino con gli allergeni controllati.")}</p> : null}
         {changed ? (
           <p>{t("Gli allergeni sono cambiati dall'ultimo controllo")}{status.added.length ? " · " + fmt(t("aggiunti: {0}"), status.added.map(t).join(", ")) : ""}{status.removed.length ? " · " + fmt(t("tolti: {0}"), status.removed.map(t).join(", ")) : ""}. {t("Ricontrolla e conferma di nuovo.")}</p>
         ) : null}
-        <CheckPill id="field-allergensConfirmed" checked={form.allergensConfirmed && !changed} onChange={(checked) => patch({ allergensConfirmed: checked, allergensTouched: true })}>
+        <CheckPill id="field-allergensConfirmed" checked={form.allergensConfirmed && !changed && !unverified} disabled={unverified} onChange={(checked) => patch({ allergensConfirmed: checked, allergensTouched: true })}>
           {t("Ho controllato gli allergeni di questo piatto")}
         </CheckPill>
         <TextField label={t("Controllato da")} name="allergensCheckedBy" value={form.allergensCheckedBy} onChange={(allergensCheckedBy) => patch({ allergensCheckedBy })} placeholder={t("Nome")} />

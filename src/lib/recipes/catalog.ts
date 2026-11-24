@@ -1,5 +1,5 @@
 import { num } from "@/lib/num";
-import { allergens, calories, portionCost, portionsOf } from "@/lib/recipes/math";
+import { allergens, calories, portionCost, portionsOf, traces } from "@/lib/recipes/math";
 import { recipeUnitFor, unitFactor } from "@/lib/stock/units";
 import type { Ingredient, Recipe, StockItem } from "@/lib/types";
 
@@ -14,6 +14,15 @@ export const FREE = "Esterno";
 const RECIPE_LINK = "recipe:";
 
 const round4 = (value: number) => Math.round(value * 10000) / 10000;
+
+/** The row with these traces; without any, the field is left out so rows from before stay the same. */
+function withTraces(row: Ingredient, list: string[]): Ingredient {
+  const { mayContain: _old, ...rest } = row;
+  return list.length ? { ...rest, mayContain: list } : rest;
+}
+
+/** A product whose allergens nobody has checked yet: its empty list does not mean "none". */
+export const allergensToFill = (item: Pick<StockItem, "allergensChecked">) => item.allergensChecked === false;
 
 export function linkedProduct(row: Pick<Ingredient, "stockItemId">, stockItems: StockItem[]): StockItem | undefined {
   if (!row.stockItemId || row.stockItemId.startsWith(RECIPE_LINK)) return undefined;
@@ -40,21 +49,21 @@ export function resolveIngredient(row: Ingredient, stockItems: StockItem[], reci
   if (product) {
     const factor = unitFactor(row.unit, product.recipeUnit);
     const perUnit = num(product.price) / (num(product.recipeContent) || 1);
-    return {
+    return withTraces({
       ...row, type: PRODUCT, name: product.name, supplier: product.supplier || "", allergens: [...(product.allergens || [])],
       // Six decimals: a product at £1.28/kg costs £0.00128 per gram.
       unitCost: factor === null ? num(row.unitCost) : Math.round(perUnit * factor * 1e6) / 1e6,
       kcal: factor === null ? num(row.kcal) : round4(num(product.kcal) * factor)
-    };
+    }, [...(product.mayContain || [])]);
   }
   const base = linkedBase(row, recipes);
   if (base) {
     const perPortion = row.unit === "porz";
-    return {
+    return withTraces({
       ...row, type: BASE, name: base.name, supplier: "", allergens: allergens(base),
       unitCost: perPortion ? round4(portionCost(base)) : num(row.unitCost),
       kcal: perPortion ? round4(calories(base) / portionsOf(base)) : num(row.kcal)
-    };
+    }, traces(base));
   }
   return row;
 }

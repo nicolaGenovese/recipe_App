@@ -1,12 +1,14 @@
-import { isMissingFromStock } from "@/lib/recipes/catalog";
+import { allergensToFill, isMissingFromStock, linkedBase, linkedProduct } from "@/lib/recipes/catalog";
+import { traces } from "@/lib/recipes/math";
 import type { AllergenCheck, Recipe, StockItem } from "@/lib/types";
 
-// Allergens of a dish come from its ingredients (products and base recipes carry their own).
-// "May contain" (traces, shared fryer...) is set on the dish. The kitchen confirms the result:
-// the confirmation keeps a copy of what was confirmed, so any later change shows up as
-// "to check again" instead of silently passing.
+// Allergens of a dish come only from its ingredients: the product in the stock is the one source,
+// and base recipes pass on their own. Traces ("may contain") come from the products' labels and the
+// bases, and the kitchen can add its own (shared fryer), never remove inherited ones. The kitchen
+// confirms the result, which is possible only when every ingredient's allergens have been checked;
+// the confirmation keeps a copy, so any later change shows up as "to check again".
 
-export type AllergenState = "ok" | "changed" | "unconfirmed" | "empty";
+export type AllergenState = "ok" | "changed" | "unconfirmed" | "unverified" | "empty";
 
 export interface AllergenStatus {
   contains: string[];
@@ -14,6 +16,10 @@ export interface AllergenStatus {
   state: AllergenState;
   /** Product rows typed by hand: their allergens are not checked against the stock. */
   notInStock: string[];
+  /** Products (or bases) whose allergens nobody has checked yet. */
+  toFill: string[];
+  /** Traces that come from the ingredients; the dish's own are the rest of mayContain. */
+  inherited: string[];
   /** What changed since the confirmation. */
   added: string[];
   removed: string[];
@@ -35,14 +41,34 @@ export function allergenSources(recipe: Pick<Recipe, "ingredients">): { allergen
   }));
 }
 
+/**
+ * Ingredients whose allergens are not checked: products still to fill in, and base recipes that
+ * have such ingredients themselves (followed a few levels down, never in a loop).
+ */
+function unchecked(recipe: Pick<Recipe, "ingredients">, stockItems: StockItem[], recipes: Recipe[], depth = 0): string[] {
+  if (depth > 4) return [];
+  return unique((recipe.ingredients || []).flatMap((row) => {
+    const product = linkedProduct(row, stockItems);
+    if (product) return allergensToFill(product) ? [product.name] : [];
+    const base = linkedBase(row, recipes);
+    if (!base) return [];
+    const inside = (base.ingredients || []).some((item) => isMissingFromStock(item, stockItems, recipes)) || unchecked(base, stockItems, recipes, depth + 1).length > 0;
+    return inside ? [base.name] : [];
+  }));
+}
+
 export function allergenStatus(recipe: Recipe, stockItems: StockItem[] = [], recipes: Recipe[] = []): AllergenStatus {
   const contains = containsAllergens(recipe);
   // An allergen the dish contains is not also listed as a trace.
-  const mayContain = unique(recipe.mayContain || []).filter((value) => !contains.includes(value));
+  const mayContain = traces(recipe);
+  const inherited = traces({ ingredients: recipe.ingredients });
   const notInStock = unique((recipe.ingredients || []).filter((row) => isMissingFromStock(row, stockItems, recipes)).map((row) => row.name));
+  const toFill = unchecked(recipe, stockItems, recipes);
   const check = recipe.allergenCheck;
-  const base = { contains, mayContain, notInStock, check, added: [] as string[], removed: [] as string[] };
+  const base = { contains, mayContain, inherited, notInStock, toFill, check, added: [] as string[], removed: [] as string[] };
   if (!(recipe.ingredients || []).length) return { ...base, state: "empty" };
+  // Allergens typed by hand or not checked on the label cannot be confirmed, whatever was confirmed before.
+  if (notInStock.length || toFill.length) return { ...base, state: "unverified" };
   if (!check) return { ...base, state: "unconfirmed" };
   const before = [...check.contains, ...check.mayContain.map((value) => "~" + value)];
   const now = [...contains, ...mayContain.map((value) => "~" + value)];
@@ -57,12 +83,13 @@ export function allergenStatus(recipe: Recipe, stockItems: StockItem[] = [], rec
 /**
  * The confirmation saved with the dish. Ticking the box in this edit saves what the dish has now;
  * a box left ticked from before keeps the old copy, so a change of ingredients still asks for a
- * new check; an empty box removes it.
+ * new check; an empty box removes it. A new confirmation needs every ingredient checked.
  */
-export function nextAllergenCheck(recipe: Recipe, confirm: { confirmed: boolean; touched: boolean; by: string }, now = new Date().toISOString()): AllergenCheck | undefined {
+export function nextAllergenCheck(recipe: Recipe, confirm: { confirmed: boolean; touched: boolean; by: string }, now = new Date().toISOString(), stockItems: StockItem[] = [], recipes: Recipe[] = []): AllergenCheck | undefined {
   if (!confirm.confirmed) return undefined;
   if (recipe.allergenCheck && !confirm.touched) return recipe.allergenCheck;
-  const status = allergenStatus({ ...recipe, allergenCheck: undefined });
+  const status = allergenStatus({ ...recipe, allergenCheck: undefined }, stockItems, recipes);
+  if (status.state === "unverified") return undefined;
   return { at: now, by: confirm.by.trim(), contains: status.contains, mayContain: status.mayContain };
 }
 

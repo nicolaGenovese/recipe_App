@@ -52,7 +52,7 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
       const draft = fromForm(form, old);
       // Linked rows are saved as the catalogue describes them, whatever the form showed.
       const resolved = resolveRecipe(draft, current().stockItems, current().recipes);
-      const check = nextAllergenCheck(resolved, { confirmed: form.allergensConfirmed, touched: form.allergensTouched, by: form.allergensCheckedBy });
+      const check = nextAllergenCheck(resolved, { confirmed: form.allergensConfirmed, touched: form.allergensTouched, by: form.allergensCheckedBy }, undefined, current().stockItems, current().recipes);
       const { allergenCheck: _old, ...rest } = resolved;
       const placed = { ...rest, siteId: access && ownSite ? access.site.id : undefined };
       const saved = await saveRecipe(check ? { ...placed, allergenCheck: check } : placed);

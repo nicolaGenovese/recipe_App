@@ -197,3 +197,10 @@ body.no-pay .pay-only { display: none !important; }
 .staff-account { min-width: 130px; }
 .staff-account strong { display: block; font-size: 13px; }
 .staff-account small { display: block; color: var(--muted); font-size: 12px; }
+
+/* Bell groups: allergen lists first, marked on the left; each group scrolls with the panel. */
+.alerts-group + .alerts-group { border-top: 6px solid #f2f2ec; }
+.alerts-group.urgent .alerts-head { border-left: 4px solid #a3412b; }
+.alerts-count { display: inline-block; min-width: 20px; margin-left: 4px; padding: 0 6px; border-radius: 10px; color: #fff; background: #4f5a4b; font-size: 11px; text-align: center; }
+.alerts-group.urgent .alerts-count { background: #a3412b; }
+.alerts-name { font-size: 13px; font-weight: 600; text-align: left; }

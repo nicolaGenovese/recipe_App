@@ -15,6 +15,16 @@ export function portionCost(recipe: { ingredients?: CostRow[]; portions?: number
 export function allergens(recipe: { ingredients?: Pick<Ingredient, "allergens">[] }): string[] {
   return Array.from(new Set((recipe.ingredients || []).flatMap((row) => row.allergens || []).filter(Boolean)));
 }
+
+/**
+ * Traces of a dish: those inherited from its products and bases, plus the ones the kitchen adds
+ * (shared fryer, same surfaces). An allergen the dish contains is not also a trace.
+ */
+export function traces(recipe: { ingredients?: Pick<Ingredient, "allergens" | "mayContain">[]; mayContain?: string[] }): string[] {
+  const contains = allergens(recipe);
+  const all = [...(recipe.ingredients || []).flatMap((row) => row.mayContain || []), ...(recipe.mayContain || [])].map((value) => value.trim()).filter(Boolean);
+  return Array.from(new Set(all)).filter((value) => !contains.includes(value));
+}
 export function calories(recipe: { ingredients?: Pick<Ingredient, "quantity" | "kcal">[] }): number {
   return (recipe.ingredients || []).reduce((total, row) => total + num(row.quantity) * num(row.kcal), 0);
 }

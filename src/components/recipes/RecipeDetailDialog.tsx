@@ -91,6 +91,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
               <p className={"allergen-state " + allergenInfo.state}>
                 {allergenInfo.state === "ok" && allergenInfo.check ? fmt(t("Controllati il {0}"), f.dateLabel(allergenInfo.check.at)) + (allergenInfo.check.by ? " · " + allergenInfo.check.by : "")
                   : allergenInfo.state === "changed" ? t("Cambiati dall'ultimo controllo: da ricontrollare.")
+                  : allergenInfo.state === "unverified" ? fmt(t("Da verificare: allergeni non controllati per {0}."), [...allergenInfo.notInStock, ...allergenInfo.toFill].join(", "))
                   : allergenInfo.state === "empty" ? t("Senza ingredienti: allergeni non noti.")
                   : t("Non ancora controllati.")}
               </p>

@@ -3,14 +3,17 @@ import { unitFactor } from "@/lib/stock/units";
 import type { Ingredient, StockItem } from "@/lib/types";
 
 /** The product sheet as typed: every field is text until it is saved. */
-export type ProductForm = Record<"name" | "code" | "parLevel" | "supplier" | "group" | "measurement" | "unitOfSale" | "price" | "unitsPerPack" | "initialStock" | "recipeContent" | "recipeUnit" | "kcal" | "allergens" | "note", string>;
+export type ProductForm = Record<"name" | "code" | "parLevel" | "supplier" | "group" | "measurement" | "unitOfSale" | "price" | "unitsPerPack" | "initialStock" | "recipeContent" | "recipeUnit" | "kcal" | "allergens" | "mayContain" | "allergensChecked" | "note", string>;
 
 export function productForm(item: Partial<StockItem>): ProductForm {
   return {
     name: item.name ?? "", code: item.code ?? "", parLevel: String(item.parLevel || 0), supplier: item.supplier ?? "", group: item.group ?? "",
     measurement: item.measurement || "Pack", unitOfSale: item.unitOfSale ?? "", price: String(item.price || 0), unitsPerPack: String(item.unitsPerPack || 1),
     initialStock: String(item.initialStock || 0), recipeContent: String(item.recipeContent || 1), recipeUnit: item.recipeUnit || "kg",
-    kcal: String(item.kcal || 0), allergens: (item.allergens || []).join(", "), note: item.note ?? ""
+    kcal: String(item.kcal || 0), allergens: (item.allergens || []).join(", "), mayContain: (item.mayContain || []).join(", "),
+    // A product already saved counts as checked unless marked otherwise; a new one starts unchecked.
+    allergensChecked: item.allergensChecked === false || !item.id ? "" : "1",
+    note: item.note ?? ""
   };
 }
 
@@ -20,7 +23,9 @@ export function productFromForm(form: ProductForm, id: string): StockItem {
     id, code: form.code.trim(), parLevel: Math.max(0, num(form.parLevel)), name: form.name.trim(), supplier: form.supplier.trim(), group: form.group.trim(),
     measurement: form.measurement || "Pack", unitOfSale: form.unitOfSale.trim(), price: num(form.price), unitsPerPack: Math.max(1, num(form.unitsPerPack) || 1),
     initialStock: num(form.initialStock), recipeContent: num(form.recipeContent) || 1, recipeUnit: form.recipeUnit.trim() || "kg", kcal: num(form.kcal),
-    allergens: form.allergens.split(",").map((value) => value.trim()).filter(Boolean), note: form.note.trim()
+    allergens: form.allergens.split(",").map((value) => value.trim()).filter(Boolean),
+    mayContain: form.mayContain.split(",").map((value) => value.trim()).filter(Boolean),
+    allergensChecked: form.allergensChecked === "1", note: form.note.trim()
   };
 }
 

@@ -23,7 +23,7 @@
 .detail-table td { padding: 8px 5px; border-bottom: 1px solid #f0f1ec; color: #656e61; vertical-align: top; }
 .detail-table td:last-child { color: #45533e; font-weight: 650; text-align: right; white-space: nowrap; }
 .allergen-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.allergen-tag { padding: 4px 7px; border-radius: 5px; color: #8d664a; background: #f5eee4; font-size: 11px; }
+.allergen-tag { padding: 4px 7px; border-radius: 5px; color: #775537; background: #f5eee4; font-size: 11px; }
 .check-pill-list { display: grid; gap: 6px; }
 .check-pill { display: flex; align-items: flex-start; gap: 7px; color: #6a7267; font-size: 12px; line-height: 1.5; }
 .check-pill::before { content: "✓"; display: grid; flex: 0 0 auto; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #5f744e; background: #edf1e7; font-size: 11px; }

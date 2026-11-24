@@ -195,7 +195,7 @@ export function useStockActions() {
       const price = rows.find((row) => row.name.toLocaleLowerCase() === name.toLocaleLowerCase())?.price ?? 0;
       await saveItem({
         id: newId(), code: nextStockCode(current().stockItems), parLevel: 0, name, supplier, group: "", measurement: "Pack", unitOfSale: "",
-        price, unitsPerPack: 1, initialStock: 0, recipeContent: 1, recipeUnit: "kg", kcal: 0, allergens: []
+        price, unitsPerPack: 1, initialStock: 0, recipeContent: 1, recipeUnit: "kg", kcal: 0, allergens: [], allergensChecked: false
       });
     }
   }

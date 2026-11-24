@@ -107,4 +107,14 @@
 .allergen-confirm .form-field { max-width: 260px; }
 .allergen-state { margin: 8px 0 0; font-size: 12px; font-weight: 600; }
 .allergen-state.ok { color: var(--green-dark); }
-.allergen-state.changed, .allergen-state.unconfirmed, .allergen-state.empty { color: #a3593f; }
+.allergen-state.changed, .allergen-state.unconfirmed, .allergen-state.unverified, .allergen-state.empty { color: #9a4a30; }
+
+/* Allergens: traces inherited from the products, blocked confirmation, product check. */
+.allergen-traces { display: grid; gap: 6px; margin: 4px 0 10px; }
+.allergen-traces-label { color: #4f5a4b; font-size: 13px; font-weight: 600; }
+.allergen-tag.trace { border: 1px dashed #775537; background: #fff; }
+.allergen-confirm.blocked { border-color: #e8c9bd; background: #fdf5f1; }
+.form-check.disabled { opacity: .6; cursor: not-allowed; }
+.allergen-checked { grid-column: 1 / -1; display: grid; gap: 4px; padding: 10px; border: 1px solid #ecd6c2; border-radius: 9px; background: #fdf7f1; }
+.allergen-checked.ok { border-color: #cfdcc0; background: #f6f9f1; }
+.allergen-checked small { color: #5d6857; font-size: 12px; }

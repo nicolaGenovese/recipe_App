@@ -1,8 +1,8 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { AllergenPicker } from "@/components/ui/AllergenPicker";
+import { CheckPill, Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { num } from "@/lib/num";
 import { productCostPreview } from "@/lib/stock/preview";
@@ -85,6 +85,15 @@ export function ProductFields({ form, setForm, idPrefix = "field-", nested = fal
         <TextField id={id("kcal")} label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
         <CostPreview form={form} onFix={(content) => setForm((old) => ({ ...old, recipeContent: String(content) }))} />
         <FieldShell label={t("Allergeni")} htmlFor={id("allergens")} wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
+        <FieldShell label={t("Può contenere (tracce)")} htmlFor={id("mayContain")} wide hint={t("Dall'etichetta del fornitore (\"may contain\"). I piatti che usano il prodotto lo ereditano.")}>
+          <AllergenPicker value={form.mayContain} onChange={set("mayContain")} />
+        </FieldShell>
+        <div className={"allergen-checked" + (form.allergensChecked === "1" ? " ok" : "")}>
+          <CheckPill id={id("allergensChecked")} checked={form.allergensChecked === "1"} onChange={(checked) => setForm((old) => ({ ...old, allergensChecked: checked ? "1" : "" }))}>
+            {t("Allergeni controllati sull'etichetta")}
+          </CheckPill>
+          <small>{t("Spunta anche se il prodotto non ha allergeni. Finché non è spuntato, i piatti che lo usano non si possono confermare.")}</small>
+        </div>
         <TextAreaField id={id("note")} label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />
       </div>
       <Datalist id={id("suppliers")} values={suppliers} />

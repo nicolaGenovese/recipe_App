@@ -9,7 +9,7 @@ Stato: **proposta, da implementare** (22/11/2026). Oggi il campanello in alto a 
 | 1 | **Controlli di oggi non fatti**: giro temperature del mattino non registrato entro le 11, della sera entro le 22; checklist di apertura o chiusura mancanti | Gli stessi conteggi della barra «Da fare oggi» in Sicurezza alimentare |
 | 2 | **Registrazioni fuori limite senza azione correttiva** | Registri con esito fuori limite e azione vuota |
 | 3 | **Consegne senza controllo all'arrivo** | L'elenco già mostrato in modalità cucina |
-| 4 | **Allergeni da riconfermare**: ricetta modificata dopo l'ultima conferma, o un prodotto usato che ha cambiato allergeni | Conferma allergeni della ricetta confrontata con gli allergeni di oggi |
+| 4 | **Allergeni da riconfermare**: ricetta modificata dopo l'ultima conferma, o un prodotto usato che ha cambiato allergeni · **fatto** (24/11/2026), insieme ai prodotti con gli allergeni da controllare | Conferma allergeni della ricetta confrontata con gli allergeni di oggi |
 | 5 | **Foto mancanti**, quando le foto delle temperature sono obbligatorie | Impostazioni sicurezza e registri di oggi |
 
 ## 2. Ambra: magazzino e costi

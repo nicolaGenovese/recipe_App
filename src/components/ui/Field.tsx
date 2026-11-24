@@ -66,10 +66,10 @@ export function SelectField({ label, name, hint, wide, id, value, onChange, opti
 }
 
 /** A checkbox styled as a pill; the "checked" class mirrors its state for the CSS. */
-export function CheckPill({ checked, onChange, children, id, className = "" }: { checked: boolean; onChange: (checked: boolean) => void; children: ReactNode; id?: string; className?: string }) {
+export function CheckPill({ checked, onChange, children, id, className = "", disabled = false }: { checked: boolean; onChange: (checked: boolean) => void; children: ReactNode; id?: string; className?: string; disabled?: boolean }) {
   return (
-    <label className={"form-check " + className + (checked ? " checked" : "")}>
-      <input id={id} type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+    <label className={"form-check " + className + (checked ? " checked" : "") + (disabled ? " disabled" : "")}>
+      <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
       {children}
     </label>
   );

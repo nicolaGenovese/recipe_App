@@ -12,6 +12,8 @@ export interface Ingredient {
   unit: string;
   unitCost: number;
   allergens: string[];
+  /** Traces ("may contain") copied from the product or base recipe, like the allergens. */
+  mayContain?: string[];
   kcal: number;
   stockItemId?: string;
 }
@@ -163,6 +165,13 @@ export interface StockItem {
   recipeContent: number;
   recipeUnit: string;
   allergens: string[];
+  /** "May contain" from the supplier's label; the dishes that use the product inherit it. */
+  mayContain?: string[];
+  /**
+   * False while nobody has checked the allergens against the label, so an empty list does not pass
+   * for "no allergens". New products start false; products from before this existed count as checked.
+   */
+  allergensChecked?: boolean;
   kcal: number;
   parLevel?: number;
   note?: string;

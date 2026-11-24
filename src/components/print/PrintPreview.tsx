@@ -48,7 +48,7 @@ export function PrintPreview({ mode, recipes, images, single, menuName }: { mode
                       </td>
                     ))}
                     <td className="matrix-check">
-                      {status.state === "ok" && status.check ? "✓ " + f.dateLabel(status.check.at) : status.state === "changed" ? t("da ricontrollare") : t("da controllare")}
+                      {status.state === "ok" && status.check ? "✓ " + f.dateLabel(status.check.at) : status.state === "changed" ? t("da ricontrollare") : status.state === "unverified" ? t("da verificare") : t("da controllare")}
                     </td>
                   </tr>
                 );
@@ -73,7 +73,7 @@ export function PrintPreview({ mode, recipes, images, single, menuName }: { mode
       const status = allergenStatus(recipe, data.stockItems, data.recipes);
       return (
         <div key={recipe.id} className="preview-recipe">
-          <div>{heading}<small>{t(recipe.category)}{status.state === "ok" ? "" : " · " + t(status.state === "changed" ? "da ricontrollare" : "da controllare")}</small></div>
+          <div>{heading}<small>{t(recipe.category)}{status.state === "ok" ? "" : " · " + t(status.state === "changed" ? "da ricontrollare" : status.state === "unverified" ? "da verificare" : "da controllare")}</small></div>
           <span className="preview-allergens">
             {status.contains.map(t).join(" · ") || t("Nessun allergene indicato")}
             {status.mayContain.length ? <small>{t("Può contenere")}: {status.mayContain.map(t).join(", ")}</small> : null}
