@@ -5,7 +5,7 @@ import { CompanySettings, type CompanySection } from "@/components/company/Compa
 import { GeneralPane } from "@/components/settings/GeneralPane";
 import { GpPane } from "@/components/settings/GpPane";
 import { ListPane } from "@/components/settings/ListPane";
-import { StaffPane } from "@/components/settings/StaffPane";
+import { PeoplePane } from "@/components/settings/PeoplePane";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { clone } from "@/lib/num";
 import type { Settings, SettingsListKey } from "@/lib/types";
@@ -25,13 +25,15 @@ const LISTS: [SettingsListKey, string, string][] = [
 ];
 
 type Tab = SettingsTab;
-const COMPANY: CompanySection[] = ["people", "sites", "roles", "audit"];
+// People has its own pane (staff and app access together); the other company sections share CompanySettings.
+const COMPANY: CompanySection[] = ["sites", "roles", "audit"];
 const isCompany = (tab: Tab): tab is CompanySection => (COMPANY as string[]).includes(tab);
 
 /**
- * Settings in two groups: the kitchen (currency, language, GP, staff, lists) for whoever may change
- * the company settings, and the company (people, sites and areas, roles and permissions, activity
- * log), each shown only to the roles that can use it. Company sections save at once.
+ * Settings in two groups: the kitchen (currency, language, GP, lists) for whoever may change the
+ * company settings, and the company (people, sites and areas, roles and permissions, activity log),
+ * each shown only to the roles that can use it. People joins the staff (saved with the settings)
+ * and app access (saved at once); without accounts it sits with the kitchen.
  */
 export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
   const { data, language, closeDialog, t, access, can } = useApp();
@@ -39,17 +41,20 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
   const { saveSettings } = useSettingsActions();
   const [draft, setDraft] = useState<Settings>(() => ({ ...clone(data.settings), language }));
   const kitchen = can("settings.company");
-  const company: [CompanySection, string][] = access ? ([
-    ["people", t("Persone"), can("users.manage")],
+  const manage = Boolean(access) && can("users.manage");
+  const people = kitchen || manage;
+  const company: [Tab, string][] = access ? ([
+    ["people", t("Persone"), people],
     ["sites", t("Sedi e aree"), can("users.manage") || can("company.manage")],
     ["roles", t("Ruoli e permessi"), can("users.manage") || can("company.manage")],
     ["audit", t("Registro attività"), can("audit.view")]
-  ] as [CompanySection, string, boolean][]).filter((row) => row[2]).map(([key, label]) => [key, label]) : [];
+  ] as [Tab, string, boolean][]).filter((row) => row[2]).map(([key, label]) => [key, label]) : [];
   const [tab, setTab] = useState<Tab>(() => initialTab ?? (kitchen ? "general" : company[0]?.[0] ?? "general"));
   const patch: SettingsPatch = (change) => setDraft((old) => ({ ...old, ...change }));
 
-  const tabs: [Tab, string][] = kitchen ? [["general", t("Generali")], ["gp", t("Calcolo GP")], ["staff", t("Personale")], ...LISTS.map(([key, title]) => [key, t(title)] as [Tab, string])] : [];
+  const tabs: [Tab, string][] = kitchen ? [["general", t("Generali")], ["gp", t("Calcolo GP")], ...(access ? [] : [["people", t("Persone")] as [Tab, string]]), ...LISTS.map(([key, title]) => [key, t(title)] as [Tab, string])] : [];
   const onCompany = isCompany(tab);
+  const onPeople = tab === "people";
   const list = LISTS.find(([key]) => key === tab);
   // Empty rows are dropped on save, like in a spreadsheet.
   const save = () => saveSettings({
@@ -58,7 +63,7 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
   });
 
   return (
-    <Dialog size={onCompany ? "wide" : "normal"}>
+    <Dialog size={onCompany || (onPeople && manage) ? "wide" : "normal"}>
       <DialogHeader kicker={access ? access.company.name.toUpperCase() : t("IL TUO SPAZIO")} title={t("Impostazioni")}
         subtitle={t(access ? "La cucina (valuta, lingua, GP, personale, liste) e la compagnia (persone, sedi, ruoli e permessi)." : "Valuta, lingua, calcolo GP, personale e liste della tua cucina.")} />
       <div className="settings-layout">
@@ -69,11 +74,12 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
           {company.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{title}</button>)}
         </nav>
         <div className="settings-body">
-          {onCompany ? <section className="settings-pane active settings-company"><CompanySettings key={tab} section={tab} /></section> : (
+          {onCompany ? <section className="settings-pane active settings-company"><CompanySettings key={tab} section={tab} /></section> : onPeople ? (
+            <PeoplePane draft={draft} patch={patch} editStaff={kitchen} />
+          ) : (
             <>
               {tab === "general" ? <GeneralPane draft={draft} patch={patch} /> : null}
               {tab === "gp" ? <GpPane draft={draft} patch={patch} /> : null}
-              {tab === "staff" ? <StaffPane draft={draft} patch={patch} /> : null}
               {list ? <ListPane key={list[0]} title={t(list[1])} description={t(list[2])} items={draft[list[0]]} onChange={(items) => patch({ [list[0]]: items })} /> : null}
               <div className="settings-note" style={{ margin: "0 18px 18px" }}>{t("Le modifiche vengono salvate nel tuo archivio e si riflettono nelle nuove schede.")}</div>
             </>
@@ -81,13 +87,14 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
         </div>
       </div>
       <footer className="dialog-footer">
-        {onCompany ? (
+        {onCompany || (onPeople && !kitchen) ? (
           <>
             <span className="settings-footnote">{t("Le modifiche della compagnia si salvano subito.")}</span>
             <button className="button button-primary" type="button" onClick={closeDialog}>{t("Chiudi")}</button>
           </>
         ) : (
           <>
+            {onPeople && manage ? <span className="settings-footnote">{t("«Salva impostazioni» salva il personale; inviti e incarichi sono già salvati.")}</span> : null}
             <button className="button button-quiet" type="button" onClick={closeDialog}>{t("Annulla")}</button>
             <button className="button button-primary" type="button" onClick={guard(save)}>{t("Salva impostazioni")}</button>
           </>

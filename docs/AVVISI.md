@@ -30,7 +30,7 @@ Stato: **proposta, da implementare** (22/11/2026). Oggi il campanello in alto a 
 | 12 | **Nessuna prep list per domani**, dal pomeriggio | Prep list |
 | 13 | **Turni della settimana prossima non ancora fatti**, dal giovedì | Turni |
 | 14 | **Persona in due sedi lo stesso giorno** | Turni in altre sedi (oggi visibile solo nella pagina Turni) |
-| 15 | **Personale senza paga oraria**: il costo del personale risulta sottostimato | Impostazioni → Personale |
+| 15 | **Personale senza paga oraria**: il costo del personale risulta sottostimato | Impostazioni → Persone |
 
 ## 4. Informazione: per chi gestisce
 

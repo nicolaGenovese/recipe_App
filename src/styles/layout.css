@@ -190,3 +190,10 @@ body.no-pay .pay-only { display: none !important; }
 .settings-company { padding: 18px; }
 .settings-footnote { margin-right: auto; color: var(--muted); font-size: 13px; }
 .rota-nav.is-hidden { display: none; }
+
+/* Settings → People: staff and app access in one pane. */
+.people-pane { display: grid; gap: 4px; min-width: 0; }
+.people-access { border-top: 1px solid var(--line); }
+.staff-account { min-width: 130px; }
+.staff-account strong { display: block; font-size: 13px; }
+.staff-account small { display: block; color: var(--muted); font-size: 12px; }

@@ -10,7 +10,7 @@ export function StaffField({ value, date, onChange, label }: { value: string; da
   const { data, t, access } = useApp();
   const names = staffNames(data.rotaWeeks, date, staffAtSite(data.settings.staff, access?.site.id));
   return (
-    <FieldShell label={label ?? t("Firmato da *")} htmlFor="field-safetyBy" hint={names.length ? undefined : t("Aggiungi il personale in Impostazioni → Personale per sceglierlo da qui.")}>
+    <FieldShell label={label ?? t("Firmato da *")} htmlFor="field-safetyBy" hint={names.length ? undefined : t("Aggiungi il personale in Impostazioni → Persone per sceglierlo da qui.")}>
       <input id="field-safetyBy" list="safetyStaff" value={value} onChange={(event) => onChange(event.target.value)} placeholder={names[0] ?? ""} autoComplete="off" />
       <Datalist id="safetyStaff" values={names} />
     </FieldShell>

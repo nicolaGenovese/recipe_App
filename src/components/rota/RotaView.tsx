@@ -167,7 +167,7 @@ export function RotaView() {
       <OtherSites shifts={sharedShifts.filter((shift) => shift.weekId === weekId)} rows={rows} heads={format.dayHeads(weekId).map((head) => head.name)} />
 
       <div className="rota-actions">
-        {can("settings.company") ? <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "settings", tab: "staff" })}>{t("Gestisci personale e paghe")}</button> : null}
+        {can("settings.company") ? <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "settings", tab: "people" })}>{t("Gestisci personale e paghe")}</button> : null}
         <span className="rota-actions-spacer" />
         {readOnly ? null : (
           <>

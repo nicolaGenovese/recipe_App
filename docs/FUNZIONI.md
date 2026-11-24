@@ -46,7 +46,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - Salvataggio automatico, copia e incolla di una settimana, svuota, PDF, Excel, stampa.
 - Le settimane della vecchia app Rota (Supabase) sono state importate.
 
-### Personale (Impostazioni → Personale)
+### Personale (Impostazioni → Persone)
 
 - Elenco del personale con nome, ruolo, paga oraria e "in organico"; aggiunta e rimozione solo da qui.
 - Percentuale di contributi e oneri del datore di lavoro, aggiunta al costo del personale.
@@ -75,7 +75,7 @@ Stato all'11/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da 
 - **Più compagnie e sedi, account e ruoli** (con il database): ognuno entra con email e password (Better Auth). Una compagnia ha una o più sedi, raggruppabili in aree; la libreria di ricette e i prodotti sono della compagnia, una sede può avere ricette proprie, e menu, magazzino, prep list, turni, registri, sprechi e vendite sono di ogni sede. La sede si sceglie in alto nella barra laterale.
   - **Primo accesso**: i dati che esistevano prima degli account diventano la prima compagnia e la sua sede; li prende il primo account, che deve conoscere la vecchia password dell'app (`APP_PASSWORD`).
   - **Registrazione**: chiunque può creare una nuova compagnia (pagina "Crea una nuova compagnia"); parte vuota e ne diventa proprietario.
-  - **Impostazioni → Compagnia** (si salva subito): persone con ruolo, sede o area e persona in organico collegata, inviti con link (14 giorni, una volta sola, facoltativamente legati a un'email), sedi e aree con il nome della compagnia, ruoli e permessi con una tabella da spuntare, registro delle attività. Ognuno vede solo le sezioni che il suo ruolo può usare; il gruppo Cucina (valuta, lingua, GP, personale, liste) solo chi gestisce le impostazioni della compagnia.
+  - **Impostazioni → Persone**: in alto il personale (turni, paga, sedi; si salva con le impostazioni) con accanto l'account di ciascuno o il pulsante «Invita», sotto l'accesso all'app (si salva subito): persone con ruolo, sede o area e persona in organico collegata, inviti con link (14 giorni, una volta sola, facoltativamente legati a un'email), sedi e aree con il nome della compagnia, ruoli e permessi con una tabella da spuntare, registro delle attività (gruppo Compagnia, si salva subito). Ognuno vede solo le sezioni che il suo ruolo può usare; il gruppo Cucina (valuta, lingua, GP, personale, liste) solo chi gestisce le impostazioni della compagnia.
   - **Andamento → Confronto sedi** (head office e area manager, con più di una sede): vendite, GP teorico e reale, sprechi, personale, prime cost, anomalie HACCP e controlli da fare oggi delle ultime 4 settimane, sede per sede.
   - **Ruoli**: gli otto ruoli predefiniti di MULTI-AZIENDA.md, modificabili per ogni compagnia, più ruoli propri. Nessuno assegna un ruolo pari o superiore al proprio, né fuori dalle sedi in cui lavora.
   - **Permessi** controllati dal server su ogni operazione; quello che un ruolo non può vedere (prezzi e costi, paghe, turni degli altri) non arriva al browser e le cifre non compaiono.
@@ -107,7 +107,7 @@ L'archivio online parte vuoto. Per avere numeri affidabili servono:
 
 - **Prezzi dei prodotti** in Inventario (oggi tutti a 0) e **quantità degli ingredienti** nei piatti del Main menu (oggi 0): servono per costi, food cost, GP teorico, margini e analisi del menu.
 - **IVA predefinita**: in Impostazioni → Calcolo GP è al 10%; nel Regno Unito per la ristorazione è al 20%.
-- **Paga oraria** di ogni persona in Impostazioni → Personale.
+- **Paga oraria** di ogni persona in Impostazioni → Persone.
 - **Nomi degli apparecchi** in Sicurezza alimentare → Impostazioni sicurezza (oggi "Frigo 1", "Frigo 2", "Congelatore 1").
 - **Giorni di conservazione** sulle ricette base, per le etichette.
 - **Chef special** del Pizza menu, ancora senza ricetta.

@@ -1048,7 +1048,7 @@ export const EN: Record<string, string> = {
   "Nessuna persona in organico.": "Nobody on staff.",
   "Aggiungi il personale e la paga oraria nelle impostazioni.": "Add staff and hourly rates in Settings.",
   "Gestisci personale e paghe": "Manage staff and pay",
-  "Aggiungi il personale in Impostazioni → Personale per sceglierlo da qui.": "Add staff in Settings → Staff to pick them here.",
+  "Aggiungi il personale in Impostazioni → Persone per sceglierlo da qui.": "Add staff in Settings → People to pick them here.",
   // Access
   "Inserisci la password della cucina per entrare.": "Enter the kitchen password to sign in.",
   "La password non è ancora configurata: imposta APP_PASSWORD nelle variabili d'ambiente.": "The password is not set yet: set APP_PASSWORD in the environment variables.",
@@ -1382,4 +1382,9 @@ export const EN: Record<string, string> = {
   "Anomalie HACCP": "HACCP issues",
   "La cucina (valuta, lingua, GP, personale, liste) e la compagnia (persone, sedi, ruoli e permessi).": "The kitchen (currency, language, GP, staff, lists) and the company (people, sites, roles and permissions).",
   "Le modifiche della compagnia si salvano subito.": "Company changes are saved straight away.",
+  "Accesso all'app": "App access",
+  "Invita": "Invite",
+  "Nessun account": "No account",
+  "Chi entra nell'app con un proprio account, con quale ruolo e in quali sedi. Inviti e incarichi si salvano subito.": "Who opens the app with their own account, with which role and at which sites. Invites and assignments are saved straight away.",
+  "«Salva impostazioni» salva il personale; inviti e incarichi sono già salvati.": "“Save settings” saves the staff; invites and assignments are already saved.",
 };

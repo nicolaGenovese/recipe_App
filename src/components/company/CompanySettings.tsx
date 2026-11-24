@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PERMISSIONS, canAssignLevel, normalizePermissions, type Permission, type ScopeType } from "@/lib/access/permissions";
 import type { CompanyDirectory } from "@/lib/server/directory";
 import type { AuditRow } from "@/lib/server/store/types";
@@ -24,8 +24,12 @@ const splitPlace = (value: string) => { const [type, ...rest] = value.split(":")
  * One company section inside Settings: people and invites, sites and areas (with the company name),
  * roles and permissions, or the activity log. Changes are saved at once through /api/company.
  */
-export function CompanySettings({ section }: { section: CompanySection }) {
-  const { access, can, data, notify, reload, t, f } = useApp();
+/**
+ * The company directory (sites, roles, people, invites) and the way to change it. Every change is
+ * sent to /api/company and saved at once; the answer is the updated directory.
+ */
+export function useCompanyDirectory(enabled: boolean) {
+  const { access, notify, reload, t } = useApp();
   const [directory, setDirectory] = useState<CompanyDirectory | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,8 +37,7 @@ export function CompanySettings({ section }: { section: CompanySection }) {
     try { setDirectory(await call<CompanyDirectory>("GET", "/api/company")); }
     catch (error) { notify(t(error instanceof Error ? error.message : "Operazione non riuscita."), true); }
   }, [notify, t]);
-  // The activity log reads its own endpoint, which needs only "audit.view".
-  useEffect(() => { if (section !== "audit") void load(); }, [load, section, access?.company.id]);
+  useEffect(() => { if (enabled) void load(); }, [load, enabled, access?.company.id]);
 
   /** Sends one change; the answer is the updated directory. */
   const change = async (body: Record<string, unknown>, done?: string) => {
@@ -53,17 +56,24 @@ export function CompanySettings({ section }: { section: CompanySection }) {
     return undefined;
   };
 
+  const placeName = (type: ScopeType, id: string) => type === "company" ? t("Tutta la compagnia")
+    : type === "area" ? t("Area") + " · " + (directory?.areas.find((area) => area.id === id)?.name ?? "?")
+      : directory?.sites.find((site) => site.id === id)?.name ?? "?";
+  return { directory, busy, change, placeName };
+}
+
+export function CompanySettings({ section }: { section: CompanySection }) {
+  const { access, can, data, t, f } = useApp();
+  // The activity log reads its own endpoint, which needs only "audit.view".
+  const { directory, busy, change, placeName } = useCompanyDirectory(section !== "audit");
+
   if (!access) return <p className="company-empty">{t("La gestione della compagnia richiede il database e gli account.")}</p>;
   if (section === "audit") return <Audit placeName={(id) => (id ? access.sites.find((site) => site.id === id)?.name ?? "" : t("Compagnia"))} f={f} />;
   if (!directory) return <p className="company-empty">{t("Caricamento…")}</p>;
 
-  const placeName = (type: ScopeType, id: string) => type === "company" ? t("Tutta la compagnia")
-    : type === "area" ? t("Area") + " · " + (directory.areas.find((area) => area.id === id)?.name ?? "?")
-      : directory.sites.find((site) => site.id === id)?.name ?? "?";
-
   return (
     <div className="company-view">
-      {section === "people" ? <People directory={directory} busy={busy} change={change} placeName={placeName} staff={data.settings.staff} />
+      {section === "people" ? <PeopleAccess directory={directory} busy={busy} change={change} placeName={placeName} staff={data.settings.staff} />
         : section === "sites" ? (
           <>
             <CompanyName name={directory.company.name} editable={can("company.manage")} busy={busy} onSave={(name) => change({ action: "renameCompany", name }, "Nome salvato.")} />
@@ -88,7 +98,10 @@ function CompanyName({ name, editable, busy, onSave }: { name: string; editable:
   );
 }
 
-type Change = (body: Record<string, unknown>, done?: string) => Promise<string | undefined>;
+export type Change = (body: Record<string, unknown>, done?: string) => Promise<string | undefined>;
+
+/** Asks the invite form to start an invite for this staff member (the number changes on every request). */
+export interface InvitePreset { staffId: string; siteId: string | null; request: number }
 
 /** Places the signed-in user may assign: the whole company and areas only for company-wide people. */
 function usePlaces(directory: CompanyDirectory) {
@@ -104,7 +117,11 @@ function usePlaces(directory: CompanyDirectory) {
   return places;
 }
 
-function People({ directory, busy, change, placeName, staff }: { directory: CompanyDirectory; busy: boolean; change: Change; placeName: (type: ScopeType, id: string) => string; staff: { id: string; name: string; active: boolean }[] }) {
+/** App access: invite form, people with their assignment, pending invites. Saved at once. */
+export function PeopleAccess({ directory, busy, change, placeName, staff, preset }: {
+  directory: CompanyDirectory; busy: boolean; change: Change; placeName: (type: ScopeType, id: string) => string;
+  staff: { id: string; name: string; active: boolean }[]; preset?: InvitePreset | null;
+}) {
   const { access, t, f, notify } = useApp();
   const own = access?.level ?? 1;
   const roles = directory.roles.filter((role) => canAssignLevel(own, role.level));
@@ -125,10 +142,21 @@ function People({ directory, busy, change, placeName, staff }: { directory: Comp
     if (token) { setLink(linkOf(token)); setEmail(""); void copy(linkOf(token)); }
   };
   const staffName = (id: string | null) => staff.find((member) => member.id === id)?.name;
+  const formRef = useRef<HTMLElement>(null);
+  // "Invite" on a staff row: the form picks the person and their site, and comes into view.
+  useEffect(() => {
+    if (!preset) return;
+    setStaffId(preset.staffId);
+    const site = preset.siteId ? places.find(([key]) => key === placeKey("site", preset.siteId!)) : undefined;
+    if (site) setPlace(site[0]);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    // Runs for each new request only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset?.request]);
 
   return (
     <div className="company-people">
-      <section className="company-card">
+      <section className="company-card" ref={formRef}>
         <h3>{t("Invita una persona")}</h3>
         <p className="company-hint">{t("Crea un link d'invito e mandalo alla persona: con il link crea il suo account ed entra con il ruolo scelto. Vale 14 giorni e una sola volta.")}</p>
         <div className="company-form">

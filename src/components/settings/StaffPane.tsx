@@ -6,8 +6,17 @@ import { staffId } from "@/lib/staff";
 import type { Settings, StaffMember } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 
-/** The kitchen team: who is on the rota and what each person earns per hour. */
-export function StaffPane({ draft, patch }: { draft: Settings; patch: SettingsPatch }) {
+/** The app account linked to a staff member, as the People pane shows it. */
+export interface StaffAccount { name: string; email: string; role: string }
+
+/**
+ * The kitchen team: who is on the rota and what each person earns per hour. Inside People it also
+ * shows each person's app account, or offers to invite them.
+ */
+export function StaffPane({ draft, patch, accounts }: {
+  draft: Settings; patch: SettingsPatch;
+  accounts?: { of: (staffId: string) => StaffAccount | undefined; onInvite?: (member: StaffMember) => void };
+}) {
   const { data, f, t, fmt, access } = useApp();
   // People can work at several sites of the company; none ticked means every site.
   const sites = access ? access.sites.filter((site) => site.companyId === access.company.id) : [];
@@ -32,7 +41,7 @@ export function StaffPane({ draft, patch }: { draft: Settings; patch: SettingsPa
       <p>{t("Chi compare nei Turni e quanto guadagna all'ora. Togli la spunta \"In organico\" a chi non lavora più: resta nello storico ma non nelle settimane nuove.")}</p>
       <div className="stock-table-wrap">
         <table className="stock-table staff-table">
-          <thead><tr><th>{t("Nome")}</th><th>{t("Ruolo")}</th><th>{f.withCurrency(t("€/ora"))}</th><th>{t("In organico")}</th>{sites.length > 1 ? <th>{t("Sedi")}</th> : null}<th /></tr></thead>
+          <thead><tr><th>{t("Nome")}</th><th>{t("Ruolo")}</th><th>{f.withCurrency(t("€/ora"))}</th><th>{t("In organico")}</th>{sites.length > 1 ? <th>{t("Sedi")}</th> : null}{accounts ? <th>{t("Accesso all'app")}</th> : null}<th /></tr></thead>
           <tbody>
             {draft.staff.map((member, index) => (
               <tr key={member.id} className={member.active ? "" : "staff-inactive"}>
@@ -47,10 +56,20 @@ export function StaffPane({ draft, patch }: { draft: Settings; patch: SettingsPa
                     ))}
                   </td>
                 ) : null}
+                {accounts ? (
+                  <td className="staff-account">
+                    {(() => {
+                      const account = accounts.of(member.id);
+                      if (account) return <><strong>{account.name}</strong><small>{t(account.role)}</small></>;
+                      if (accounts.onInvite && member.name.trim() && member.active) return <button type="button" className="button button-secondary button-small" onClick={() => accounts.onInvite!(member)}>{t("Invita")}</button>;
+                      return <small>{t("Nessun account")}</small>;
+                    })()}
+                  </td>
+                ) : null}
                 <td><button className="card-action" type="button" aria-label={t("Rimuovi")} onClick={() => remove(index)}>×</button></td>
               </tr>
             ))}
-            {draft.staff.length ? null : <tr><td colSpan={sites.length > 1 ? 6 : 5} className="safety-empty">{t("Nessuna persona. Aggiungi chi lavora in cucina.")}</td></tr>}
+            {draft.staff.length ? null : <tr><td colSpan={5 + (sites.length > 1 ? 1 : 0) + (accounts ? 1 : 0)} className="safety-empty">{t("Nessuna persona. Aggiungi chi lavora in cucina.")}</td></tr>}
           </tbody>
         </table>
       </div>

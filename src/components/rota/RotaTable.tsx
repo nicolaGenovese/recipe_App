@@ -19,7 +19,7 @@ interface Props {
 
 /**
  * The week grid: one line per person, one column per day, hours and pay added up on the right and
- * at the bottom. People and hourly rates come from Settings → Staff; here only the shifts change.
+ * at the bottom. People and hourly rates come from Settings → People; here only the shifts change.
  */
 export function RotaTable({ weekId, rows, readOnly, format, onChange, pay }: Props) {
   const { f, t } = useApp();
