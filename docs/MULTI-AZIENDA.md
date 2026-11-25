@@ -7,10 +7,10 @@ Per vendere l'app a più clienti, l'ordine di lavoro, i prerequisiti e cosa rima
 ## 1. Struttura: compagnia → area → sede
 
 ```
-Compagnia (es. Nine Elms Group)
- ├─ Area / regione  (facoltativa: "Londra Sud", "Kent")
- │   ├─ Sede: Nine Elms Tavern  (pub)
- │   └─ Sede: Battersea Kitchen (ristorante)
+Compagnia (es. Rossi Ristorazione)
+ ├─ Area / regione  (facoltativa: "Nord", "Sud")
+ │   ├─ Sede: Trattoria del Porto (pub)
+ │   └─ Sede: Osteria del Centro (ristorante)
  └─ Sede senza area
 ```
 
@@ -116,7 +116,7 @@ Tabelle principali previste:
 
 ### Indirizzi e interfaccia
 
-- Indirizzi per compagnia e sede, per esempio `/nine-elms-group/nine-elms-tavern/turni`.
+- Indirizzi per compagnia e sede, per esempio `/rossi-ristorazione/trattoria-del-porto/turni`.
 - Il riquadro "La mia cucina" della barra laterale diventa il selettore di compagnia e sede.
 - **Pagine head office e area manager:** GP, sprechi e costo del personale per sede, confronto tra sedi, dove è usata ogni ricetta.
 

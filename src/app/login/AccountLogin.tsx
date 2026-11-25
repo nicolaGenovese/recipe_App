@@ -24,8 +24,8 @@ export function AccountLogin({ target, claim, appPassword }: { target: string; c
       <AccountCard title={t("Primo accesso")} intro={t("Ora ognuno entra con il proprio account. Crea l'account del titolare: i dati di oggi diventano la tua compagnia e la tua prima sede, e poi inviti il personale.")}>
         <form className="account-form" onSubmit={onSubmit}>
           <NewAccountFields value={account} onChange={setAccount} />
-          <Field id="claimCompany" label={t("Nome della compagnia")} value={company} onChange={setCompany} hint={t("Es. Nine Elms Group. Si può cambiare dopo.")} />
-          <Field id="claimSite" label={t("Nome della sede")} value={site} onChange={setSite} hint={t("Es. Nine Elms Tavern.")} />
+          <Field id="claimCompany" label={t("Nome della compagnia")} value={company} onChange={setCompany} hint={t("Es. Rossi Ristorazione. Si può cambiare dopo.")} />
+          <Field id="claimSite" label={t("Nome della sede")} value={site} onChange={setSite} hint={t("Es. Trattoria del Porto.")} />
           {appPassword ? <Field id="claimOld" label={t("Password attuale dell'app")} type="password" value={oldPassword} onChange={setOldPassword} autoComplete="current-password" hint={t("Quella che usate oggi per entrare: dimostra che i dati sono tuoi.")} /> : null}
           {error ? <p className="login-error" role="alert">{error}</p> : null}
           <button className="button button-primary" type="submit" disabled={busy || !accountReady(account) || (appPassword && !oldPassword)}>{t(busy ? "Creazione…" : "Crea l'account del titolare")}</button>

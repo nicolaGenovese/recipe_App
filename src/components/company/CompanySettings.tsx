@@ -252,7 +252,7 @@ function Sites({ directory, busy, change, editable }: { directory: CompanyDirect
         </ul>
         {editable ? (
           <form className="company-form inline" onSubmit={(event) => { event.preventDefault(); void change({ action: "saveSite", name: siteName, areaId: siteArea }, "Sede aggiunta.").then(() => setSiteName("")); }}>
-            <label>{t("Nuova sede")}<input value={siteName} onChange={(event) => setSiteName(event.target.value)} placeholder={t("Es. Battersea Kitchen")} /></label>
+            <label>{t("Nuova sede")}<input value={siteName} onChange={(event) => setSiteName(event.target.value)} placeholder={t("Es. Osteria del Centro")} /></label>
             <label>{t("Area")}<select value={siteArea} onChange={(event) => setSiteArea(event.target.value)}><option value="">{t("Nessuna area")}</option>{directory.areas.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}</select></label>
             <button className="button button-primary" type="submit" disabled={busy || !siteName.trim()}>{t("Aggiungi sede")}</button>
           </form>
