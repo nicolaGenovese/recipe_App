@@ -1559,4 +1559,13 @@ export const EN: Record<string, string> = {
   "Non è stato cancellato niente: i dati restano nell'archivio e tornano appena la connessione riprende.": "Nothing has been deleted: the data are safe in storage and come back as soon as the connection does.",
   "Riprovo…": "Trying again…",
   "Carico i dati della cucina…": "Loading the kitchen data…",
+  // Kitchen mode sections page
+  "Sezioni": "Sections",
+  "{0} da fare": "{0} to do",
+  "Tutto fatto": "All done",
+  "{0} oggi": "{0} today",
+  "{0} aperta": "{0} open",
+  "{0} aperte": "{0} open",
+  "Niente oggi": "Nothing today",
+  "Sezioni della modalità cucina": "Kitchen mode sections",
 };

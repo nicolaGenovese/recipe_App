@@ -105,6 +105,46 @@
 .photo-link { margin-left: 2px; text-decoration: none; }
 @media print { .photo-link { font-size: 9px; } }
 
+/* Phones and tablets: a page of large section buttons, all visible at once, instead of a row of tabs. */
+.kitchen.at-home { height: 100dvh; min-height: 0; }
+.kitchen.at-home .kitchen-body { display: grid; flex: 1; min-height: 0; overflow-y: auto; }
+.kitchen-home { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(120px, 1fr); gap: 12px; }
+.kitchen-tile { position: relative; display: grid; align-content: center; justify-items: center; gap: 8px; min-width: 0; padding: 14px 10px; border: 2px solid #dfe3d7; border-radius: 22px; color: #2f3b2c; background: #fff; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.kitchen-tile:active { transform: scale(.98); background: #f4f6ef; }
+.kitchen-tile-icon { display: grid; width: 64px; height: 64px; place-items: center; border-radius: 18px; color: var(--green-dark); background: var(--sage); }
+.kitchen-tile-icon svg { width: 36px; height: 36px; stroke-width: 1.7; }
+.kitchen-tile-label { font-size: clamp(17px, 2.6vw, 22px); font-weight: 750; line-height: 1.2; overflow-wrap: anywhere; }
+.kitchen-tile-state { color: #4f584a; font-size: 15px; font-weight: 600; }
+.kitchen-tile-badge { position: absolute; top: 12px; right: 12px; }
+.kitchen-tile.todo { border-color: #e2a48e; }
+.kitchen-tile.todo .kitchen-tile-icon { color: #9c3d24; background: #fbe8e0; }
+.kitchen-tile.todo .kitchen-tile-state { color: #9c3d24; }
+.kitchen-tile.done .kitchen-tile-state { color: #2f6b2b; }
+@media (min-width: 900px), (orientation: landscape) {
+  .kitchen-home.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 700px) and (min-height: 600px) {
+  .kitchen-home { gap: 16px; }
+  .kitchen-tile { gap: 12px; }
+  .kitchen-tile-icon { width: 92px; height: 92px; border-radius: 24px; }
+  .kitchen-tile-icon svg { width: 52px; height: 52px; }
+  .kitchen-tile-label { font-size: 24px; }
+  .kitchen-tile-state { font-size: 17px; }
+  .kitchen-tile-badge { top: 16px; right: 16px; min-width: 36px; height: 36px; font-size: 18px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .kitchen-home { grid-auto-rows: minmax(96px, 1fr); gap: 10px; }
+  .kitchen-tile { gap: 4px; padding: 8px; }
+  .kitchen-tile-icon { width: 44px; height: 44px; border-radius: 13px; }
+  .kitchen-tile-icon svg { width: 26px; height: 26px; }
+}
+/* An open section on a phone or tablet: a large way back to the sections, and the section's name. */
+.kitchen-section-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 16px; }
+.kitchen-back { display: inline-flex; align-items: center; gap: 6px; min-height: 52px; padding: 0 18px 0 12px; border: 2px solid #c9d1bd; border-radius: 14px; color: var(--green-dark); background: #fff; font-size: 17px; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+.kitchen-back svg { width: 22px; height: 22px; stroke-width: 2.2; }
+.kitchen-section-bar h2 { display: flex; align-items: center; gap: 10px; margin: 0; color: #2f3b2c; font-size: clamp(20px, 3vw, 26px); }
+.kitchen-section-bar h2 svg { width: 28px; height: 28px; color: var(--green-dark); }
+
 @media (max-width: 900px) {
   .kitchen-tabs { grid-template-columns: repeat(3, 1fr); }
 }

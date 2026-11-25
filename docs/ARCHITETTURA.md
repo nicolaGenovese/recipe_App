@@ -128,7 +128,7 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 | --- | --- |
 | `shell/` | Pagina: barra laterale (con il selettore di sede `SitePicker`), barra in alto con il campanello (`StockAlerts`), intestazione, `DialogHost` che mostra la finestra aperta. |
 | `company/` | Gestione della compagnia dentro Impostazioni: persone e inviti, sedi e aree, ruoli e permessi, registro attività; confronto tra sedi per Andamento. |
-| `kitchen/` | Modalità cucina: una scheda per prep list, temperature, cotture, consegne e checklist; `KitchenOrders` è lo schermo delle comande (pass o partita). |
+| `kitchen/` | Modalità cucina: una scheda per prep list, temperature, cotture, consegne e checklist; `KitchenOrders` è lo schermo delle comande (pass o partita). `KitchenMode` su telefono e tablet (`(max-width: 1100px), (pointer: coarse)`) mostra una pagina di pulsanti a icone e apre le sezioni sopra, con una voce nella cronologia per il tasto Indietro; sul computer mostra le schede. |
 | `ui/` | Pezzi riutilizzabili: `Dialog`, campi dei moduli, riquadri, paginazione, avvisi, icone. |
 | `recipes/` | Libreria, scheda, menu azioni, riepilogo. `editor/` ha un file per ogni scheda dell'editor. |
 | `print/` | Finestra di stampa e anteprima. |

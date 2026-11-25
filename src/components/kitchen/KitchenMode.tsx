@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { KitchenChecklists } from "@/components/kitchen/KitchenChecklists";
 import { KitchenCooking } from "@/components/kitchen/KitchenCooking";
 import { KitchenDeliveries } from "@/components/kitchen/KitchenDeliveries";
@@ -8,6 +8,7 @@ import { KitchenOrders } from "@/components/kitchen/KitchenOrders";
 import { KitchenPrep } from "@/components/kitchen/KitchenPrep";
 import { KitchenTemperatures } from "@/components/kitchen/KitchenTemperatures";
 import { readStored, store, useNow, useWakeLock } from "@/components/kitchen/parts";
+import { BackIcon, ChecklistIcon, ClipboardIcon, FlameIcon, ThermometerIcon, TicketIcon, TruckIcon } from "@/components/ui/icons";
 import { KITCHEN_KEY, kitchenPrepLists, slotOf, uncheckedDeliveries } from "@/lib/kitchen/today";
 import { dateKey } from "@/lib/num";
 import { missingToday } from "@/lib/safety/rules";
@@ -28,21 +29,60 @@ const SOUND_KEY = "recipe-studio:orders-sound";
 /** How a tab shows what is left: a red count to do, a grey count of today's records, or a tick. */
 type Badge = { count: number; tone: "todo" | "info" | "done" | "none" };
 
+const ICONS: Record<Panel, ReactNode> = {
+  orders: <TicketIcon />, prep: <ClipboardIcon />, temperature: <ThermometerIcon />, cooking: <FlameIcon />, delivery: <TruckIcon />, checklist: <ChecklistIcon />
+};
+
+/** Phones and tablets get a page of large buttons instead of a row of tabs; a computer keeps the tabs. */
+const LAUNCHER_QUERY = "(max-width: 1100px), (pointer: coarse)";
+function useLauncher(): boolean {
+  const [launcher, setLauncher] = useState(() => typeof window !== "undefined" && window.matchMedia(LAUNCHER_QUERY).matches);
+  useEffect(() => {
+    const query = window.matchMedia(LAUNCHER_QUERY);
+    const change = () => setLauncher(query.matches);
+    change();
+    query.addEventListener("change", change);
+    return () => query.removeEventListener("change", change);
+  }, []);
+  return launcher;
+}
+
 /**
  * Full-screen view for the kitchen tablet: large buttons, today's prep and every food safety record
  * (temperature rounds, cooking and cooling, deliveries, checklists). Whoever is working is picked
  * once and signs every record.
  */
 export function KitchenMode() {
-  const { data, setView, t, f, access, can, notify } = useApp();
+  const { data, setView, t, f, fmt, access, can, notify } = useApp();
   useWakeLock();
   const now = useNow();
   const today = dateKey(now);
   const ordersAllowed = can("orders.view");
   const [panel, setPanelState] = useState<Panel>(() => (ordersAllowed && readStored(PANEL_KEY) === "orders" ? "orders" : "prep"));
   const setPanel = (next: Panel) => { setPanelState(next); store(PANEL_KEY, next); };
+  const launcher = useLauncher();
+  // On phones and tablets kitchen mode opens on the page of sections; a section opens over it.
+  const [home, setHome] = useState(true);
+  const openPanel = (next: Panel) => {
+    setPanel(next);
+    if (!launcher) return;
+    setHome(false);
+    // The phone's back button (or gesture) then comes back to the sections instead of leaving the app.
+    try { window.history.pushState({ rsKitchenPanel: next }, ""); } catch { /* Back still works with the button on screen. */ }
+    window.scrollTo(0, 0);
+  };
+  const goHome = () => {
+    if ((window.history.state as { rsKitchenPanel?: string } | null)?.rsKitchenPanel) window.history.back();
+    else setHome(true);
+  };
+  useEffect(() => {
+    const back = () => { setHome(true); window.scrollTo(0, 0); };
+    window.addEventListener("popstate", back);
+    return () => window.removeEventListener("popstate", back);
+  }, []);
   const [ordersOnly, setOrdersOnlyState] = useState(() => readStored(ORDERS_ONLY_KEY) === "1");
-  const setOrdersOnly = (on: boolean) => { setOrdersOnlyState(on); store(ORDERS_ONLY_KEY, on ? "1" : null); };
+  // Leaving "orders only" goes back to the orders, not to the page of sections.
+  const setOrdersOnly = (on: boolean) => { setOrdersOnlyState(on); store(ORDERS_ONLY_KEY, on ? "1" : null); if (!on) setHome(false); };
   const [station, setStationState] = useState(() => readStored(STATION_KEY));
   const setStation = (id: string) => { setStationState(id); store(STATION_KEY, id || null); };
   const [sound, setSoundState] = useState(() => readStored(SOUND_KEY) !== "0");
@@ -114,8 +154,16 @@ export function KitchenMode() {
   // A screen for orders only (fixed at the pass or a station): no clock, tabs or other sections.
   if (panel === "orders" && ordersOnly) return <div className="kitchen kitchen-orders-only"><h1 className="visually-hidden">{t("Comande")}</h1>{orders}</div>;
 
+  const atHome = launcher && home;
+  const current = tabs.find(([key]) => key === panel);
+  /** What a tile says under its name, in words: the same information as the badge. */
+  const stateText = (key: Panel, badge: Badge) => badge.tone === "todo" ? fmt(t("{0} da fare"), badge.count)
+    : badge.tone === "done" ? t("Tutto fatto")
+      : badge.tone === "info" ? (key === "orders" ? fmt(t(badge.count === 1 ? "{0} aperta" : "{0} aperte"), badge.count) : fmt(t("{0} oggi"), badge.count))
+        : t("Niente oggi");
+
   return (
-    <div className="kitchen">
+    <div className={"kitchen" + (atHome ? " at-home" : "")}>
       <h1 className="visually-hidden">{t("Modalità cucina")}</h1>
       <header className="kitchen-head">
         <div className="kitchen-when">
@@ -128,17 +176,40 @@ export function KitchenMode() {
         </button>
       </header>
 
-      <nav className={"kitchen-tabs" + (ordersAllowed ? " with-orders" : "")} aria-label={t("Modalità cucina")}>
-        {tabs.map(([key, label, badge]) => (
-          <button key={key} type="button" className={"kitchen-tab" + (panel === key ? " active" : "")} aria-pressed={panel === key} onClick={() => setPanel(key)}>
-            <span>{label}</span>
-            {badge.tone === "todo" || badge.tone === "info" ? <span className={"kitchen-badge" + (badge.tone === "info" ? " info" : "")}>{badge.count}</span>
-              : badge.tone === "done" ? <span className="kitchen-badge done" aria-label={t("Fatto")}>✓</span> : null}
-          </button>
-        ))}
-      </nav>
+      {launcher ? null : (
+        <nav className={"kitchen-tabs" + (ordersAllowed ? " with-orders" : "")} aria-label={t("Modalità cucina")}>
+          {tabs.map(([key, label, badge]) => (
+            <button key={key} type="button" className={"kitchen-tab" + (panel === key ? " active" : "")} aria-pressed={panel === key} onClick={() => openPanel(key)}>
+              <span>{label}</span>
+              {badge.tone === "todo" || badge.tone === "info" ? <span className={"kitchen-badge" + (badge.tone === "info" ? " info" : "")}>{badge.count}</span>
+                : badge.tone === "done" ? <span className="kitchen-badge done" aria-label={t("Fatto")}>✓</span> : null}
+            </button>
+          ))}
+        </nav>
+      )}
 
+      {atHome ? (
+        <main className="kitchen-body">
+          <nav className={"kitchen-home" + (tabs.length > 4 ? " six" : "")} aria-label={t("Sezioni della modalità cucina")}>
+            {tabs.map(([key, label, badge]) => (
+              <button key={key} type="button" className={"kitchen-tile " + badge.tone} onClick={() => openPanel(key)}>
+                <span className="kitchen-tile-icon" aria-hidden="true">{ICONS[key]}</span>
+                <span className="kitchen-tile-label">{label}</span>
+                <span className="kitchen-tile-state">{stateText(key, badge)}</span>
+                {badge.tone === "todo" || badge.tone === "info" ? <span className={"kitchen-badge kitchen-tile-badge" + (badge.tone === "info" ? " info" : "")} aria-hidden="true">{badge.count}</span>
+                  : badge.tone === "done" ? <span className="kitchen-badge done kitchen-tile-badge" aria-hidden="true">✓</span> : null}
+              </button>
+            ))}
+          </nav>
+        </main>
+      ) : (
       <main className="kitchen-body">
+        {launcher ? (
+          <div className="kitchen-section-bar">
+            <button type="button" className="kitchen-back" onClick={goHome}><BackIcon /><span>{t("Sezioni")}</span></button>
+            <h2><span aria-hidden="true">{ICONS[panel]}</span>{current?.[1]}</h2>
+          </div>
+        ) : null}
         {panel === "orders" ? orders
           : panel === "prep" ? <KitchenPrep today={today} onLeave={leave} />
           : panel === "temperature" ? <KitchenTemperatures today={today} by={by} slotNow={slotOf(now)} />
@@ -146,6 +217,7 @@ export function KitchenMode() {
               : panel === "delivery" ? <KitchenDeliveries today={today} by={by} />
                 : <KitchenChecklists today={today} by={by} />}
       </main>
+      )}
     </div>
   );
 }

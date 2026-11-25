@@ -65,3 +65,22 @@ export function ChartIcon() {
 export function BellIcon() {
   return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 13.5V9a5 5 0 0 1 10 0v4.5l1.5 1.5h-13zM8.2 17a2 2 0 0 0 3.6 0" /></svg>;
 }
+// Kitchen mode sections: drawn for large tiles, read at a glance.
+export function TicketIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M5 2.5h10v15l-1.7-1.2-1.6 1.2-1.7-1.2-1.6 1.2-1.7-1.2L5 17.5v-15Z" /><path d="M8 6.5h4M8 9.5h4M8 12.5h2.5" /></svg>;
+}
+export function ThermometerIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M8 12.2V5a2 2 0 1 1 4 0v7.2a3.5 3.5 0 1 1-4 0Z" /><path d="M10 8.5v5.5" /></svg>;
+}
+export function FlameIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M10 17.5c3 0 5-2.1 5-4.9 0-3.3-2.6-4.8-3.5-8.1-1.9 1.4-2.3 3.4-2.1 4.9-1-.6-1.6-1.6-1.8-2.6C6 8.2 5 10 5 12.6c0 2.8 2 4.9 5 4.9Z" /></svg>;
+}
+export function TruckIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M2.5 5h9v8.5h-9zM11.5 8h3.3l2.7 2.9v2.6h-6" /><circle cx="6" cy="15" r="1.6" /><circle cx="14.5" cy="15" r="1.6" /></svg>;
+}
+export function ChecklistIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M9 5.5h8M9 10h8M9 14.5h8M3 5.5l1.3 1.3 2.2-2.3M3 10l1.3 1.3 2.2-2.3M3 14.5l1.3 1.3 2.2-2.3" /></svg>;
+}
+export function BackIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5 7 10l5.5 5.5" /></svg>;
+}
