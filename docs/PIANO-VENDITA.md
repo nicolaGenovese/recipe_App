@@ -1,6 +1,6 @@
 # Piano: vendere Recipe Studio a più ristoranti
 
-Stato al 24/11/2026: **fase 2 fatta, fase 3 in parte; fasi 0, 4 e 5 da fare.** Il piano (scritto il 18/11/2026) descrive come passare da una cucina con una password condivisa a un servizio in abbonamento con una sola installazione, registrazione e dati separati per ogni cliente.
+Stato al 25/11/2026: **fase 2 fatta, fase 3 in parte; fasi 0, 4 e 5 da fare.** Il piano (scritto il 18/11/2026) descrive come passare da una cucina con una password condivisa a un servizio in abbonamento con una sola installazione, registrazione e dati separati per ogni cliente.
 
 | Fase | Stato |
 | --- | --- |
@@ -10,7 +10,7 @@ Stato al 24/11/2026: **fase 2 fatta, fase 3 in parte; fasi 0, 4 e 5 da fare.** I
 | 3 · Registrazione e primi passi | In parte: registrazione e inviti fatti; mancano primi passi guidati, dati di esempio e sito pubblico |
 | 4 · Abbonamenti | Da fare |
 | 5 · Gestione del servizio | Da fare; ci sono già il registro attività e l'esportazione dei dati della sede |
-| 6 · Dopo il lancio | In parte: più sedi, ruoli completi e confronto tra sedi già fatti |
+| 6 · Dopo il lancio | In parte: più sedi, ruoli completi, confronto tra sedi e collegamento alla cassa con gli schermi delle comande ([CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)) già fatti |
 
 La struttura di compagnie, sedi, ruoli e permessi è già descritta in [MULTI-AZIENDA.md](MULTI-AZIENDA.md). Questo piano non la ripete: dice in che ordine costruirla per poterla vendere, cosa serve oltre al codice e cosa rimandare.
 
@@ -27,7 +27,7 @@ La struttura di compagnie, sedi, ruoli e permessi è già descritta in [MULTI-AZ
 | --- | --- | --- |
 | **Vercel Pro** | Il piano Hobby vieta l'uso commerciale | circa $20 al mese |
 | **Fatturazione su Google AI Studio** | Sul piano gratuito Google può usare i contenuti inviati (fatture dei clienti) per migliorare i suoi prodotti; la quota gratuita finisce dopo poche letture | pochi pence al mese per cucina |
-| **Neon a pagamento** | Ripristino a una data precisa (backup) e più dei 0,5 GB gratuiti, che le foto delle temperature riempiono presto | da circa $19 al mese |
+| **Neon a pagamento** | Ripristino a una data precisa (backup), più dei 0,5 GB gratuiti, che le foto delle temperature riempiono presto, e più ore di calcolo: con gli schermi delle comande accesi il database non va mai in pausa | da circa $19 al mese |
 | **Dominio e nome commerciale** | Indirizzo stabile, email di sistema dal proprio dominio | circa £10 l'anno |
 | **Registrazione ICO** (UK) | Obbligatoria per chi tratta dati personali per conto di aziende | circa £50 l'anno |
 | **Documenti legali** | Privacy policy, termini di servizio, accordo sul trattamento dei dati (DPA) con ogni cliente. Nei dati ci sono nomi, paghe e turni del personale | una tantum, meglio con un consulente |
@@ -157,6 +157,8 @@ Seguono i punti 3–6 dell'ordine di lavoro di MULTI-AZIENDA.md:
 | Migrazione che rovina i dati di oggi | Backup completo, prova su una copia, confronto dei conteggi prima e dopo |
 | Costi AI fuori controllo | Fatturazione attiva con avviso di spesa su Google e limite di scansioni per sede |
 | Database pieno di foto | Piano Neon a pagamento; più avanti, foto in uno storage di file separato (per esempio Vercel Blob) |
+| Ore di calcolo finite per gli schermi delle comande accesi giorno e notte | Piano Neon a pagamento; schermi chiusi a fine servizio; più avanti un canale in tempo reale al posto del controllo ogni 3 secondi |
+| Cassa del cliente che non manda le righe nel webhook | Servizio in mezzo (Zapier, Make, n8n) con il formato documentato, oppure un connettore dedicato per le casse più diffuse |
 | Cliente che perde i registri HACCP a fine abbonamento | Sola lettura ed esportazione sempre disponibili |
 
 ## Da decidere
@@ -167,3 +169,5 @@ Seguono i punti 3–6 dell'ordine di lavoro di MULTI-AZIENDA.md:
 - **Tablet di cucina:** PIN personale obbligatorio o solo scelta del nome.
 - **Clienti pilota:** quali, e a che prezzo, in cambio del loro riscontro.
 - **Login:** Better Auth (consigliato) o Clerk; vedi MULTI-AZIENDA.md.
+- **Casse dei clienti:** quali marche usano i clienti pilota, e se fare connettori dedicati per le più diffuse oltre al webhook generico.
+- **Cassa e comande nel prezzo:** incluse o come extra per sede.

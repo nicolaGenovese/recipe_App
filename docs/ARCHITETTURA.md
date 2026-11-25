@@ -21,6 +21,8 @@ src/
 3. **Una modifica.** Un componente chiama un'azione, per esempio `useStockActions().saveDelivery(…)`. L'azione chiama l'API (`state/api.ts`), aggiorna i dati in memoria con `update(…)` e mostra l'avviso.
 4. **Sul server.** La route in `app/api/…` chiede il contesto (`lib/server/auth/context.ts`: chi è, in quale compagnia e sede, con quali permessi), legge il JSON, lo valida (`lib/server/validation.ts`), controlla il permesso e lo passa all'archivio della sede (`lib/server/store`), che è il file JSON locale oppure Neon.
 
+5. **Dalla cassa.** Un avviso arriva a `app/api/pos/[token]` senza account: la route trova la sede dal token, controlla la firma se c'è e passa il corpo a `lib/server/pos/receive.ts`, che lo legge con `lib/orders/pos.ts`, aggiorna la comanda (`lib/orders/orders.ts`) e salva vendite e rimborsi. Gli schermi lo vedono al controllo successivo (`state/useOrdersFeed.ts`, ogni 3 secondi), le vendite alla prossima lettura dell'archivio.
+
 `current()` restituisce sempre i dati più recenti, anche dentro un'azione lunga che fa più salvataggi di fila: usalo al posto di `data` nelle azioni.
 
 ## Cartelle in dettaglio
@@ -98,7 +100,7 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `validation.ts` | Controlli sui dati in arrivo ed `HttpError`. |
 | `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori; `handleOpen` per il webhook della cassa, che non ha account. |
 
-La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare. Il PDF è del 19/11/2026 e non ha ancora le quattro tabelle della cassa (schema 2: `rs_pos_config`, `rs_orders`, `rs_pos_events`, `rs_pos_sales`, descritte in [API.md](API.md)): se le tabelle cambiano va rifatto. C'è anche il diagramma generato da DBeaver, [neondb - public.png](neondb%20-%20public.png), con i collegamenti dichiarati nel database.
+La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare. Il PDF è del 25/11/2026 (schema 2, con la pagina delle tabelle della cassa): se le tabelle cambiano va rifatto. C'è anche il diagramma generato da DBeaver, [neondb - public.png](neondb%20-%20public.png), con i collegamenti dichiarati nel database; è precedente alle tabelle della cassa.
 
 Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso con il browser); `lib/access/redact.ts` toglie dai dati quello che un ruolo non può vedere.
 

@@ -1,6 +1,6 @@
 # Proposta: avvisi del campanello
 
-Stato: **proposta, da implementare** (22/11/2026). Oggi il campanello in alto a destra avvisa solo degli ingredienti scritti a mano nelle ricette e assenti dal magazzino. Qui c'è cosa aggiungere, dai dati che l'app ha già, e come mostrarlo.
+Stato: **proposta, in parte fatta** (22/11/2026, aggiornata il 25/11). Oggi il campanello in alto a destra avvisa di tre cose: allergeni da riconfermare, prodotti con gli allergeni da controllare sull'etichetta e ingredienti scritti a mano nelle ricette e assenti dal magazzino. Qui c'è cosa aggiungere, dai dati che l'app ha già, e come mostrarlo.
 
 ## 1. Rosso: sicurezza alimentare (ogni giorno)
 
@@ -42,7 +42,16 @@ Stato: **proposta, da implementare** (22/11/2026). Oggi il campanello in alto a 
 
 ## 5. Con il collegamento alla cassa
 
-Ora che ci sono la cassa e le comande ([CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)): piatto esaurito, comanda in ritardo, piatti della cassa non abbinati alle ricette, ordine al fornitore da mandare prima dell'orario limite.
+Con la cassa e le comande ([CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)) ci sono già i dati per altri avvisi:
+
+| # | Avviso | Da dove viene |
+| --- | --- | --- |
+| 19 | **Comanda in ritardo**: aperta da più dei minuti del rosso | Comande aperte e minuti di allarme della sede |
+| 20 | **Piatti della cassa da abbinare** alle ricette | Elenco in Impostazioni → Cassa e comande |
+| 21 | **Avvisi della cassa non riconosciuti** o rifiutati per la firma | Ultimi avvisi ricevuti |
+| 22 | **Nessun avviso dalla cassa** durante il servizio, quando di solito arrivano | Ultimi avvisi ricevuti e orari dei menu |
+
+Piatto esaurito e ordine al fornitore da mandare prima dell'orario limite arriveranno con le funzioni che li calcolano (punto 9 di CASSA-E-COMANDE.md e ordini ai fornitori in FUNZIONI.md).
 
 ## 6. Come mostrarli
 

@@ -1,6 +1,6 @@
 # Proposta: più compagnie, più sedi, account e permessi
 
-Stato: **implementata** il 18/11/2026 (prima versione), con le scelte della sezione 6. Cosa fa oggi è in [FUNZIONI.md](FUNZIONI.md); le differenze da questa proposta sono in fondo. Descrive come trasformare Recipe Studio da app per una sola cucina ad app per più compagnie, ognuna con più ristoranti o pub, con account e permessi dal head office fino ai kitchen porter. Le scelte segnate come "da decidere" sono in fondo.
+Stato: **implementata** il 18/11/2026 (prima versione), con le scelte della sezione 6; il 25/11/2026 si sono aggiunti i permessi delle comande. Cosa fa oggi è in [FUNZIONI.md](FUNZIONI.md); le differenze da questa proposta sono in fondo. Descrive come trasformare Recipe Studio da app per una sola cucina ad app per più compagnie, ognuna con più ristoranti o pub, con account e permessi dal head office fino ai kitchen porter. Le scelte segnate come "da decidere" sono in fondo.
 
 Per vendere l'app a più clienti, l'ordine di lavoro, i prerequisiti e cosa rimandare sono in [PIANO-VENDITA.md](PIANO-VENDITA.md).
 

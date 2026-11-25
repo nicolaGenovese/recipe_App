@@ -10,8 +10,8 @@ Gestione di ricette, costi, Food Stock, turni, sicurezza alimentare e GP per una
 | [docs/ARCHITETTURA.md](docs/ARCHITETTURA.md) | Come è organizzato il codice e come aggiungere una funzione |
 | [docs/API.md](docs/API.md) | API, permessi richiesti e formato dei dati |
 | [docs/CALCOLI.md](docs/CALCOLI.md) | Regole di calcolo: costi, allergeni, Food Stock, GP |
-| [docs/schema-database.pdf](docs/schema-database.pdf) | Struttura del database da stampare (A4 orizzontale) |
-| [docs/neondb - public.png](docs/neondb%20-%20public.png) | Diagramma del database generato da DBeaver |
+| [docs/schema-database.pdf](docs/schema-database.pdf) | Struttura del database da stampare (A4 orizzontale, schema 2) |
+| [docs/neondb - public.png](docs/neondb%20-%20public.png) | Diagramma del database generato da DBeaver (prima delle tabelle della cassa) |
 | [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md) | Compagnie, sedi, account, ruoli e permessi: proposta e cosa è stato fatto |
 | [docs/PIANO-VENDITA.md](docs/PIANO-VENDITA.md) | Piano per vendere l'app ad altri ristoranti |
 | [docs/CASSA-E-COMANDE.md](docs/CASSA-E-COMANDE.md) | Cassa e comande: collegare qualsiasi cassa con un webhook, formato degli avvisi, schermi per partita |
@@ -66,7 +66,7 @@ L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto
   - `BETTER_AUTH_SECRET` (consigliata): una stringa casuale lunga che firma le sessioni. Senza, ne viene ricavata una da `DATABASE_URL`. Cambiarla scollega tutti.
   - `APP_PASSWORD`: con il database serve solo al primo accesso, per prendere i dati della versione a cucina singola.
   - `GEMINI_API_KEY` (facoltativa): attiva la scansione delle fatture. Si crea su [Google AI Studio](https://aistudio.google.com). `GEMINI_MODEL` forza un modello; `INVOICE_READER` sceglie il servizio (`gemini`, oppure `demo` per provare in locale una fattura di esempio). Per un altro servizio basta aggiungere un lettore in `src/lib/server/invoices/readers.ts`.
-- **Database:** tabelle, migrazioni e row-level security si creano da sole alla prima visita dopo un aggiornamento. Prima di un aggiornamento che cambia i dati conviene un branch di backup in Neon.
+- **Database:** tabelle, migrazioni e row-level security si creano da sole alla prima visita dopo un aggiornamento (oggi schema 2). Prima di un aggiornamento che cambia i dati conviene un branch di backup in Neon: gli ultimi sono `backup-prima-multiazienda-2026-11-18` e `backup-prima-cassa-2026-11-25`.
 
 ## Comandi
 
@@ -97,5 +97,6 @@ L'elenco completo è in [docs/FUNZIONI.md](docs/FUNZIONI.md).
 
 - **Con il database:** ognuno entra con il proprio account (Better Auth, sessione di 30 giorni). Ogni API controlla la sessione e il permesso del ruolo nella sede scelta, e quello che un ruolo non può vedere (prezzi, paghe, turni degli altri) non lascia il server.
 - **Separazione tra compagnie su due livelli:** il codice filtra ogni lettura, e Postgres applica la row-level security con il ruolo limitato `rs_tenant`, quindi un errore nel codice non mostra i dati di un'altra compagnia.
+- **Cassa:** l'unico indirizzo senza account è il webhook della cassa, `/api/pos/…`. Lo protegge una chiave lunga e casuale per sede, più la firma HMAC se la cassa la usa; un indirizzo esposto si sostituisce da Impostazioni → Cassa e comande.
 - **Senza database:** una sola cucina, aperta sul proprio computer oppure protetta dalla password condivisa `APP_PASSWORD`.
 - **Segreti:** chiavi e password stanno solo nelle variabili d'ambiente, mai nel repository, che è pubblico.

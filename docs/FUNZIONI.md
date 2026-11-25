@@ -127,6 +127,7 @@ Situazione dell'archivio online al 24/11/2026. Per avere numeri affidabili servo
 - **Ingredienti scritti a mano**: quelli che non sono in magazzino (nel campanello) vanno aggiunti, altrimenti i piatti che li usano non si possono confermare.
 - **Giorni di conservazione** sulle ricette base, per le etichette.
 - **Chef special** del Pizza menu, ancora senza ricetta.
+- **Cassa e comande**, quando si collega la cassa: le partite della cucina in Impostazioni → Cassa e comande, le categorie che non sono cibo (bevande), gli abbinamenti dei piatti della cassa alle ricette e il permesso delle comande nei ruoli personalizzati, se ce ne sono.
 
 ## Limiti noti
 

@@ -116,7 +116,7 @@ In **Neon** ogni record è una riga con l'`id` e il JSON completo in `payload`, 
 | `recipe_studio_settings` | Impostazioni della versione a cucina singola, non più usate | `id = 1` |
 
 - Le tabelle dei dati hanno la **row-level security**: l'app ci legge e scrive con il ruolo `rs_tenant` e la compagnia impostata per la transazione, quindi vede solo le righe di quella compagnia.
-- La **migrazione** (`lib/server/schema.ts`) gira da sola alla prima richiesta dopo un aggiornamento, in una sola transazione con un lock: i dati della versione a cucina singola diventano la compagnia `company_first` con la sede `site_first`.
+- La **migrazione** (`lib/server/schema.ts`) gira da sola alla prima richiesta dopo un aggiornamento, in una sola transazione con un lock. Versione 1: i dati della versione a cucina singola diventano la compagnia `company_first` con la sede `site_first`. Versione 2: le quattro tabelle della cassa e i permessi `orders.view` e `orders.setup` ai ruoli predefiniti delle compagnie esistenti.
 
 ## Forma dei dati
 

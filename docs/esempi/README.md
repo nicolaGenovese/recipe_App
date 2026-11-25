@@ -98,7 +98,7 @@ Impostazioni → **Personale**: Marco (Head chef, £15/h), Sara (Pizza chef, £1
 ## 9. Sprechi, vendite e riepilogo
 
 - **Sprechi:** 2 impasti strappati (2 × £0,60, errore) e 0,3 kg di mozzarella scaduta (0,3 × £8): **£3,60**.
-- **Vendite:** 650 Margherite nella settimana.
+- **Vendite:** 650 Margherite nella settimana, scritte a mano. Con la cassa collegata arriverebbero da sole dagli scontrini pagati, abbinate alla ricetta «Margherita» per nome ([CASSA-E-COMANDE.md](../CASSA-E-COMANDE.md)).
 - **Performance → Riepilogo** della settimana:
 
 | Voce | Calcolo | Risultato |
