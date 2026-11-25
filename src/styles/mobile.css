@@ -20,8 +20,8 @@
   .main-area { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   .content-wrap { padding: 20px 14px 24px; }
 
-  .mobile-tabbar { position: fixed; z-index: 9; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid #e3e6dc; background: rgba(250,250,247,.97); backdrop-filter: blur(12px); }
-  .mobile-tabbar button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border: 0; border-radius: 12px; color: #5d6458; background: transparent; font-size: 12px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mobile-tabbar { position: fixed; z-index: 9; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid #d5d8cf; background: rgba(250,250,247,.97); backdrop-filter: blur(12px); }
+  .mobile-tabbar button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border: 0; border-radius: 12px; color: #494f46; background: transparent; font-size: 12px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .mobile-tabbar button svg { width: 22px; height: 22px; }
   .mobile-tabbar button.active { color: var(--green-dark); background: var(--sage); }
   .tabbar-dots { height: 22px; font-size: 20px; font-weight: 800; line-height: 18px; letter-spacing: 1px; }
@@ -35,14 +35,14 @@
   .mobile-sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .mobile-sheet-grid button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: #4d5a46; background: #fff; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
   .mobile-sheet-grid button span { flex: 1; min-width: 0; }
-  .mobile-sheet-grid button small { color: #646a5f; font-size: 12px; }
+  .mobile-sheet-grid button small { color: #4b4f47; font-size: 12px; }
   .mobile-sheet-grid button.active { border-color: var(--green); background: var(--sage); }
   .mobile-sheet-menus { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; }
-  .mobile-sheet-menus > span { width: 100%; color: #5f665a; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+  .mobile-sheet-menus > span { width: 100%; color: #4a5046; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
   .mobile-sheet-menus button { min-height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: #4d5a46; background: #fff; font-size: 13px; cursor: pointer; }
   .mobile-sheet-menus button.active { border-color: var(--green); background: var(--sage); }
   .mobile-sheet-foot { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .mobile-sheet-foot button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; color: #5d6857; background: #fff; font-size: 14px; cursor: pointer; }
+  .mobile-sheet-foot button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; color: #4f584a; background: #fff; font-size: 14px; cursor: pointer; }
   .toast, .toast[popover] { inset: auto 12px calc(84px + env(safe-area-inset-bottom)) 12px; max-width: none; font-size: 14px; }
 
   /* Readable text: nothing below 11px on a phone. */

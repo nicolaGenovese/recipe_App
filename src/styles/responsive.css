@@ -5,7 +5,7 @@
   .recipe-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }
 @media (max-width: 780px) {
-  .sidebar { position: sticky; top: 0; z-index: 8; flex-direction: row; align-items: center; width: 100%; height: 57px; padding: 0 14px; border-right: 0; border-bottom: 1px solid #e8eae3; }
+  .sidebar { position: sticky; top: 0; z-index: 8; flex-direction: row; align-items: center; width: 100%; height: 57px; padding: 0 14px; border-right: 0; border-bottom: 1px solid #d5d7d1; }
   .brand { gap: 7px; margin: 0; }.brand-mark { width: 31px; height: 31px; border-radius: 9px; }.brand-mark svg { width: 22px; height: 22px; }.brand-copy strong { font-size: 16px; }.brand-copy small { font-size: 12px; }
   .workspace-switcher, .sidebar .nav-label, .sidebar-bottom { display: none; }
   .side-nav { display: flex; gap: 3px; margin-left: auto; }.nav-item { width: auto; min-height: 34px; padding: 0 8px; }.nav-item > span:nth-child(2) { font-size: 0; }.nav-icon { width: 19px; }.nav-count { margin-left: -5px; font-size: 12px; }
@@ -16,7 +16,7 @@
   .section-heading { align-items: center; }.section-tools .button { min-width: 32px; font-size: 0; }.section-tools .button svg { width: 16px; height: 16px; }.list-controls { align-items: flex-end; }.filter-tabs { gap: 11px; }.filter-tab { font-size: 12px; }.sort-label { display: none; }.sort-tools select { max-width: 111px; font-size: 12px; }
   .recipe-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }.card-cover { height: 118px; }.card-body { padding: 11px 10px 9px; }.card-title { font-size: 13px; }.card-description { font-size: 12px; }.card-stat { font-size: 12px; }.card-footer { gap: 3px; }.card-actions { gap: 0; }.card-action { width: 21px; }.card-cost { font-size: 12px; }.card-cost small { display: none; }
   .list-layout .card-cover { flex-basis: 96px; }.list-layout .card-body { grid-template-columns: 1fr auto; gap: 4px 9px; padding: 9px; }.list-layout .card-description { display: none; }.list-layout .card-meta { grid-column: 1; }.list-layout .card-title { grid-column: 1; }.list-layout .card-footer { grid-column: 2; }.list-layout .card-cost { min-width: 60px; }
-  .detail-hero { grid-template-columns: 1fr; }.detail-photo { min-height: 133px; }.detail-two-col { grid-template-columns: 1fr; gap: 0; }.pill-metrics { grid-template-columns: repeat(2,1fr); }.settings-layout { grid-template-columns: 1fr; }.settings-nav { display: flex; overflow: auto; padding: 9px 12px; border-right: 0; border-bottom: 1px solid #eaebe5; }.settings-nav button { flex: 0 0 auto; }.settings-pane { padding: 17px; }
+  .detail-hero { grid-template-columns: 1fr; }.detail-photo { min-height: 133px; }.detail-two-col { grid-template-columns: 1fr; gap: 0; }.pill-metrics { grid-template-columns: repeat(2,1fr); }.settings-layout { grid-template-columns: 1fr; }.settings-nav { display: flex; overflow: auto; padding: 9px 12px; border-right: 0; border-bottom: 1px solid #d7d8d3; }.settings-nav button { flex: 0 0 auto; }.settings-pane { padding: 17px; }
 }
 @media (max-width: 470px) {
   .breadcrumbs { font-size: 12px; }.global-search { width: 43vw; height: 32px; gap: 5px; padding: 0 6px; }.global-search input { font-size: 12px; }.topbar-icon { width: 27px; }.topbar-avatar { width: 25px; height: 25px; font-size: 12px; }

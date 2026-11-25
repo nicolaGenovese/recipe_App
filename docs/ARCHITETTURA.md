@@ -177,9 +177,9 @@ Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tab
 
 ## Accessibilità
 
-Obiettivo: WCAG 2.2 livello AA. Regole da seguire per ogni pagina nuova:
+Obiettivo: WCAG 2.2 livello AA, e AAA per il contrasto dei testi. Regole da seguire per ogni pagina nuova:
 
-- **Colori** (`styles/tokens.css`): testo almeno 4,5:1 sullo sfondo (3:1 sopra i 24 px, o 18,7 px in grassetto). Per il testo verde si usa `--green-text`, non `--green`, che sui fondi chiari si ferma a 4,2:1. I bordi dei campi usano `--field-border` (almeno 3:1 su bianco e sulla carta); `--line` resta per i divisori.
+- **Colori** (`styles/tokens.css`): testo almeno 7:1 sullo sfondo (4,5:1 sopra i 24 px, o 18,7 px in grassetto), anche il testo secondario (`--muted`), le etichette colorate e i badge. Il limite vale sul bianco, sulla carta (`--paper`) e sul fondo `--soft`. Per il testo verde si usa `--green-text`, non `--green`, che sui fondi chiari si ferma a 4,2:1; un testo bianco sta solo su `--green-dark` o più scuro. I bordi dei campi usano `--field-border` (oltre 3:1); `--line` è per schede e divisori. I segnaposto dei campi restano intorno a 5:1, per non sembrare valori già scritti.
 - **Focus da tastiera**: un anello blu `--focus` su ogni controllo, definito una volta in `tokens.css` con `:focus-visible`. Non scrivere `outline: 0`; se un campo non può mostrarlo, lo mostra il riquadro intorno con `:focus-within`, come la ricerca in alto.
 - **Testo**: almeno 12 px a schermo (le stampe possono scendere). Anche `<small>` ha il minimo di 12 px.
 - **Bersagli**: pulsanti e link alti almeno 24 px (28 per i filtri e le voci aggiunte); in modalità cucina molto di più.
@@ -188,7 +188,7 @@ Obiettivo: WCAG 2.2 livello AA. Regole da seguire per ogni pagina nuova:
 - **Messaggi** (`Toast` in `components/ui/bits.tsx`): gli errori vengono letti subito (`role="alert"`) e restano finché non si chiudono; gli altri si leggono con calma (`role="status"`) e spariscono da soli. Il messaggio è un popover, quindi resta sopra una finestra aperta.
 - **Struttura**: «Vai al contenuto» è il primo elemento raggiungibile con Tab; ogni pagina ha un solo `h1` e i livelli dei titoli non saltano; i campi file nascosti dietro un pulsante hanno `tabIndex={-1}`.
 - **Movimento**: con «riduci movimento» nel sistema animazioni e transizioni si spengono.
-- **Controllo**: in fondo a una modifica conviene passare la pagina con la tastiera (Tab, Invio, Esc) e controllare i contrasti dei colori nuovi.
+- **Controllo**: in fondo a una modifica conviene passare la pagina con la tastiera (Tab, Invio, Esc) e controllare i contrasti dei colori nuovi (per esempio con lo strumento dei contrasti del browser).
 
 ## Traduzioni
 
