@@ -140,3 +140,14 @@ describe("company and site data", () => {
     expect(staffAtSite(staff, "s2").map((member) => member.id)).toEqual(["a", "b"]);
   });
 });
+
+describe("kitchen order permissions", () => {
+  const role = (key: string) => DEFAULT_ROLES.find((row) => row.key === key)?.permissions ?? [];
+  it("every kitchen role sees the orders, the head chef and above connect the till", () => {
+    for (const key of ["owner", "headoffice", "area", "gm", "headchef", "sous", "cdp"]) expect(role(key)).toContain("orders.view");
+    expect(role("kp")).not.toContain("orders.view");
+    for (const key of ["gm", "headchef"]) expect(role(key)).toContain("orders.setup");
+    expect(role("sous")).not.toContain("orders.setup");
+    expect(normalizePermissions(["orders.setup"])).toEqual(["orders.view", "orders.setup"]);
+  });
+});

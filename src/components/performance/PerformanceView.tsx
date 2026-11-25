@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import { SiteComparison } from "@/components/company/CompanySettings";
 import { MenuAnalysisTab } from "@/components/performance/MenuAnalysisTab";
@@ -17,7 +17,9 @@ const TABS: [Tab, string][] = [["summary", "Riepilogo"], ["sales", "Vendite"], [
 
 /** The week in numbers: sales, theoretical and actual GP, waste and labour. */
 export function PerformanceView() {
-  const { f, t, access, can } = useApp();
+  const { f, t, access, can, reload } = useApp();
+  // Receipts from the till keep arriving: the figures are read again each time the page opens.
+  useEffect(() => { void reload(); }, [reload]);
   // Head office and area managers compare the sites they reach; with one site there is nothing to compare.
   const compare = Boolean(access) && can("reports.company") && (access?.sites.filter((site) => site.companyId === access.company.id).length ?? 0) > 1;
   const format = useMemo(() => makeRotaFormat(f.locale), [f.locale]);

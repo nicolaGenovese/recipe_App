@@ -5,6 +5,7 @@ import { CompanySettings, type CompanySection } from "@/components/company/Compa
 import { GeneralPane } from "@/components/settings/GeneralPane";
 import { GpPane } from "@/components/settings/GpPane";
 import { ListPane } from "@/components/settings/ListPane";
+import { OrdersPane } from "@/components/settings/OrdersPane";
 import { PeoplePane } from "@/components/settings/PeoplePane";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { clone } from "@/lib/num";
@@ -49,11 +50,17 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
     ["roles", t("Ruoli e permessi"), can("users.manage") || can("company.manage")],
     ["audit", t("Registro attività"), can("audit.view")]
   ] as [Tab, string, boolean][]).filter((row) => row[2]).map(([key, label]) => [key, label]) : [];
-  const [tab, setTab] = useState<Tab>(() => initialTab ?? (kitchen ? "general" : company[0]?.[0] ?? "general"));
+  // Till and orders belong to the site: for whoever connects the till or matches its dishes to recipes.
+  const till = can("orders.setup") || can("menus.edit");
+  const [tab, setTab] = useState<Tab>(() => initialTab ?? (kitchen ? "general" : till ? "orders" : company[0]?.[0] ?? "general"));
   const patch: SettingsPatch = (change) => setDraft((old) => ({ ...old, ...change }));
 
-  const tabs: [Tab, string][] = kitchen ? [["general", t("Generali")], ["gp", t("Calcolo GP")], ...(access ? [] : [["people", t("Persone")] as [Tab, string]]), ...LISTS.map(([key, title]) => [key, t(title)] as [Tab, string])] : [];
+  const tabs: [Tab, string][] = [
+    ...(kitchen ? [["general", t("Generali")], ["gp", t("Calcolo GP")], ...(access ? [] : [["people", t("Persone")] as [Tab, string]]), ...LISTS.map(([key, title]) => [key, t(title)] as [Tab, string])] as [Tab, string][] : []),
+    ...(till ? [["orders", t("Cassa e comande")] as [Tab, string]] : [])
+  ];
   const onCompany = isCompany(tab);
+  const onOrders = tab === "orders";
   const onPeople = tab === "people";
   const list = LISTS.find(([key]) => key === tab);
   // Empty rows are dropped on save, like in a spreadsheet.
@@ -63,7 +70,7 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
   });
 
   return (
-    <Dialog size={onCompany || (onPeople && manage) ? "wide" : "normal"}>
+    <Dialog size={onCompany || onOrders || (onPeople && manage) ? "wide" : "normal"}>
       <DialogHeader kicker={access ? access.company.name.toUpperCase() : t("IL TUO SPAZIO")} title={t("Impostazioni")}
         subtitle={t(access ? "La cucina (valuta, lingua, GP, personale, liste) e la compagnia (persone, sedi, ruoli e permessi)." : "Valuta, lingua, calcolo GP, personale e liste della tua cucina.")} />
       <div className="settings-layout">
@@ -74,7 +81,7 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
           {company.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{title}</button>)}
         </nav>
         <div className="settings-body">
-          {onCompany ? <section className="settings-pane active settings-company"><CompanySettings key={tab} section={tab} /></section> : onPeople ? (
+          {onOrders ? <OrdersPane /> : onCompany ? <section className="settings-pane active settings-company"><CompanySettings key={tab} section={tab} /></section> : onPeople ? (
             <PeoplePane draft={draft} patch={patch} editStaff={kitchen} />
           ) : (
             <>
@@ -87,9 +94,9 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
         </div>
       </div>
       <footer className="dialog-footer">
-        {onCompany || (onPeople && !kitchen) ? (
+        {onCompany || onOrders || (onPeople && !kitchen) ? (
           <>
-            <span className="settings-footnote">{t("Le modifiche della compagnia si salvano subito.")}</span>
+            <span className="settings-footnote">{t(onOrders ? "Le modifiche di cassa e comande si salvano subito." : "Le modifiche della compagnia si salvano subito.")}</span>
             <button className="button button-primary" type="button" onClick={closeDialog}>{t("Chiudi")}</button>
           </>
         ) : (

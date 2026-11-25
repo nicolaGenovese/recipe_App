@@ -48,6 +48,10 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `access/redact.ts` | Toglie dall'archivio prezzi, paghe e turni che il ruolo non può vedere; tiene le paghe salvate quando le salva chi non le vede. |
 | `invoices/` | Scansione fatture: forma del risultato (`scan.ts`), abbinamento a fornitori e prodotti (`match.ts`), foto ridotte prima dell'invio (`upload.ts`). |
 | `kitchen/today.ts` | Modalità cucina: prep list di oggi, giro temperature, checklist, consegne senza controllo, apertura predefinita sui touch. |
+| `orders/pos.ts` | Lettore degli avvisi della cassa, per qualsiasi marca: trova ordine e righe per forma e per i nomi comuni dei campi, capisce il tipo di avviso dalle parole della cassa, id dell'avviso per i doppioni. |
+| `orders/orders.ts` | Cosa fa un avviso a una comanda (righe nuove, tolte, cambiate, portate «via», storni), partite di una riga, abbinamento piatto della cassa → ricetta, righe pronte, vendite e rimborsi da uno scontrino, comanda di prova. |
+| `orders/sales.ts` | Settimane di vendite dagli scontrini della cassa, per piatto e per giorno, al posto delle settimane scritte a mano. |
+| `orders/types.ts` | Forme di avvisi, comande, partite, impostazioni degli schermi e collegamento della cassa. |
 | `safety/photos.ts` | Foto dei registri: quali usa un record, quali togliere, quali mancano. |
 | `performance/compare.ts` | Confronto tra sedi delle ultime 4 settimane. |
 | `images.ts`, `pages.ts` | Foto ridotte nel browser; numeri di pagina con i puntini. |
@@ -80,6 +84,9 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `store/local-store.ts` | Archivio su file JSON, una sola cucina (ignora la sede). Le scritture passano da un file temporaneo e sono in coda, quindi due salvataggi veloci non si sovrascrivono. |
 | `store/neon-store.ts` | Archivio su Neon Postgres. Ogni chiamata è una transazione con il ruolo limitato `rs_tenant` e la compagnia impostata, quindi la row-level security non lascia vedere altre compagnie. Ricette e prodotti per compagnia, il resto per sede; la giacenza dei prodotti e le impostazioni di sicurezza per sede. |
 | `store/index.ts` | `getStore()`: Neon se c'è `DATABASE_URL`, altrimenti il file. |
+| `store/neon-orders.ts`, `store/local-orders.ts` | Comande, avvisi, scontrini e collegamento della cassa (`store.scoped(...).orders`), su Neon o in `recipes.orders.json` accanto all'archivio locale. La parte della cassa si scrive solo se la versione non è cambiata nel frattempo; le spunte della cucina con aggiornamenti mirati, così due schermi non si annullano. |
+| `pos/receive.ts` | Percorso di un avviso: registro (doppioni scartati), aggiornamento della comanda, vendita o rimborso. Lo usano il webhook e la comanda di prova. |
+| `pos/signature.ts` | Firme HMAC degli avvisi: Standard Webhooks, stile Stripe, Square, firma semplice del corpo. |
 | `schema.ts` | Tabelle, migrazione una tantum (i dati di prima diventano `company_first` / `site_first`) e row-level security, sotto un lock. |
 | `db.ts` | Connessione Neon e id casuali. |
 | `directory.ts` | Compagnie, aree, sedi, ruoli, incarichi e inviti (come proprietario del database, quindi ogni funzione controlla la compagnia da sé). `buildAccess` calcola sedi raggiungibili e permessi. |
@@ -89,9 +96,9 @@ Funzioni senza effetti collaterali: dati in ingresso, risultato in uscita. Si te
 | `invoices/readers.ts` | Lettori delle fatture (Gemini, demo): scelta dei modelli, tempi e messaggi d'errore. |
 | `guards.ts` | Regole sulle scritture: ricette della libreria o della sede, conteggi e spunte, correzioni HACCP, registro attività. |
 | `validation.ts` | Controlli sui dati in arrivo ed `HttpError`. |
-| `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori. |
+| `http.ts` | Risposte JSON, limite di 5 MB sul corpo, gestione degli errori; `handleOpen` per il webhook della cassa, che non ha account. |
 
-La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare. Il PDF è del 19/11/2026: se le tabelle cambiano va rifatto. C'è anche il diagramma generato da DBeaver, [neondb - public.png](neondb%20-%20public.png), con i collegamenti dichiarati nel database.
+La struttura del database (tabelle, colonne, collegamenti) è disegnata in [schema-database.pdf](schema-database.pdf), A4 orizzontale da stampare. Il PDF è del 19/11/2026 e non ha ancora le quattro tabelle della cassa (schema 2: `rs_pos_config`, `rs_orders`, `rs_pos_events`, `rs_pos_sales`, descritte in [API.md](API.md)): se le tabelle cambiano va rifatto. C'è anche il diagramma generato da DBeaver, [neondb - public.png](neondb%20-%20public.png), con i collegamenti dichiarati nel database.
 
 Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso con il browser); `lib/access/redact.ts` toglie dai dati quello che un ruolo non può vedere.
 
@@ -104,6 +111,7 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 | `AppProvider.tsx` | Contesto dell'app e hook `useApp()`, con `access`, `can`, `switchSite` e `logout`. |
 | `useRights.ts` | Cosa può fare il ruolo con le ricette (creare, modificare, menu): i pulsanti che non può usare non compaiono. |
 | `api.ts` | Chiamate alle API. |
+| `useOrdersFeed.ts` | Comande della sede aggiornate ogni 3 secondi (solo quello che è cambiato), modifiche mostrate subito e poi confermate dal server, suono delle comande nuove e modificate. |
 | `dialogs.ts` | Elenco delle finestre e dei dati che ricevono. |
 | `view.ts` | Pagina e filtri attivi: libreria (con `menuId` per un solo menu), Menu, Prep list, Food Stock. |
 | `actions/useRecipeActions.ts` | Salva, duplica, elimina, menu, basi, allineamento dei costi. |
@@ -118,11 +126,11 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 | --- | --- |
 | `shell/` | Pagina: barra laterale (con il selettore di sede `SitePicker`), barra in alto con il campanello (`StockAlerts`), intestazione, `DialogHost` che mostra la finestra aperta. |
 | `company/` | Gestione della compagnia dentro Impostazioni: persone e inviti, sedi e aree, ruoli e permessi, registro attività; confronto tra sedi per Andamento. |
-| `kitchen/` | Modalità cucina: una scheda per prep list, temperature, cotture, consegne e checklist. |
+| `kitchen/` | Modalità cucina: una scheda per prep list, temperature, cotture, consegne e checklist; `KitchenOrders` è lo schermo delle comande (pass o partita). |
 | `ui/` | Pezzi riutilizzabili: `Dialog`, campi dei moduli, riquadri, paginazione, avvisi, icone. |
 | `recipes/` | Libreria, scheda, menu azioni, riepilogo. `editor/` ha un file per ogni scheda dell'editor. |
 | `print/` | Finestra di stampa e anteprima. |
-| `settings/` | Impostazioni: una scheda per file; `PeoplePane` unisce il personale e l'accesso all'app. |
+| `settings/` | Impostazioni: una scheda per file; `PeoplePane` unisce il personale e l'accesso all'app; `OrdersPane` è Cassa e comande. |
 | `stock/` | Food Stock: `reports/`, `deliveries/`, `inventory/`, `picker/`. |
 | `menus/` | Pagina Menu (`MenusView`, `MenuCard`), editor del menu e scelta dei menu di un piatto. |
 | `performance/` | Pagina Andamento: riepilogo, vendite, sprechi e analisi del menu; finestra dello spreco. |
@@ -132,7 +140,7 @@ Permessi e ruoli predefiniti stanno in `lib/access/permissions.ts` (condiviso co
 
 ### `styles/`
 
-Il CSS dell'app originale, diviso per area e importato in ordine da `app/globals.css`. Gli ultimi due sovrascrivono gli altri: `responsive.css` per schermi piccoli e stampa, poi `mobile.css` per i telefoni (barra in basso, finestre a tutto schermo, campi a 16 px). `kitchen.css` è la modalità cucina.
+Il CSS dell'app originale, diviso per area e importato in ordine da `app/globals.css`. Gli ultimi due sovrascrivono gli altri: `responsive.css` per schermi piccoli e stampa, poi `mobile.css` per i telefoni (barra in basso, finestre a tutto schermo, campi a 16 px). `kitchen.css` è la modalità cucina, `orders.css` lo schermo delle comande e Impostazioni → Cassa e comande.
 
 ## Esempi: aggiungere una funzione
 
@@ -157,7 +165,7 @@ Non servono modifiche al database: ogni record è salvato come JSON intero.
 2. Controllalo nella route con `requireContext(request, "nuovo.permesso")` o `context.require(...)`.
 3. Nascondi i pulsanti con `can("nuovo.permesso")` da `useApp()`, e aggiungi la traduzione dell'etichetta.
 
-Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tabella dei ruoli in Impostazioni.
+Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tabella dei ruoli in Impostazioni, oppure ai ruoli predefiniti con una migrazione in `schema.ts`, come `MIGRATE_V2` per i permessi delle comande.
 
 **Una nuova finestra:**
 
@@ -182,5 +190,6 @@ Il testo italiano è la chiave: scrivi `t("Salva bozza")` e aggiungi `"Salva boz
 - **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni, tracce e kcal. Lo fa solo chi può modificare quelle ricette.
 - **Permessi.** La protezione vera è sul server: ogni route chiede il contesto e il permesso. Il browser nasconde solo i pulsanti e le cifre (`body.no-costs`, `body.no-pay`) che il ruolo non può usare; i dati nascosti arrivano già a zero da `redactState`.
 - **Compagnie e sedi.** Le funzioni di `lib/server/directory.ts` leggono come proprietario del database, quindi ognuna controlla da sé la compagnia. I dati invece passano sempre da `store.scoped(...)`, che usa il ruolo limitato `rs_tenant` e la row-level security.
-- **Account.** Le pagine `/login`, `/registrati`, `/invito/…` e le API `/api/auth`, `/api/account`, `/api/invites` sono aperte; tutto il resto passa dal proxy, che controlla solo che il cookie di sessione ci sia: la sessione vera la verifica ogni API.
+- **Cassa e comande.** Il webhook `/api/pos/:token` è l'unica API senza account: `findPosSite` cerca il token come proprietario del database, poi tutto passa da `store.scoped(...)` della sede trovata. Le comande non sono in `/api/state` (crescono ogni sera): gli schermi le chiedono a `/api/orders`. Le vendite della cassa invece sì, già sommate per settimana in `salesWeeks`.
+- **Account.** Le pagine `/login`, `/registrati`, `/invito/…` e le API `/api/auth`, `/api/account`, `/api/invites`, `/api/pos` sono aperte; tutto il resto passa dal proxy, che controlla solo che il cookie di sessione ci sia: la sessione vera la verifica ogni API.
 - **Rispetto alla prima versione.** Le funzioni sono le stesse; sono sparite solo le cose che React rende inutili: niente `innerHTML`, niente aggiornamenti manuali della pagina, niente escape a mano dei testi.

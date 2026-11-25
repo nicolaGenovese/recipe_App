@@ -44,6 +44,19 @@ La colonna **Permesso** dice cosa serve; "—" vuol dire qualsiasi persona della
 
 Ogni `POST` crea il record se l'`id` è nuovo, altrimenti lo sostituisce.
 
+## Cassa e comande
+
+Come collegare la cassa e il formato consigliato degli avvisi: [CASSA-E-COMANDE.md](CASSA-E-COMANDE.md).
+
+| Metodo e percorso | Permesso | Corpo → risposta |
+| --- | --- | --- |
+| `POST /api/pos/:token` | nessun account: il token dell'indirizzo dice la sede; con un segreto serve anche la firma HMAC | Avviso della cassa, JSON o form → `{ ok, duplicate, events: [{ kind, summary }] }`. Codici: 200 ricevuto (anche doppione o non riconosciuto), 401 firma non valida, 403 collegamento sospeso, 404 indirizzo non valido, 413 oltre 1 MB, 500 da riprovare. |
+| `GET /api/pos/:token` | come sopra | `{ ok: true }`, oppure il testo di `?challenge=` per le casse che verificano l'indirizzo. |
+| `GET /api/orders` | `orders.view` | `OrdersFeed { orders, cursor, now, config, connected }`: comande aperte delle ultime 12 ore e chiuse nell'ultima ora, impostazioni degli schermi (partite, minuti di allarme, «non è cibo», abbinamenti). Con `?since=<cursor>` solo quelle cambiate. |
+| `POST /api/orders/:id` | `orders.view` | `{ action, by?, keys?, ready? }` → comanda aggiornata. `action`: `claim` (serve `by`), `unclaim`, `lines` (righe `keys` pronte, o non pronte con `ready: false`), `bump` (chiusa), `recall` (riaperta), `seen` (annullamento visto). |
+| `GET /api/orders/setup` | `orders.setup` o `menus.edit` | `PosSetup { config, token, signed, enabled, events, items }`. `token` e gli ultimi 40 avvisi solo con `orders.setup`; `items` sono i piatti arrivati dalla cassa negli ultimi 30 giorni. |
+| `POST /api/orders/setup` | `orders.setup`; `menus.edit` per `map` | `action`: `config` (partite, minuti, «non è cibo», prezzi in centesimi), `map` (`{ key: "plu:…" o "name:…", recipeId }`, `recipeId` vuoto toglie l'abbinamento), `connect` (nuovo indirizzo), `disconnect`, `pause`, `resume`, `secret` (`{ secret }`, vuoto lo toglie), `test` (comanda di prova). Risponde con `PosSetup`. Collegamenti e segreto vanno nel registro attività. |
+
 ## Account e compagnia
 
 | Metodo e percorso | Accesso | Corpo → risposta |
@@ -93,6 +106,10 @@ In **Neon** ogni record è una riga con l'`id` e il JSON completo in `payload`, 
 | `rs_company_settings` / `rs_site_settings` | Impostazioni della compagnia / sicurezza alimentare della sede | `company_id` / `site_id` |
 | `rs_site_stock` | Giacenza iniziale, conteggio e livello minimo di ogni prodotto nella sede | `site_id, item_id` |
 | `rs_audit_log`, `rs_record_versions` | Registro attività e copie dei registri corretti o eliminati | progressivo |
+| `rs_pos_config` | Collegamento della cassa (token, segreto di firma, attivo) e impostazioni degli schermi della sede | `site_id` |
+| `rs_orders` | Comande: `pos` (la parte della cassa) e `kitchen` (spunte, chi l'ha presa, chiusura) in colonne separate, così cassa e schermi non si sovrascrivono; `version` per gli aggiornamenti della cassa | `site_id, id` |
+| `rs_pos_events` | Ultimi 500 avvisi della cassa per sede, con l'id dell'avviso per scartare i doppioni | progressivo; unico `site_id, event_key` |
+| `rs_pos_sales` | Scontrini pagati (e rimborsi in negativo) per giorno, con le righe vendute | `site_id, receipt_id` |
 | `rs_companies`, `rs_areas`, `rs_sites`, `rs_roles`, `rs_memberships`, `rs_invites` | Compagnie, accessi e inviti | `id` (`token` per gli inviti) |
 | `user`, `session`, `account`, `verification` | Account di Better Auth | `id` |
 | `rs_schema`, `rs_meta` | Versione della struttura e delle tabelle di Better Auth | — |
@@ -124,7 +141,8 @@ SafetyLog = { id, date, time, by, ok, action?, notes?, createdAt, updatedAt } pi
 - **Prep list:** `portions` sono le porzioni previste per piatto e scalano le righe generate; `auto` c'è solo sulle righe generate dai piatti.
 - **Sicurezza alimentare:** i limiti stanno in `settings.foodSafety` (apparecchi con minimo e massimo, cottura 75 °C, rigenerazione 75 °C, mantenimento 63 °C, abbattimento sotto 8 °C entro 90 minuti, consegne refrigerate fino a 8 °C e surgelate fino a −15 °C, conservazione predefinita 3 giorni, voci delle checklist, `requireTemperaturePhotos`). Sono i valori delle linee guida UK Safer Food, Better Business e si cambiano da "Impostazioni sicurezza". `photoId` punta a una foto di `/api/photos`.
 - **Sprechi:** `WasteLog { id, date, source: "product" | "recipe" | "other", itemId?, name, quantity, unit, unitCost, reason: "expired" | "error" | "leftover" | "damaged" | "other", by, notes? }`. Il costo è `quantity × unitCost`.
-- **Vendite:** `SalesWeek { id /* lunedì */, lines: { recipeId?, name, quantity, revenue? /* IVA inclusa */ }[], netSales? }`. Senza `revenue` vale quantità × prezzo del menu; il netto toglie l'IVA della ricetta (o quella predefinita).
+- **Vendite:** `SalesWeek { id /* lunedì */, lines: { recipeId?, name, quantity, revenue? /* IVA inclusa */ }[], netSales?, source?, days? }`. Senza `revenue` vale quantità × prezzo del menu; il netto toglie l'IVA della ricetta (o quella predefinita). Le settimane con scontrini della cassa arrivano da `/api/state` con `source: "pos"` e `days: { date, dishes, revenue }[]`, sommate da `rs_pos_sales`; prendono il posto della settimana scritta a mano, che resta salvata.
+- **Comande:** `KitchenOrder { id, externalId, number?, table?, covers?, server?, channel?, note?, allergies, receivedAt, changedAt?, fired, paid?, test?, status: "open" | "done" | "cancelled", claimedBy?, doneAt?, doneBy?, seen?, version, updatedAt, lines }`. Ogni riga: `{ id, key, name, quantity, modifiers, note?, course?, category?, plu?, allergens?, held?, voided?, total?, addedAt?, voidedAt?, changedAt?, rev?, firedAt?, ready?: { at, by } }`. La `key` è l'id più la revisione: una riga cambiata dalla cassa va segnata pronta di nuovo. Tipi in `lib/orders/types.ts`.
 - **Personale:** `settings.staff = { id, name, role?, hourlyRate, active, siteIds? }[]` (senza `siteIds` la persona lavora in tutte le sedi) e gli oneri in `settings.labour.onCostPercent`. Le settimane modificabili hanno una riga per ogni persona attiva della sede; le righe sono legate al nome.
 - **Turni:** un turno è `"09:00-17:00"`, più fasce separate da virgola per un turno spezzato, `"__DAY_OFF__"` (riposo), `"__HOLIDAY__"` (ferie) oppure `""`. Sono gli stessi valori della vecchia app Rota.
 

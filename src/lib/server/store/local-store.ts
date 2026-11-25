@@ -1,7 +1,9 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { LEGACY_MENU_ID, legacyMenus } from "@/lib/menus/menus";
+import { mergeSalesWeeks, posSalesWeeks } from "@/lib/orders/sales";
 import { normalizeSettings } from "@/lib/settings";
+import { localOrders, localSalesRows, readLocalOrders } from "@/lib/server/store/local-orders";
 import type { AppData } from "@/lib/types";
 import type { RecordKind, ScopedStore, Store, StoredPhoto } from "@/lib/server/store/types";
 
@@ -77,7 +79,13 @@ export function createLocalStore(file = localDataFile()): Store {
   };
 
   const kitchen: ScopedStore = {
-    async getState() { return { ...(await readData(file)), storage: "local" }; },
+    async getState() {
+      const data = await readData(file);
+      // Receipts paid at the till become the sales of their week, in place of a week typed in.
+      const till = await readLocalOrders(file);
+      const weeks = posSalesWeeks(localSalesRows(till.sales, "week"), localSalesRows(till.sales, "day"), till.config, data.recipes);
+      return { ...data, salesWeeks: mergeSalesWeeks(data.salesWeeks, weeks), storage: "local" };
+    },
     async recipeSite(id) { return (await readData(file)).recipes.some((recipe) => recipe.id === id) ? null : undefined; },
     saveRecipe: (recipe) => change((data) => { upsertById(data.recipes, recipe); return recipe; }),
     deleteRecipe: (id) => change((data) => { data.recipes = data.recipes.filter((recipe) => recipe.id !== id); }),
@@ -108,9 +116,16 @@ export function createLocalStore(file = localDataFile()): Store {
     },
     async deletePhoto(id) {
       await rm(photoFile(file, id), { force: true });
-    }
+    },
+    orders: localOrders(file)
   };
 
   // One kitchen on this computer: every scope reads the same file.
-  return { mode: "local", async health() { return { connected: true, error: null }; }, ready: async () => undefined, scoped: () => kitchen };
+  return {
+    mode: "local", async health() { return { connected: true, error: null }; }, ready: async () => undefined, scoped: () => kitchen,
+    async findPosSite(token) {
+      const { connection } = await readLocalOrders(file);
+      return connection.token && connection.token === token ? { companyId: "local", siteId: "local", enabled: connection.enabled } : null;
+    }
+  };
 }

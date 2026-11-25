@@ -1,3 +1,4 @@
+import type { OrderStatus, OrdersConfig, PosConnection, PosEventRow, PosItem, PosOrder, PosSale, ReadyMark, StoredOrder } from "@/lib/orders/types";
 import type { AppState, Menu, PrepList, RotaWeek, SafetyLog, SalesWeek, WasteLog, Recipe, Settings, StockDelivery, StockItem, StockReport, StorageMode } from "@/lib/types";
 
 /** The stock lists, menus and prep lists share one storage shape: an id plus a JSON payload. */
@@ -41,6 +42,42 @@ export interface Store {
   /** Resolves once the schema exists and is migrated. */
   ready(): Promise<void>;
   scoped(scope: Scope): ScopedStore;
+  /** The site a till webhook token belongs to; the only lookup made without a signed-in user. */
+  findPosSite(token: string): Promise<(Scope & { enabled: boolean }) | null>;
+}
+
+/** What a kitchen screen changes on an order. Each part is written on its own, so two screens never undo each other. */
+export interface KitchenChange {
+  claim?: { by: string; at: string } | null;
+  /** Line keys marked ready, and line keys no longer ready. */
+  ready?: Record<string, ReadyMark>;
+  unready?: string[];
+  status?: OrderStatus;
+  done?: { by: string; at: string } | null;
+  seen?: boolean;
+}
+
+/** Till orders, notices and receipts of one site. */
+export interface OrderStore {
+  config(): Promise<{ config: OrdersConfig; connection: PosConnection }>;
+  saveConfig(config: OrdersConfig): Promise<void>;
+  saveConnection(connection: PosConnection): Promise<void>;
+  /** Open orders of the last 12 hours and orders closed in the last hour; with `since`, only those changed after it. */
+  list(since?: string): Promise<{ orders: StoredOrder[]; now: string }>;
+  get(id: string): Promise<StoredOrder | null>;
+  /** Writes the till part if the order is still at `version` (0: new). False when another notice wrote first. */
+  putPos(id: string, pos: PosOrder, status: OrderStatus | undefined, version: number): Promise<boolean>;
+  kitchen(id: string, change: KitchenChange): Promise<StoredOrder | null>;
+  /** Logs a notice; null when the same notice was already received. */
+  logEvent(key: string, body: string): Promise<string | null>;
+  finishEvent(rowId: string, kind: string, ok: boolean, summary: string): Promise<void>;
+  /** Forgets a notice that could not be handled, so the till's retry is not taken for a copy. */
+  dropEvent(rowId: string): Promise<void>;
+  events(limit: number): Promise<PosEventRow[]>;
+  getSale(receiptId: string): Promise<PosSale | null>;
+  saveSale(sale: PosSale): Promise<void>;
+  /** Dishes the till sent or sold in the last days, with how often. */
+  items(days: number): Promise<PosItem[]>;
 }
 
 /**
@@ -69,4 +106,5 @@ export interface ScopedStore {
   savePhoto(id: string, photo: StoredPhoto): Promise<void>;
   getPhoto(id: string): Promise<StoredPhoto | null>;
   deletePhoto(id: string): Promise<void>;
+  orders: OrderStore;
 }

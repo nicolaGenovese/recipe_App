@@ -19,7 +19,7 @@ export function proxy(request: NextRequest) {
   return NextResponse.redirect(login);
 }
 
-// Sign in, sign up and invites are open; so are static files.
+// Sign in, sign up and invites are open; so are static files and the till webhook, which checks its own token.
 export const config = {
-  matcher: ["/((?!login|registrati|invito|api/login|api/auth|api/account|api/invites|manifest.webmanifest|_next/static|_next/image|favicon.ico|robots.txt).*)"]
+  matcher: ["/((?!login|registrati|invito|api/login|api/auth|api/account|api/invites|api/pos/|manifest.webmanifest|_next/static|_next/image|favicon.ico|robots.txt).*)"]
 };

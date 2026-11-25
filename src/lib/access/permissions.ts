@@ -13,6 +13,7 @@ export const PERMISSIONS = [
   { key: "prep.edit", group: "Cucina", label: "Creare e modificare le prep list" },
   { key: "prep.tick", group: "Cucina", label: "Spuntare le prep list" },
   { key: "waste.record", group: "Cucina", label: "Registrare sprechi" },
+  { key: "orders.view", group: "Cucina", label: "Vedere e gestire le comande" },
   { key: "safety.record", group: "Sicurezza alimentare", label: "Compilare i registri HACCP" },
   { key: "safety.correct", group: "Sicurezza alimentare", label: "Correggere o eliminare i registri HACCP" },
   { key: "rota.view", group: "Personale", label: "Vedere i turni di tutti" },
@@ -22,6 +23,7 @@ export const PERMISSIONS = [
   { key: "reports.company", group: "Andamento", label: "Confronto tra sedi (head office)" },
   { key: "settings.site", group: "Gestione", label: "Impostazioni della sede: apparecchi, checklist, limiti" },
   { key: "settings.company", group: "Gestione", label: "Impostazioni della compagnia: liste, valuta, GP, personale" },
+  { key: "orders.setup", group: "Gestione", label: "Collegare la cassa e configurare le partite" },
   { key: "users.manage", group: "Gestione", label: "Invitare persone e assegnare incarichi" },
   { key: "company.manage", group: "Gestione", label: "Gestire sedi, aree e ruoli" },
   { key: "audit.view", group: "Gestione", label: "Vedere il registro delle attività" }
@@ -49,6 +51,7 @@ const IMPLIES: Partial<Record<Permission, Permission[]>> = {
   "rota.edit": ["rota.view"],
   "prep.edit": ["prep.tick"],
   "safety.correct": ["safety.record"],
+  "orders.setup": ["orders.view"],
   "company.manage": ["users.manage"]
 };
 
@@ -76,7 +79,7 @@ export interface RoleTemplate {
   permissions: Permission[];
 }
 
-const site: Permission[] = ["menus.edit", "stock.manage", "prep.edit", "waste.record", "safety.correct", "rota.edit", "pay.view", "sales.view", "settings.site", "users.manage"];
+const site: Permission[] = ["menus.edit", "stock.manage", "prep.edit", "waste.record", "safety.correct", "rota.edit", "pay.view", "sales.view", "settings.site", "users.manage", "orders.setup"];
 
 /** The default roles every new company starts with (MULTI-AZIENDA.md, sections 2 and 3). */
 export const DEFAULT_ROLES: RoleTemplate[] = [
@@ -85,8 +88,8 @@ export const DEFAULT_ROLES: RoleTemplate[] = [
   { key: "area", name: "Area manager", level: 3, scope: "area", permissions: normalizePermissions([...site, "reports.company", "audit.view"]) },
   { key: "gm", name: "General manager", level: 4, scope: "site", permissions: normalizePermissions([...site, "audit.view"]) },
   { key: "headchef", name: "Head chef", level: 5, scope: "site", permissions: normalizePermissions([...site, "recipes.site"]) },
-  { key: "sous", name: "Sous chef", level: 6, scope: "site", permissions: normalizePermissions(["costs.view", "stock.manage", "prep.edit", "waste.record", "safety.record", "rota.edit"]) },
-  { key: "cdp", name: "Chef de partie / Commis", level: 7, scope: "site", permissions: normalizePermissions(["stock.count", "prep.tick", "waste.record", "safety.record"]) },
+  { key: "sous", name: "Sous chef", level: 6, scope: "site", permissions: normalizePermissions(["costs.view", "stock.manage", "prep.edit", "waste.record", "safety.record", "rota.edit", "orders.view"]) },
+  { key: "cdp", name: "Chef de partie / Commis", level: 7, scope: "site", permissions: normalizePermissions(["stock.count", "prep.tick", "waste.record", "safety.record", "orders.view"]) },
   { key: "kp", name: "Kitchen porter", level: 8, scope: "site", permissions: normalizePermissions(["prep.tick", "waste.record", "safety.record"]) }
 ];
 

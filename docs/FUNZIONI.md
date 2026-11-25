@@ -1,6 +1,6 @@
 # Funzioni di Recipe Studio
 
-Stato al 24/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da fare, i dati da inserire e i limiti noti. Per il codice vedi [ARCHITETTURA.md](ARCHITETTURA.md), per le API e i dati [API.md](API.md), per i conti [CALCOLI.md](CALCOLI.md), per la struttura del database [schema-database.pdf](schema-database.pdf).
+Stato al 25/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da fare, i dati da inserire e i limiti noti. Per il codice vedi [ARCHITETTURA.md](ARCHITETTURA.md), per le API e i dati [API.md](API.md), per i conti [CALCOLI.md](CALCOLI.md), per la struttura del database [schema-database.pdf](schema-database.pdf).
 
 ## Funzioni implementate
 
@@ -69,9 +69,18 @@ Stato al 24/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da f
 ### Andamento
 
 - Riepilogo settimanale: vendite nette, GP teorico, GP reale dal report stock, sprechi, costo del personale (anche giorno per giorno), prime cost, con percentuali sulle vendite.
-- Vendite per piatto inserite a mano o importate da un CSV della cassa.
+- Vendite per piatto: dalla cassa collegata (in sola lettura, per piatto e per giorno), oppure inserite a mano o importate da un CSV della cassa. La pagina rilegge i dati ogni volta che si apre.
 - Registro degli sprechi con motivo, quantità e costo calcolato da prodotto o ricetta.
 - Analisi del menu: star, cavallo da tiro, enigma, cane.
+
+### Cassa e comande
+
+Guida completa in [CASSA-E-COMANDE.md](CASSA-E-COMANDE.md).
+
+- **Collegamento a qualsiasi cassa con webhook**: in Impostazioni → Cassa e comande ogni sede crea il suo indirizzo e lo incolla nella cassa (o in Zapier, Make, n8n). Il lettore riconosce da solo i formati più comuni (nello stile di Square, Toast, Deliverect e altri) e un formato consigliato documentato; firma HMAC facoltativa; doppioni scartati; ultimi avvisi ricevuti con il contenuto, per controllare una cassa nuova; comanda di prova.
+- **Schermi delle comande** in modalità cucina → Comande: una scheda per comanda con tavolo, coperti, minuti di attesa (bordo ambra e rosso), allergie in rosso in alto, righe per portata con varianti e note, portate in attesa finché non vanno «via», modifiche e annullamenti della cassa segnati con un suono. Prendo io, pronto per riga o per partita, chiusura al pass, richiama l'ultima. «i» apre la ricetta del piatto; se la ricetta contiene un'allergia della comanda il piatto è bordato di rosso.
+- **Più schermi e partite**: ogni schermo mostra tutte le comande (pass) o solo le righe di una partita (per categoria della ricetta o della cassa, portata, nome o PLU), si aggiorna ogni 3 secondi, ha la modalità «Solo comande» a schermo intero e si fissa con un indirizzo come `?comande&partita=Forno`. Se la connessione cade, lo dice.
+- **Vendite dalla cassa**: gli scontrini pagati diventano le vendite della settimana (rimborsi e storni in negativo, bevande escluse con «Non è cibo»), con i piatti della cassa abbinati alle ricette per nome o a mano.
 
 ### Generale
 
@@ -90,14 +99,14 @@ Stato al 24/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da f
   - **Registro delle attività**: prezzi, turni, paghe, ruoli, permessi, incarichi, sedi. I registri HACCP corretti o eliminati conservano la copia precedente con chi e quando.
 - Senza database (in locale) l'app resta una sola cucina, aperta o protetta dalla password condivisa.
 - Interfaccia in italiano e inglese, pensata anche per il telefono: barra in basso con Ricette, Menu, Prep list, Sicurezza e "Altro" (tutte le altre pagine, i menu, la modalità cucina e le impostazioni), finestre a tutto schermo, testi e pulsanti più grandi, tabelle che scorrono nel loro riquadro. Si può aggiungere alla schermata Home del telefono o del tablet.
-- Modalità cucina per tablet e telefono: si apre da sola su telefoni e tablet (schermi touch); se su un dispositivo si esce, quel dispositivo lo ricorda e si apre nell'app normale finché non si sceglie di nuovo Modalità cucina (barra laterale o "Altro"). Dal computer si apre dalla barra laterale → Modalità cucina, oppure con l'indirizzo `?cucina`: schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Cinque schede con il conteggio di cosa manca: prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) cottura, abbattimento, rigenerazione e mantenimento (con i piatti controllati di recente a un tocco), controllo merce in arrivo (parte dalle consegne di Food Stock ancora senza controllo; con "Scansiona fattura" si fotografa la fattura, si controllano le righe e la consegna salvata viene scelta subito per il controllo) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Ogni temperatura ha la sua foto; i controlli di oggi si toccano per correggerli. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
+- Modalità cucina per tablet e telefono: si apre da sola su telefoni e tablet (schermi touch); se su un dispositivo si esce, quel dispositivo lo ricorda e si apre nell'app normale finché non si sceglie di nuovo Modalità cucina (barra laterale o "Altro"). Dal computer si apre dalla barra laterale → Modalità cucina, oppure con l'indirizzo `?cucina`: schermo intero con pulsanti grandi, ora e data, e chi sta lavorando scelto una volta sola, che firma ogni registrazione. Cinque schede con il conteggio di cosa manca (sei con le Comande, per chi le vede): prep list di oggi (si spunta toccando la riga; senza liste di oggi mostra la più vicina), giro temperature mattina/sera (verde o rosso per apparecchio, tasto ± per i congelatori, azione correttiva se fuori limite) cottura, abbattimento, rigenerazione e mantenimento (con i piatti controllati di recente a un tocco), controllo merce in arrivo (parte dalle consegne di Food Stock ancora senza controllo; con "Scansiona fattura" si fotografa la fattura, si controllano le righe e la consegna salvata viene scelta subito per il controllo) e checklist apertura, chiusura e pulizie, che riprendono il record di oggi. Ogni temperatura ha la sua foto; i controlli di oggi si toccano per correggerli. Lo schermo resta acceso e il tablet riapre la modalità cucina finché non si esce.
 
 ## Da implementare
 
 In ordine di utilità, secondo quanto discusso finora.
 
 1. **Ordini ai fornitori.** Ordine suggerito per fornitore (sotto il livello minimo più il fabbisogno delle prossime prep list); scheda fornitore con contatti, giorni di consegna e orario limite; invio per email o WhatsApp; confronto tra ordinato e consegnato.
-2. **Collegamento alla cassa e comande in cucina** (vedi [CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)): la cassa di ogni sede manda ordini e scontrini via webhook; le comande compaiono in tempo reale in una pagina della modalità cucina (prendo, pronto, tempi, allergie in evidenza, partite e pass), e le vendite aggiornano GP, magazzino teorico, piatti esauriti e prep list.
+2. **Cassa, passi successivi** (vedi [CASSA-E-COMANDE.md](CASSA-E-COMANDE.md), punto 9): magazzino teorico dalle vendite, piatti esauriti, prep list suggerite per giorno della settimana, tempi di cucina, ritorno verso la cassa e rilettura periodica degli ordini quando si sa quale cassa usano le sedi.
 3. **Più avvisi nel campanello** (vedi [AVVISI.md](AVVISI.md)): controlli HACCP di oggi non fatti, registri fuori limite senza azione, consegne senza controllo, allergeni da riconfermare, prodotti sotto il minimo o senza prezzo, ricette a costo zero, prezzi cambiati molto, turni e prep list mancanti; per ruolo, su tre livelli, e ognuno porta dove si risolve.
 4. **Abbonamenti e vendita** (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md)): Stripe, prova gratuita, limiti di scansione per sede, email di sistema per inviti e recupero password.
 5. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
@@ -105,7 +114,7 @@ In ordine di utilità, secondo quanto discusso finora.
 7. **Storico dei prezzi** di prodotti e piatti.
 8. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
 9. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.
-10. **Vendite giornaliere** invece che settimanali, per suggerire la prep list per giorno della settimana: arrivano con il collegamento alla cassa (punto 2); senza cassa collegata, da CSV giornaliero.
+10. **Vendite giornaliere senza cassa collegata**, da CSV giornaliero; con la cassa collegata ci sono già, giorno per giorno.
 
 ## Dati da inserire
 
@@ -128,3 +137,6 @@ Situazione dell'archivio online al 24/11/2026. Per avere numeri affidabili servo
 - **Prezzi di vendita uguali in tutte le sedi**: il prezzo sta sulla ricetta, che è della compagnia; un prezzo diverso per sede non si può ancora indicare.
 - **Scansione fatture con Gemini gratuito**: la quota gratuita per modello è piccola. L'app passa da sola a un altro modello, ma per un uso quotidiano conviene attivare la fatturazione su Google AI Studio.
 - **Vecchia app Rota** ancora attiva su Supabase: le modifiche fatte lì non arrivano qui.
+- **Casse che nel webhook mandano solo l'id dell'ordine** (per esempio gli aggiornamenti degli ordini di Square): serve un servizio in mezzo che legga l'ordine e lo mandi completo. Un avviso perso non viene ancora recuperato rileggendo la cassa.
+- **Schermi delle comande aggiornati ogni 3 secondi**, non all'istante: Vercel non tiene aperte connessioni lunghe. Senza cassa collegata né comande aperte controllano ogni minuto.
+- **Database sempre sveglio con gli schermi accesi**: con la cassa collegata, uno schermo delle comande aperto interroga Neon ogni 3 secondi (15 se la pagina è nascosta), quindi il database non va in pausa. Sul piano gratuito di Neon le ore di calcolo finiscono se gli schermi restano accesi giorno e notte: a fine servizio conviene chiudere la pagina o spegnere lo schermo, oppure passare al piano a pagamento (fase 0 di PIANO-VENDITA.md).

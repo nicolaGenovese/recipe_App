@@ -14,7 +14,7 @@ import { PrepView } from "@/components/prep/PrepView";
 import { RotaView } from "@/components/rota/RotaView";
 import { SafetyView } from "@/components/safety/SafetyView";
 import { PerformanceView } from "@/components/performance/PerformanceView";
-import { KitchenMode } from "@/components/kitchen/KitchenMode";
+import { KitchenMode, ORDERS_ONLY_KEY, PANEL_KEY, STATION_KEY } from "@/components/kitchen/KitchenMode";
 import { KITCHEN_KEY, opensInKitchen } from "@/lib/kitchen/today";
 import { Toast } from "@/components/ui/bits";
 import { useApp } from "@/state/AppProvider";
@@ -42,9 +42,19 @@ export function RecipeStudio() {
     let stored = "";
     try { stored = window.localStorage.getItem(KITCHEN_KEY) ?? ""; } catch { /* No storage: decide from the device. */ }
     const params = new URLSearchParams(window.location.search);
-    const link = params.has("cucina") || params.has("kitchen");
+    // ?comande (or ?orders) opens a screen for orders only; &partita=Forno fixes it on a station.
+    const ordersLink = params.has("comande") || params.has("orders");
+    const link = params.has("cucina") || params.has("kitchen") || ordersLink;
     if (link) {
-      try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* No storage: kitchen mode lasts until reload. */ }
+      try {
+        window.localStorage.setItem(KITCHEN_KEY, "1");
+        if (ordersLink) {
+          window.localStorage.setItem(PANEL_KEY, "orders");
+          window.localStorage.setItem(ORDERS_ONLY_KEY, "1");
+          const station = params.get("partita") ?? params.get("station");
+          if (station !== null) { if (station.trim()) window.localStorage.setItem(STATION_KEY, station.trim()); else window.localStorage.removeItem(STATION_KEY); }
+        }
+      } catch { /* No storage: kitchen mode lasts until reload. */ }
       // Drop ?cucina from the address, so leaving kitchen mode and reloading does not bring it back.
       window.history.replaceState(null, "", window.location.pathname);
     }

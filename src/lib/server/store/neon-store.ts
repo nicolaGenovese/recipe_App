@@ -1,9 +1,12 @@
+import { normalizeOrdersConfig } from "@/lib/orders/orders";
+import { mergeSalesWeeks, posSalesWeeks } from "@/lib/orders/sales";
 import { normalizeSettings } from "@/lib/settings";
 import { staffAtSite } from "@/lib/staff";
 export { staffAtSite } from "@/lib/staff";
 import type { Menu, PrepList, Recipe, RotaWeek, SafetyLog, SalesWeek, Settings, SharedShift, StockDelivery, StockItem, StockReport, WasteLog } from "@/lib/types";
 import type { Sql } from "@/lib/server/db";
 import { ensureSchema } from "@/lib/server/schema";
+import { neonOrders, posSalesQueries, toSalesRows } from "@/lib/server/store/neon-orders";
 import type { RecordKind, Scope, ScopedStore, Store } from "@/lib/server/store/types";
 
 type SiteKind = Exclude<RecordKind, "items">;
@@ -79,10 +82,12 @@ export function createNeonStore(sql: Sql): Store {
           sql`SELECT item_id, payload FROM rs_site_stock WHERE site_id = ${siteId}`,
           ...SITE_KINDS.map((kind) => query(`SELECT payload FROM ${SITE_TABLES[kind]} WHERE site_id = $1`, [siteId])),
           sql`SELECT w.site_id, s.name AS site_name, w.payload FROM recipe_studio_rota_weeks w JOIN rs_sites s ON s.id = w.site_id
-            WHERE w.company_id = ${companyId} AND w.site_id <> ${siteId} AND w.id >= to_char(now() - interval '120 days', 'YYYY-MM-DD')`
+            WHERE w.company_id = ${companyId} AND w.site_id <> ${siteId} AND w.id >= to_char(now() - interval '120 days', 'YYYY-MM-DD')`,
+          ...posSalesQueries(sql, siteId)
         ]);
         const lists = Object.fromEntries(SITE_KINDS.map((kind, index) => [kind, rest[index].map((row) => row.payload)])) as Record<SiteKind, unknown[]>;
         const otherRotas = rest[SITE_KINDS.length];
+        const [posWeekRows, posDayRows, posConfig] = rest.slice(SITE_KINDS.length + 1);
         const rotaWeeks = lists.rotaWeeks as RotaWeek[];
         const settings = normalizeSettings({ ...(companySettings[0]?.payload ?? {}), ...(siteSettings[0]?.payload ?? {}) } as Partial<Settings>, rotaWeeks);
         const stock = new Map(siteStock.map((row) => [row.item_id as string, row.payload]));
@@ -93,8 +98,11 @@ export function createNeonStore(sql: Sql): Store {
           return (week.rows ?? []).filter((line) => names.has(line.name.trim().toLocaleLowerCase()) && line.shifts.some(Boolean))
             .map((line) => ({ siteId: row.site_id as string, siteName: row.site_name ?? "", weekId: week.id, name: line.name, shifts: line.shifts }));
         });
+        const recipeList = recipes.map((row) => ({ ...row.payload, siteId: row.site_id ?? undefined }) as Recipe);
+        // Receipts paid at the till become the sales of their week, in place of a week typed in.
+        const tillWeeks = posSalesWeeks(toSalesRows(posWeekRows), toSalesRows(posDayRows), normalizeOrdersConfig(posConfig[0]?.payload), recipeList);
         return {
-          recipes: recipes.map((row) => ({ ...row.payload, siteId: row.site_id ?? undefined }) as Recipe),
+          recipes: recipeList,
           settings,
           stockItems: items.map((row) => joinStockItem(row.payload, stock.get(String(row.payload.id)))),
           stockReports: lists.reports as StockReport[],
@@ -104,7 +112,7 @@ export function createNeonStore(sql: Sql): Store {
           rotaWeeks,
           safetyLogs: lists.safetyLogs as SafetyLog[],
           wasteLogs: lists.wasteLogs as WasteLog[],
-          salesWeeks: lists.salesWeeks as SalesWeek[],
+          salesWeeks: mergeSalesWeeks(lists.salesWeeks as SalesWeek[], tillWeeks),
           sharedShifts,
           storage: "neon"
         };
@@ -203,7 +211,8 @@ export function createNeonStore(sql: Sql): Store {
       },
       async deletePhoto(id) {
         await run([sql`DELETE FROM recipe_studio_photos WHERE company_id = ${companyId} AND id = ${id}`]);
-      }
+      },
+      orders: neonOrders(sql, run, { companyId, siteId })
     };
   }
 
@@ -214,6 +223,12 @@ export function createNeonStore(sql: Sql): Store {
       catch (error) { return { connected: false, error: error instanceof Error ? error.message : "Connessione non riuscita" }; }
     },
     ready,
-    scoped
+    scoped,
+    async findPosSite(token) {
+      // As the database owner: the notice comes without a user, and the token says which site it is for.
+      await ready();
+      const rows = (await sql`SELECT company_id, site_id, enabled FROM rs_pos_config WHERE token = ${token}`) as { company_id: string; site_id: string; enabled: boolean }[];
+      return rows[0] ? { companyId: rows[0].company_id, siteId: rows[0].site_id, enabled: rows[0].enabled } : null;
+    }
   };
 }

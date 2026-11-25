@@ -401,6 +401,10 @@ export interface SalesWeek {
   lines: SalesLine[];
   /** Food sales without VAT from the till, when known; otherwise the lines are added up. */
   netSales?: number | null;
+  /** "pos": added up from the receipts the till sent, read only. Missing: typed in or imported. */
+  source?: "pos";
+  /** Till weeks only: dishes and takings (VAT included) of each day. */
+  days?: { date: string; dishes: number; revenue: number | null }[];
   createdAt: string;
   updatedAt: string;
 }

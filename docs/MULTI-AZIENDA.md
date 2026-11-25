@@ -64,6 +64,8 @@ Un permesso è un'azione precisa; un ruolo è un pacchetto di permessi. Così in
 | Registri HACCP: correggere o eliminare | ✓ | ✓ | ✓ | ✓ | — | — | — |
 | Sprechi: registrare | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Vendite e andamento | ✓ | ✓ | ✓ | ✓ | — | — | — |
+| Comande: vedere e gestire | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| Collegare la cassa e configurare le partite | ✓ | ✓ | ✓ | ✓ | — | — | — |
 | Gestire utenti della sede | ✓ | ✓ | ✓ | solo cucina | — | — | — |
 | Gestire sedi, aree e ruoli | ✓ | — | — | — | — | — | — |
 

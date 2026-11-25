@@ -42,7 +42,7 @@ Stato: **proposta, da implementare** (22/11/2026). Oggi il campanello in alto a 
 
 ## 5. Con il collegamento alla cassa
 
-Quando ci saranno la cassa e le comande ([CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)): piatto esaurito, comanda in ritardo, piatti della cassa non abbinati alle ricette, ordine al fornitore da mandare prima dell'orario limite.
+Ora che ci sono la cassa e le comande ([CASSA-E-COMANDE.md](CASSA-E-COMANDE.md)): piatto esaurito, comanda in ritardo, piatti della cassa non abbinati alle ricette, ordine al fornitore da mandare prima dell'orario limite.
 
 ## 6. Come mostrarli
 

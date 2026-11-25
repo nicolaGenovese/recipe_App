@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { dishesOfMenus } from "@/lib/menus/menus";
 import { num } from "@/lib/num";
 import { lineCost, lineNetRevenue, parseSalesCsv, salesTotals } from "@/lib/performance/sales";
-import type { SalesLine } from "@/lib/types";
+import type { SalesLine, SalesWeek } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { usePerformanceActions } from "@/state/actions/usePerformanceActions";
@@ -13,8 +13,68 @@ interface Row { key: string; recipeId?: string; name: string; quantity: string; 
 
 const keyOf = (line: Pick<SalesLine, "recipeId" | "name">) => line.recipeId ?? "name:" + line.name.trim().toLocaleLowerCase();
 
-/** Dishes sold in a week: typed in, or imported from the till as a CSV file. */
+/** Dishes sold in a week: from the till's receipts, typed in, or imported from the till as a CSV file. */
 export function SalesTab({ weekId }: { weekId: string }) {
+  const { data } = useApp();
+  const stored = data.salesWeeks.find((week) => week.id === weekId);
+  return stored?.source === "pos" ? <TillSales week={stored} /> : <TypedSales weekId={weekId} />;
+}
+
+/** A week added up from the receipts the till sent: read only, by dish and by day. */
+function TillSales({ week }: { week: SalesWeek }) {
+  const { data, gpRules, f, t, fmt, openDialog, can } = useApp();
+  const recipes = new Map(data.recipes.map((recipe) => [recipe.id, recipe]));
+  const totals = salesTotals(week, data.recipes, gpRules);
+  const unmatched = week.lines.filter((line) => !line.recipeId || !recipes.has(line.recipeId)).length;
+  return (
+    <div className="perf-sales">
+      <p className="field-hint">{t("Vendite dalla cassa: si aggiornano da sole a ogni scontrino pagato, con storni e rimborsi. Le bevande e il resto segnato come «non è cibo» non sono contati.")}</p>
+      {unmatched ? (
+        <p className="field-hint perf-unmatched-note">
+          {fmt(t(unmatched === 1 ? "{0} piatto della cassa non ha una ricetta: costo e GP non lo contano." : "{0} piatti della cassa non hanno una ricetta: costo e GP non li contano."), unmatched)}{" "}
+          {can("menus.edit") || can("orders.setup") ? <button type="button" className="link-button" onClick={() => openDialog({ kind: "settings", tab: "orders" })}>{t("Abbina i piatti")}</button> : null}
+        </p>
+      ) : null}
+      {week.days?.length ? (
+        <div className="stock-table-wrap">
+          <table className="stock-table perf-sales-table">
+            <thead><tr><th>{t("Giorno")}</th><th>{t("Piatti")}</th><th>{f.withCurrency(t("Incasso IVA incl. €"))}</th></tr></thead>
+            <tbody>{week.days.map((day) => <tr key={day.date}><td>{f.stockDate(day.date)}</td><td>{day.dishes}</td><td className="stock-value">{day.revenue === null ? "—" : f.money(day.revenue)}</td></tr>)}</tbody>
+          </table>
+        </div>
+      ) : null}
+      <div className="stock-table-wrap">
+        <table className="stock-table perf-sales-table">
+          <thead><tr><th>{t("Piatto")}</th><th>{t("Venduti")}</th><th>{f.withCurrency(t("Incasso IVA incl. €"))}</th><th>{t("Prezzo menu")}</th><th>{t("Netto")}</th><th>{t("Costo teorico")}</th></tr></thead>
+          <tbody>
+            {week.lines.map((line) => {
+              const recipe = line.recipeId ? recipes.get(line.recipeId) : undefined;
+              return (
+                <tr key={keyOf(line)} className={recipe ? "" : "perf-unmatched"}>
+                  <td>{line.name}{recipe ? null : <small className="perf-tag">{t("senza ricetta")}</small>}</td>
+                  <td>{line.quantity}</td>
+                  <td className="stock-value">{line.revenue === null || line.revenue === undefined ? "—" : f.money(line.revenue)}</td>
+                  <td className="stock-value">{recipe ? f.money(recipe.sellingPrice) : "—"}</td>
+                  <td className="stock-value">{f.money(lineNetRevenue(line, recipe, gpRules))}</td>
+                  <td className="stock-value">{recipe ? f.money(lineCost(line, recipe)) : "—"}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="stock-total">
+              <td>{t("Totale")}</td><td>{totals.dishes}</td><td /><td />
+              <td className="stock-value">{f.money(totals.linesNet)}</td>
+              <td className="stock-value">{f.money(totals.theoreticalCost)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function TypedSales({ weekId }: { weekId: string }) {
   const { data, gpRules, f, t, fmt, notify } = useApp();
   const guard = useGuard();
   const { saveSales } = usePerformanceActions();

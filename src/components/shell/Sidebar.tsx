@@ -30,7 +30,7 @@ export function Sidebar() {
   };
   for (let index = items.length - 1; index >= 0; index--) if (allowed[items[index][0]] === false) items.splice(index, 1);
   // Settings hold the kitchen lists and staff, and the company: people, sites, roles, activity log.
-  const showSettings = can("settings.company") || (Boolean(access) && (can("users.manage") || can("company.manage") || can("audit.view")));
+  const showSettings = can("settings.company") || can("orders.setup") || can("menus.edit") || (Boolean(access) && (can("users.manage") || can("company.manage") || can("audit.view")));
   // Each active menu gets a shortcut under "Menu" that shows its dishes.
   const menuLinks = sortMenus(data.menus).filter((menu) => menu.active);
   // With more than one menu the shortcuts sit in a dropdown under "Menu", open while one of them is shown.

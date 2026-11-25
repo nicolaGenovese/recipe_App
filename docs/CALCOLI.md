@@ -73,3 +73,14 @@ Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ric
 
 - Disponibile = giacenza attuale in unità di vendita × contenuto per unità.
 - Porzioni producibili = quante volte la giacenza copre la quantità scelta di ogni ingrediente (si prende il minimo) × porzioni della ricetta.
+
+## Vendite dalla cassa — `lib/orders/sales.ts`, `lib/orders/orders.ts`
+
+- **Uno scontrino pagato** conta nel giorno di cucina (ora di Londra) in cui arriva, con le righe non stornate: quantità e incasso IVA inclusa. Lo stesso conto ricevuto più volte (pagamento e ordine completato, o pagato in più volte) conta una volta, perché si salva con l'id dell'ordine.
+- **Rimborsi** e storni di un ordine già pagato sono scontrini con quantità e incasso negativi.
+- **Settimana** = somma per piatto degli scontrini dal lunedì alla domenica. Un piatto della cassa diventa una ricetta così: abbinamento salvato per PLU, poi per nome, poi ricetta con lo stesso nome (senza maiuscole, accenti e punteggiatura). Due nomi della cassa abbinati alla stessa ricetta diventano una riga sola.
+- **Non è cibo**: le righe la cui categoria, nome o PLU è in quell'elenco non contano.
+- **Incasso della riga**: se una parte delle vendite di quel piatto è arrivata senza prezzo, l'incasso della riga resta vuoto e si usa quantità × prezzo del menu, come per le vendite scritte a mano.
+- Da lì valgono le stesse regole delle vendite scritte a mano: netto senza IVA, costo teorico, GP teorico, analisi del menu.
+- **Una settimana con scontrini** prende il posto della settimana scritta a mano con lo stesso lunedì.
+

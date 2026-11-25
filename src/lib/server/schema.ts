@@ -1,14 +1,15 @@
 import type { Sql } from "@/lib/server/db";
 
 /** Raise when the schema below changes; each start compares it with the database and migrates once. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** Data tables with a company column, protected by row-level security. */
 export const TENANT_TABLES = [
   "recipe_studio_recipes", "recipe_studio_stock_items", "recipe_studio_photos",
   "recipe_studio_stock_reports", "recipe_studio_stock_deliveries", "recipe_studio_menus", "recipe_studio_prep_lists",
   "recipe_studio_rota_weeks", "recipe_studio_safety_logs", "recipe_studio_waste_logs", "recipe_studio_sales_weeks",
-  "rs_company_settings", "rs_site_settings", "rs_site_stock", "rs_audit_log", "rs_record_versions", "rs_sites"
+  "rs_company_settings", "rs_site_settings", "rs_site_stock", "rs_audit_log", "rs_record_versions", "rs_sites",
+  "rs_pos_config", "rs_orders", "rs_pos_events", "rs_pos_sales"
 ];
 
 /** Tables owned by the whole company (the recipe library and the products); the others belong to one site. */
@@ -53,7 +54,21 @@ const CREATE = [
   `CREATE INDEX IF NOT EXISTS rs_audit_log_company_idx ON rs_audit_log (company_id, at DESC)`,
   `CREATE TABLE IF NOT EXISTS rs_record_versions (id bigserial PRIMARY KEY, company_id text NOT NULL, site_id text NOT NULL, kind text NOT NULL,
     record_id text NOT NULL, payload jsonb, deleted boolean NOT NULL DEFAULT false, user_id text, user_name text NOT NULL DEFAULT '', at timestamptz NOT NULL DEFAULT now())`,
-  `CREATE INDEX IF NOT EXISTS rs_record_versions_record_idx ON rs_record_versions (site_id, kind, record_id)`
+  `CREATE INDEX IF NOT EXISTS rs_record_versions_record_idx ON rs_record_versions (site_id, kind, record_id)`,
+
+  // Version 2: till connection, kitchen orders, till notices and paid receipts (docs/CASSA-E-COMANDE.md).
+  `CREATE TABLE IF NOT EXISTS rs_pos_config (site_id text PRIMARY KEY, company_id text NOT NULL, token text UNIQUE, signing_secret text NOT NULL DEFAULT '',
+    enabled boolean NOT NULL DEFAULT true, payload jsonb NOT NULL DEFAULT '{}'::jsonb, updated_at timestamptz NOT NULL DEFAULT now())`,
+  `CREATE TABLE IF NOT EXISTS rs_orders (company_id text NOT NULL, site_id text NOT NULL, id text NOT NULL, external_id text NOT NULL DEFAULT '',
+    status text NOT NULL DEFAULT 'open', pos jsonb NOT NULL, kitchen jsonb NOT NULL DEFAULT '{}'::jsonb, version integer NOT NULL DEFAULT 1,
+    created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (site_id, id))`,
+  `CREATE INDEX IF NOT EXISTS rs_orders_changed_idx ON rs_orders (site_id, updated_at)`,
+  `CREATE TABLE IF NOT EXISTS rs_pos_events (id bigserial PRIMARY KEY, company_id text NOT NULL, site_id text NOT NULL, event_key text NOT NULL,
+    kind text NOT NULL DEFAULT '', ok boolean, summary text NOT NULL DEFAULT '', body text NOT NULL DEFAULT '', at timestamptz NOT NULL DEFAULT now(), UNIQUE (site_id, event_key))`,
+  `CREATE INDEX IF NOT EXISTS rs_pos_events_site_idx ON rs_pos_events (site_id, id DESC)`,
+  `CREATE TABLE IF NOT EXISTS rs_pos_sales (company_id text NOT NULL, site_id text NOT NULL, receipt_id text NOT NULL, day date NOT NULL, lines jsonb NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (site_id, receipt_id))`,
+  `CREATE INDEX IF NOT EXISTS rs_pos_sales_day_idx ON rs_pos_sales (site_id, day)`
 ];
 
 const quote = (values: string[]) => "ARRAY[" + values.map((value) => `'${value}'`).join(",") + "]";
@@ -100,6 +115,20 @@ BEGIN
 END $migrate$`;
 
 /**
+ * Version 2: the kitchen order permissions. Default roles that already exist get them like new
+ * companies do: every kitchen role sees the orders, the head chef and above connect the till.
+ */
+const MIGRATE_V2 = `DO $migrate$
+BEGIN
+  IF EXISTS (SELECT 1 FROM rs_schema WHERE version >= 2) THEN RETURN; END IF;
+  UPDATE rs_roles SET permissions = permissions || '["orders.view"]'::jsonb
+    WHERE template IN ('headoffice', 'area', 'gm', 'headchef', 'sous', 'cdp') AND NOT permissions ? 'orders.view';
+  UPDATE rs_roles SET permissions = permissions || '["orders.setup"]'::jsonb
+    WHERE template IN ('headoffice', 'area', 'gm', 'headchef') AND NOT permissions ? 'orders.setup';
+  INSERT INTO rs_schema (version) VALUES (2);
+END $migrate$`;
+
+/**
  * Row-level security: the app reads and writes data as the restricted role rs_tenant, which only
  * sees the rows of the company set for the transaction. The database owner bypasses it, so the
  * directory (companies, users, invites) and this migration work across companies.
@@ -117,7 +146,7 @@ BEGIN
       EXECUTE format('CREATE POLICY rs_company ON %I USING (company_id = current_setting(''app.company_id'', true)) WITH CHECK (company_id = current_setting(''app.company_id'', true))', t);
     END IF;
   END LOOP;
-  GRANT USAGE ON SEQUENCE rs_audit_log_id_seq, rs_record_versions_id_seq TO rs_tenant;
+  GRANT USAGE ON SEQUENCE rs_audit_log_id_seq, rs_record_versions_id_seq, rs_pos_events_id_seq TO rs_tenant;
 END $secure$`;
 
 /** Creates and migrates the schema once per database version. Safe to run from several servers at once. */
@@ -129,6 +158,6 @@ export async function ensureSchema(sql: Sql): Promise<void> {
   }
   await sql.transaction([
     sql`SELECT pg_advisory_xact_lock(72700101)`,
-    ...[...CREATE, MIGRATE_V1, SECURE].map((statement) => sql.query(statement) as unknown as ReturnType<Sql>)
+    ...[...CREATE, MIGRATE_V1, MIGRATE_V2, SECURE].map((statement) => sql.query(statement) as unknown as ReturnType<Sql>)
   ]);
 }

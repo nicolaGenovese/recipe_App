@@ -14,7 +14,7 @@ Gestione di ricette, costi, Food Stock, turni, sicurezza alimentare e GP per una
 | [docs/neondb - public.png](docs/neondb%20-%20public.png) | Diagramma del database generato da DBeaver |
 | [docs/MULTI-AZIENDA.md](docs/MULTI-AZIENDA.md) | Compagnie, sedi, account, ruoli e permessi: proposta e cosa è stato fatto |
 | [docs/PIANO-VENDITA.md](docs/PIANO-VENDITA.md) | Piano per vendere l'app ad altri ristoranti |
-| [docs/CASSA-E-COMANDE.md](docs/CASSA-E-COMANDE.md) | Proposta: collegamento alla cassa e comande in cucina |
+| [docs/CASSA-E-COMANDE.md](docs/CASSA-E-COMANDE.md) | Cassa e comande: collegare qualsiasi cassa con un webhook, formato degli avvisi, schermi per partita |
 | [docs/AVVISI.md](docs/AVVISI.md) | Proposta: più avvisi nel campanello |
 | [docs/esempi/README.md](docs/esempi/README.md) | Esempio completo da importare: una Margherita in tutte le pagine |
 
@@ -90,6 +90,7 @@ L'elenco completo è in [docs/FUNZIONI.md](docs/FUNZIONI.md).
 - **Sicurezza alimentare**: temperature con foto, cotture, abbattimenti, consegne, checklist, registro stampabile.
 - **Andamento**: vendite, GP teorico e reale, sprechi, personale, analisi del menu, confronto tra sedi.
 - **Modalità cucina** per tablet e telefono, con pulsanti grandi.
+- **Cassa e comande**: qualsiasi cassa con webhook manda le comande agli schermi della cucina (pass o una partita per schermo) e gli scontrini alle vendite.
 - **Compagnie, sedi, account, ruoli e permessi**, inviti con link e registro delle attività.
 
 ## Sicurezza
