@@ -1,6 +1,5 @@
 /* Phones and touch screens. Imported after responsive.css, so it overrides the compact sizes there. */
 .topbar-brand, .mobile-tabbar, .mobile-sheet-backdrop { display: none; }
-.kitchen-link .nav-icon { color: var(--green-text); }
 
 @media (max-width: 780px) {
   /* The side bar gives way to a tab bar at the bottom, within reach of the thumb. */
@@ -16,6 +15,9 @@
   .global-search { flex: 1; width: auto; max-width: 260px; height: 40px; }
   .global-search input { font-size: 16px; }
   .topbar-icon { width: 40px; height: 40px; }
+  /* Phones: the kitchen button keeps its icon only, square like the others but in the dark green that marks it. */
+  .topbar-kitchen { width: 40px; min-height: 40px; padding: 0; }
+  .topbar-kitchen span { display: none; }
   .topbar-avatar { display: none; }
   .main-area { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
   .content-wrap { padding: 20px 14px 24px; }
@@ -27,11 +29,6 @@
   .tabbar-dots { height: 22px; font-size: 20px; font-weight: 800; line-height: 18px; letter-spacing: 1px; }
   .mobile-sheet-backdrop { position: fixed; z-index: 8; inset: 0; display: block; background: rgba(30,38,29,.35); }
   .mobile-sheet { position: absolute; inset: auto 0 calc(64px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 140px); overflow: auto; padding: 16px 14px 14px; border-radius: 20px 20px 0 0; background: #fbfbf8; box-shadow: 0 -12px 40px rgba(24,34,22,.18); }
-  .mobile-sheet-kitchen { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; margin-bottom: 14px; padding: 10px 14px; border: 0; border-radius: 14px; color: #fff; background: var(--green-dark); text-align: left; cursor: pointer; }
-  .mobile-sheet-kitchen svg { flex: 0 0 auto; width: 26px; height: 26px; }
-  .mobile-sheet-kitchen span { display: grid; gap: 2px; }
-  .mobile-sheet-kitchen strong { font-size: 16px; }
-  .mobile-sheet-kitchen small { color: #d7e1c8; font-size: 12px; }
   .mobile-sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .mobile-sheet-grid button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: #4d5a46; background: #fff; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
   .mobile-sheet-grid button span { flex: 1; min-width: 0; }

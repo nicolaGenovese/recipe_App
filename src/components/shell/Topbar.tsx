@@ -1,7 +1,8 @@
 "use client";
 
 import { StockAlerts } from "@/components/shell/StockAlerts";
-import { BrandIcon, DownloadIcon, SearchIcon } from "@/components/ui/icons";
+import { BrandIcon, DownloadIcon, PlateIcon, SearchIcon } from "@/components/ui/icons";
+import { KITCHEN_KEY } from "@/lib/kitchen/today";
 import { useApp } from "@/state/AppProvider";
 import { useArchiveActions } from "@/state/actions/useArchiveActions";
 import type { ViewFilter } from "@/state/view";
@@ -13,6 +14,11 @@ export function Topbar() {
   const menu = view.filter === "menu" && view.menuId ? data.menus.find((row) => row.id === view.menuId) : undefined;
   const { exportJson } = useArchiveActions();
   const recipePage = view.filter === "all" || view.filter === "menu" || view.filter === "archive";
+  // Remembered on this device: it reopens in kitchen mode until someone leaves it there.
+  const enterKitchen = () => {
+    try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
+    setView({ filter: "kitchen" });
+  };
 
   return (
     <header className="topbar">
@@ -36,6 +42,9 @@ export function Topbar() {
         )}
         <StockAlerts />
         <button className="topbar-icon" type="button" onClick={exportJson} aria-label={t("Esporta archivio")} title={t("Esporta archivio (copia di sicurezza in JSON)")}><DownloadIcon /></button>
+        <button className="button button-primary topbar-kitchen" type="button" onClick={enterKitchen} aria-label={t("Modalità cucina")} title={t("Prep list, temperature e checklist con pulsanti grandi")}>
+          <PlateIcon /><span>{t("Modalità cucina")}</span>
+        </button>
       </div>
     </header>
   );

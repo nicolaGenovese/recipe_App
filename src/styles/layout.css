@@ -49,6 +49,8 @@
 .global-search:focus-within { border-color: var(--field-border); outline: 3px solid var(--focus); outline-offset: 2px; }
 kbd { flex: 0 0 auto; padding: 2px 4px; border: 1px solid #d6d7d1; border-radius: 4px; color: #525450; background: #fafaf8; font-size: 12px; }
 .topbar-icon { display: grid; place-items: center; width: 33px; height: 33px; border: 1px solid transparent; border-radius: 8px; color: #4a4f47; background: transparent; cursor: pointer; }
+.topbar-kitchen { min-height: 38px; padding: 0 14px; font-size: 14px; }
+.button.topbar-kitchen svg { flex: 0 0 auto; width: 22px; height: 22px; stroke-width: 2.8; }
 .topbar-icon:hover { border-color: var(--line); background: #fff; }
 .topbar-icon svg { width: 17px; height: 17px; }
 .topbar-avatar { width: 29px; height: 29px; border-radius: 50%; color: #404936; background: #e0e6d6; }

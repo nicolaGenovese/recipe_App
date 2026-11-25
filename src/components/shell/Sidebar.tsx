@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, LeafIcon, MenuIcon, PlateIcon, PotIcon } from "@/components/ui/icons";
+import { BoxIcon, BrandIcon, CalendarIcon, ChartIcon, ClipboardIcon, ShieldIcon, GearIcon, GridIcon, LeafIcon, MenuIcon, PotIcon } from "@/components/ui/icons";
 import { availabilityLabel, dayNames } from "@/lib/menus/availability";
 import { sortMenus } from "@/lib/menus/menus";
 import { localeFor } from "@/lib/i18n";
-import { KITCHEN_KEY } from "@/lib/kitchen/today";
 import { useApp } from "@/state/AppProvider";
 import { ALL_CATEGORIES, type ViewFilter, type ViewState } from "@/state/view";
 
@@ -54,11 +53,6 @@ export function Sidebar() {
   const tabs: ViewFilter[] = ["all", "menus", "prep", "safety"];
   const inMore = !tabs.includes(view.filter) && view.filter !== "menu";
   const openFromSheet = (item: NavItem) => { setMoreOpen(false); item.open(); };
-  const enterKitchen = () => {
-    setMoreOpen(false);
-    try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
-    setView({ filter: "kitchen" });
-  };
   const storageLabel = !health ? t("Controllo l'archivio…") : health.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
 
   return (
@@ -109,10 +103,6 @@ export function Sidebar() {
             <span>{label}</span><span className="nav-count">{count}</span>
           </button>
         ))}
-        <button className="nav-item settings-link kitchen-link" type="button" onClick={enterKitchen}>
-          <span className="nav-icon" aria-hidden="true"><PlateIcon /></span>
-          <span>{t("Modalità cucina")}</span>
-        </button>
         {showSettings ? (
           <button className="nav-item settings-link" type="button" onClick={() => openDialog({ kind: "settings" })}>
             <span className="nav-icon" aria-hidden="true"><GearIcon /></span>
@@ -145,7 +135,6 @@ export function Sidebar() {
       <div className="mobile-sheet-backdrop" onClick={() => setMoreOpen(false)}>
         <div id="mobileMore" className="mobile-sheet" role="dialog" aria-label={t("Altro|nav")} onClick={(event) => event.stopPropagation()}>
           {access && access.sites.length > 1 ? <div className="mobile-sheet-site"><SitePicker /></div> : null}
-          <button className="mobile-sheet-kitchen" type="button" onClick={enterKitchen}><PlateIcon /><span><strong>{t("Modalità cucina")}</strong><small>{t("Prep list, temperature e checklist con pulsanti grandi")}</small></span></button>
           <div className="mobile-sheet-grid">
             {items.map((item) => (
               <button key={item.key} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onClick={() => openFromSheet(item)}>{item.icon}<span>{item.label}</span><small>{item.count}</small></button>
