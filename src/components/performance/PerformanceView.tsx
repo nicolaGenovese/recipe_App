@@ -46,7 +46,7 @@ export function PerformanceView() {
       </div>
       <div className="stock-head">
         <div className="editor-tabs stock-tabs">
-          {TABS.filter(([key]) => key !== "compare" || compare).map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>)}
+          {TABS.filter(([key]) => key !== "compare" || compare).map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} aria-pressed={tab === key} onClick={() => setTab(key)}>{t(label)}</button>)}
         </div>
         <div>
           {weekId !== thisWeek ? <button className="button button-quiet button-small" type="button" onClick={() => setWeekId(thisWeek)}>{t("Torna alla settimana corrente")}</button> : null}

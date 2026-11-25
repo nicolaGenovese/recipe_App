@@ -16,17 +16,17 @@
 .detail-two-col { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; }
 .detail-block { margin-bottom: 20px; }
 .detail-block h4 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; color: #5a6751; font-size: 12px; font-weight: 740; }
-.detail-block h4 small { color: #6c7068; font-size: 11px; font-weight: 450; }
+.detail-block h4 small { color: #6c7068; font-size: 12px; font-weight: 450; }
 .detail-text { color: #6a7267; font-size: 12px; line-height: 1.7; white-space: pre-line; }
 .detail-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.detail-table th { padding: 6px 5px; border-bottom: 1px solid #e9ebe5; color: #6c7068; font-size: 11px; font-weight: 600; text-align: left; }
+.detail-table th { padding: 6px 5px; border-bottom: 1px solid #e9ebe5; color: #6c7068; font-size: 12px; font-weight: 600; text-align: left; }
 .detail-table td { padding: 8px 5px; border-bottom: 1px solid #f0f1ec; color: #656e61; vertical-align: top; }
 .detail-table td:last-child { color: #45533e; font-weight: 650; text-align: right; white-space: nowrap; }
 .allergen-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-.allergen-tag { padding: 4px 7px; border-radius: 5px; color: #775537; background: #f5eee4; font-size: 11px; }
+.allergen-tag { padding: 4px 7px; border-radius: 5px; color: #775537; background: #f5eee4; font-size: 12px; }
 .check-pill-list { display: grid; gap: 6px; }
 .check-pill { display: flex; align-items: flex-start; gap: 7px; color: #6a7267; font-size: 12px; line-height: 1.5; }
-.check-pill::before { content: "✓"; display: grid; flex: 0 0 auto; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #5f744e; background: #edf1e7; font-size: 11px; }
+.check-pill::before { content: "✓"; display: grid; flex: 0 0 auto; place-items: center; width: 14px; height: 14px; border-radius: 50%; color: #5f744e; background: #edf1e7; font-size: 12px; }
 
 .detail-line { margin: 8px 0 0; color: #3f4a3a; font-size: 13px; line-height: 1.5; }
 .detail-line strong { margin-right: 6px; color: #5d6857; font-weight: 650; }

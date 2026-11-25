@@ -25,7 +25,7 @@ export function RecipeActionsDialog({ id }: { id: string }) {
   ] as [string, string, () => unknown, boolean][]).filter((option) => option[3]);
 
   return (
-    <Dialog>
+    <Dialog warnOnClose={false}>
       <DialogHeader kicker={t("AZIONI RICETTA")} title={recipe.name} subtitle={t("Scegli cosa fare con questa scheda.")} />
       <div className="dialog-body">
         <div className="print-options">

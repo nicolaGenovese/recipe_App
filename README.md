@@ -92,6 +92,7 @@ L'elenco completo è in [docs/FUNZIONI.md](docs/FUNZIONI.md).
 - **Modalità cucina** per tablet e telefono, con pulsanti grandi.
 - **Cassa e comande**: qualsiasi cassa con webhook manda le comande agli schermi della cucina (pass o una partita per schermo) e gli scontrini alle vendite.
 - **Compagnie, sedi, account, ruoli e permessi**, inviti con link e registro delle attività.
+- **Accessibile** (WCAG 2.2 AA): uso completo da tastiera con il focus sempre visibile, contrasti e testi leggibili, finestre e messaggi che funzionano con gli screen reader. Le regole per chi sviluppa sono in [docs/ARCHITETTURA.md](docs/ARCHITETTURA.md#accessibilità).
 
 ## Sicurezza
 

@@ -95,10 +95,25 @@ export function resolveRecipe(recipe: Recipe, stockItems: StockItem[], recipes: 
 }
 
 /** Recipes whose rows no longer match the catalogue, already brought up to date, ready to save. */
+/**
+ * The same data written the same way whatever the order of the keys: Postgres (jsonb) stores keys in
+ * its own order, so a recipe read back from Neon has its fields in a different order than it was sent.
+ */
+export function sameData(a: unknown, b: unknown): boolean {
+  const canonical = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(canonical);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([, item]) => item !== undefined).sort(([x], [y]) => (x < y ? -1 : x > y ? 1 : 0)).map(([key, item]) => [key, canonical(item)]));
+    }
+    return value;
+  };
+  return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
+}
+
 export function recipesOutOfSync(recipes: Recipe[], stockItems: StockItem[]): Recipe[] {
   return recipes.flatMap((recipe) => {
     const synced = resolveRecipe(recipe, stockItems, recipes);
-    return JSON.stringify(synced.ingredients) === JSON.stringify(recipe.ingredients || []) ? [] : [synced];
+    return sameData(synced.ingredients, recipe.ingredients || []) ? [] : [synced];
   });
 }
 

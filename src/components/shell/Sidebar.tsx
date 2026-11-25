@@ -49,7 +49,7 @@ export function Sidebar() {
     try { window.localStorage.setItem(KITCHEN_KEY, "1"); } catch { /* Kitchen mode then lasts until the page is reloaded. */ }
     setView({ filter: "kitchen" });
   };
-  const storageLabel = health?.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
+  const storageLabel = !health ? t("Controllo l'archivio…") : health.storage === "neon" ? "Neon Postgres" : t("Archivio in locale");
 
   return (
     <>
@@ -67,7 +67,7 @@ export function Sidebar() {
         {items.filter(([filter]) => filter !== "rota").map(([filter, label, icon, count]) => (
           <div key={filter} className="nav-group">
             <div className={"nav-row" + (filter === "menus" && dropdown ? " has-toggle" : "")}>
-              <button className={"nav-item" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
+              <button className={"nav-item" + (view.filter === filter ? " active" : "")} aria-current={view.filter === filter ? "page" : undefined} type="button" onClick={() => go({ filter })}>
                 <span className="nav-icon" aria-hidden="true">{icon}</span>
                 <span>{label}</span><span className="nav-count">{count}</span>
               </button>
@@ -78,7 +78,7 @@ export function Sidebar() {
               ) : null}
             </div>
             {filter === "menus" && showMenus ? <div id="sidebarMenus" className="nav-submenu">{menuLinks.map((menu) => (
-              <button key={menu.id} className={"nav-item nav-sub" + (view.filter === "menu" && view.menuId === menu.id ? " active" : "")} type="button" onClick={() => go({ filter: "menu", menuId: menu.id })}
+              <button key={menu.id} className={"nav-item nav-sub" + (view.filter === "menu" && view.menuId === menu.id ? " active" : "")} aria-current={view.filter === "menu" && view.menuId === menu.id ? "page" : undefined} type="button" onClick={() => go({ filter: "menu", menuId: menu.id })}
                 title={availabilityLabel(menu, dayName, t("Tutti i giorni")) || undefined}>
                 <span className="nav-icon" aria-hidden="true">·</span>
                 <span>{menu.name}</span><span className="nav-count">{menu.recipeIds.filter((id) => recipes.some((recipe) => recipe.id === id)).length}</span>
@@ -94,7 +94,7 @@ export function Sidebar() {
           <span>{storageLabel}{health && !health.connected ? " · " + t("non collegato") : ""}</span>
         </div>
         {items.filter(([filter]) => filter === "rota").map(([filter, label, icon, count]) => (
-          <button key={filter} className={"nav-item settings-link" + (view.filter === filter ? " active" : "")} type="button" onClick={() => go({ filter })}>
+          <button key={filter} className={"nav-item settings-link" + (view.filter === filter ? " active" : "")} aria-current={view.filter === filter ? "page" : undefined} type="button" onClick={() => go({ filter })}>
             <span className="nav-icon" aria-hidden="true">{icon}</span>
             <span>{label}</span><span className="nav-count">{count}</span>
           </button>
@@ -120,7 +120,7 @@ export function Sidebar() {
 
     <nav className="mobile-tabbar" aria-label={t("Navigazione principale")}>
       {items.filter(([filter]) => tabs.includes(filter)).map(([filter, label, icon]) => (
-        <button key={filter} type="button" className={view.filter === filter || (filter === "menus" && view.filter === "menu") ? "active" : ""} onClick={() => { setMoreOpen(false); go({ filter }); }}>
+        <button key={filter} type="button" className={view.filter === filter || (filter === "menus" && view.filter === "menu") ? "active" : ""} aria-current={view.filter === filter || (filter === "menus" && view.filter === "menu") ? "page" : undefined} onClick={() => { setMoreOpen(false); go({ filter }); }}>
           {icon}<span>{filter === "all" ? t("Ricette") : filter === "safety" ? t("Sicurezza") : label}</span>
         </button>
       ))}
@@ -135,13 +135,13 @@ export function Sidebar() {
           <button className="mobile-sheet-kitchen" type="button" onClick={enterKitchen}><PlateIcon /><span><strong>{t("Modalità cucina")}</strong><small>{t("Prep list, temperature e checklist con pulsanti grandi")}</small></span></button>
           <div className="mobile-sheet-grid">
             {items.map(([filter, label, icon, count]) => (
-              <button key={filter} type="button" className={view.filter === filter ? "active" : ""} onClick={() => goFromSheet({ filter })}>{icon}<span>{label}</span><small>{count}</small></button>
+              <button key={filter} type="button" className={view.filter === filter ? "active" : ""} aria-current={view.filter === filter ? "page" : undefined} onClick={() => goFromSheet({ filter })}>{icon}<span>{label}</span><small>{count}</small></button>
             ))}
           </div>
           {menuLinks.length ? (
             <div className="mobile-sheet-menus">
               <span>{t("Menu")}</span>
-              {menuLinks.map((menu) => <button key={menu.id} type="button" className={view.filter === "menu" && view.menuId === menu.id ? "active" : ""} onClick={() => goFromSheet({ filter: "menu", menuId: menu.id })}>{menu.name}</button>)}
+              {menuLinks.map((menu) => <button key={menu.id} type="button" className={view.filter === "menu" && view.menuId === menu.id ? "active" : ""} aria-current={view.filter === "menu" && view.menuId === menu.id ? "page" : undefined} onClick={() => goFromSheet({ filter: "menu", menuId: menu.id })}>{menu.name}</button>)}
             </div>
           ) : null}
           <div className="mobile-sheet-foot">

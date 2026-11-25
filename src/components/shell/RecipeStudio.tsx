@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DialogHost } from "@/components/shell/DialogHost";
 import { PageIntro } from "@/components/shell/PageIntro";
 import { Sidebar } from "@/components/shell/Sidebar";
@@ -17,12 +17,37 @@ import { PerformanceView } from "@/components/performance/PerformanceView";
 import { KitchenMode, ORDERS_ONLY_KEY, PANEL_KEY, STATION_KEY } from "@/components/kitchen/KitchenMode";
 import { KITCHEN_KEY, opensInKitchen } from "@/lib/kitchen/today";
 import { Toast } from "@/components/ui/bits";
+import { BrandIcon } from "@/components/ui/icons";
 import { useApp } from "@/state/AppProvider";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
+/**
+ * Shown when the archive could not be read at all. Without it the app would look like an empty
+ * kitchen and invite people to start again from nothing.
+ */
+function LoadError({ message }: { message: string }) {
+  const { t, reload, logout, accessProtected } = useApp();
+  const [trying, setTrying] = useState(false);
+  const retry = async () => { setTrying(true); await reload(); setTrying(false); };
+  return (
+    <main className="load-error" id="main-content">
+      <div className="load-error-card" role="alert">
+        <span className="brand-mark" aria-hidden="true"><BrandIcon /></span>
+        <h1>{t("Non riesco a caricare i dati della cucina")}</h1>
+        <p>{message}</p>
+        <p className="load-error-hint">{t("Non è stato cancellato niente: i dati restano nell'archivio e tornano appena la connessione riprende.")}</p>
+        <div className="load-error-actions">
+          <button className="button button-primary" type="button" disabled={trying} onClick={() => void retry()}>{t(trying ? "Riprovo…" : "Riprova")}</button>
+          {accessProtected ? <button className="button button-secondary" type="button" onClick={() => void logout()}>{t("Esci")}</button> : null}
+        </div>
+      </div>
+    </main>
+  );
+}
+
 /** The whole page: sidebar, top bar and either the recipe library or Food Stock. */
 export function RecipeStudio() {
-  const { view, setView, t, notify, loaded, can } = useApp();
+  const { view, setView, t, notify, loaded, loadError, can } = useApp();
   // Roles without "costs.view" get zeros from the server; the cost figures are hidden instead of showing £0.00.
   const hideCosts = !can("costs.view");
   useEffect(() => { document.body.classList.toggle("no-costs", hideCosts); }, [hideCosts]);
@@ -75,6 +100,10 @@ export function RecipeStudio() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
+  if (loadError) return <><LoadError message={loadError} /><Toast /></>;
+  // The server could not send the data with the page: wait for them instead of showing an empty kitchen.
+  if (!loaded) return <main className="load-error" id="main-content"><p className="load-waiting" role="status">{t("Carico i dati della cucina…")}</p></main>;
+
   if (view.filter === "kitchen") {
     return (
       <>
@@ -87,9 +116,10 @@ export function RecipeStudio() {
 
   return (
     <>
+      <a className="skip-link" href="#main-content">{t("Vai al contenuto")}</a>
       <div className="app-shell">
         <Sidebar />
-        <main className="main-area">
+        <main className="main-area" id="main-content" tabIndex={-1}>
           <Topbar />
           <div className="content-wrap">
             <PageIntro />

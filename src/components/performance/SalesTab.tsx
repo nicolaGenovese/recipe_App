@@ -132,7 +132,7 @@ function TypedSales({ weekId }: { weekId: string }) {
         </label>
         <span className="rota-actions-spacer" />
         <button className="button button-quiet button-small" type="button" onClick={() => file.current?.click()}>{t("Importa CSV dalla cassa")}</button>
-        <input ref={file} className="visually-hidden" type="file" accept=".csv,text/csv,text/plain" onChange={(event) => { const input = event.target.files?.[0]; if (input) void guard(() => importFile(input))(); event.target.value = ""; }} />
+        <input ref={file} className="visually-hidden" type="file" accept=".csv,text/csv,text/plain" tabIndex={-1} aria-hidden="true" onChange={(event) => { const input = event.target.files?.[0]; if (input) void guard(() => importFile(input))(); event.target.value = ""; }} />
         <button className="button button-primary button-small" type="button" disabled={!dirty} onClick={save}>{t(dirty ? "Salva vendite" : "Salvato")}</button>
       </div>
       <p className="field-hint">{t("Scrivi quanti piatti hai venduto. Se la cassa dà l'incasso della riga (IVA inclusa) lo uso, altrimenti uso il prezzo del menu. Il CSV deve avere nome del piatto, quantità e, se c'è, incasso.")}</p>

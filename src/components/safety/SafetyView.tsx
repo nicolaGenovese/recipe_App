@@ -67,7 +67,7 @@ export function SafetyView() {
 
       <div className="stock-head">
         <div className="editor-tabs stock-tabs">
-          {TABS.map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>)}
+          {TABS.map(([key, label]) => <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} aria-pressed={tab === key} onClick={() => setTab(key)}>{t(label)}</button>)}
         </div>
         <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "safetySettings" })}>{t("Impostazioni sicurezza")}</button>
       </div>

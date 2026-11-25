@@ -22,7 +22,8 @@ export async function readJson(request: Request): Promise<unknown> {
 function failure(error: unknown): NextResponse {
   if (error instanceof HttpError) return json(error.detail ? { error: error.message, detail: error.detail } : { error: error.message }, error.status);
   console.error("Richiesta non completata:", error instanceof Error ? error.message : error);
-  return json({ error: "Archivio non raggiungibile. Controlla DATABASE_URL e la connessione." }, 503);
+  // The technical cause stays in the server log (DATABASE_URL, network); the person gets what to do.
+  return json({ error: "Archivio non raggiungibile. Controlla la connessione e riprova tra poco; se continua, avvisa chi gestisce l'app." }, 503);
 }
 
 /** Wraps a route handler: known errors keep their status, anything else means storage is unreachable. */

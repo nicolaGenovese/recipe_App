@@ -7,7 +7,7 @@
 .menu-card, .prep-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #e7e8e1; border-radius: 12px; background: rgba(255,255,255,.86); }
 .menu-card.inactive { opacity: .72; }
 .menu-card-head, .prep-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.menu-card-head h3, .prep-card-head h3 { margin: 6px 0 2px; color: #30392e; font-size: 16px; }
+.menu-card-head h2, .menu-card-head h3, .prep-card-head h2, .prep-card-head h3 { margin: 6px 0 2px; color: #30392e; font-size: 16px; }
 .menu-card-head p, .prep-card-head p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .menu-card .card-more { border-color: var(--line); }
 .menu-status { display: inline-flex; align-items: center; min-height: 20px; padding: 0 8px; border-radius: 999px; color: #6b6f66; background: var(--soft); font-size: 12px; font-weight: 600; }
@@ -27,8 +27,8 @@ button.menu-flag { cursor: pointer; }
 button.menu-flag:hover { border-color: #cfd8c2; background: #f5f7f0; }
 .menu-dishes { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
 .menu-dishes li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: 1px solid #f0f1eb; color: #687063; font-size: 13px; }
-.menu-dishes button { padding: 0; border: 0; color: #3f4a3a; background: none; font-weight: 560; text-align: left; cursor: pointer; }
-.menu-dishes button:hover { color: var(--green); text-decoration: underline; }
+.menu-dishes button { min-height: 24px; padding: 2px 0; border: 0; color: #3f4a3a; background: none; font-weight: 560; text-align: left; cursor: pointer; }
+.menu-dishes button:hover { color: var(--green-text); text-decoration: underline; }
 .menu-dishes .menu-more { color: #6c6f68; font-style: italic; }
 .menu-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
 
@@ -50,7 +50,7 @@ button.menu-flag:hover { border-color: #cfd8c2; background: #f5f7f0; }
 .menu-editor { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .menu-editor-pane { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafaf7; }
 .menu-editor-pane h4 { margin: 0; color: #4d5a46; font-size: 13px; }
-.menu-editor-pane input[type="search"] { width: 100%; min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.menu-editor-pane input[type="search"] { width: 100%; min-height: 34px; padding: 0 10px; border: 1px solid var(--field-border); border-radius: 8px; background: #fff; }
 .menu-pick, .menu-order { display: grid; gap: 4px; max-height: 320px; overflow: auto; margin: 0; padding: 0; list-style: none; }
 .menu-pick button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 7px 9px; border: 1px solid transparent; border-radius: 7px; background: #fff; text-align: left; cursor: pointer; }
 .menu-pick button:hover { border-color: #cfd8c2; }
@@ -60,7 +60,7 @@ button.menu-flag:hover { border-color: #cfd8c2; background: #f5f7f0; }
 .menu-order-tools { display: flex; gap: 3px; }
 .menu-order-tools button:disabled { opacity: .3; cursor: default; }
 .print-menu-pick { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: #5d6857; font-size: 13px; }
-.print-menu-pick select { min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.print-menu-pick select { min-height: 32px; padding: 0 8px; border: 1px solid var(--field-border); border-radius: 8px; background: #fff; }
 .category-tag.muted { opacity: .6; }
 
 .prep-plan { display: grid; gap: 10px; margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafaf7; }
@@ -68,14 +68,14 @@ button.menu-flag:hover { border-color: #cfd8c2; background: #f5f7f0; }
 .prep-portions { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px; }
 .prep-portion { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 8px; border-radius: 7px; background: #fff; color: #4b5645; font-size: 13px; }
 .prep-portion span { min-width: 0; overflow-wrap: anywhere; }
-.prep-portion input { flex: 0 0 64px; width: 64px; min-height: 28px; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; text-align: right; }
+.prep-portion input { flex: 0 0 64px; width: 64px; min-height: 28px; padding: 0 6px; border: 1px solid var(--field-border); border-radius: 6px; text-align: right; }
 .prep-plan-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .prep-tasks-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 0 8px; }
 .prep-table td { vertical-align: top; }
 .prep-table input:not([type="checkbox"]) { width: 100%; min-width: 54px; }
 .prep-table .prep-unit { max-width: 64px; }
 .prep-name-cell { min-width: 230px; }
-.prep-base-tag { display: block; margin-top: 3px; color: var(--green); font-size: 12px; }
+.prep-base-tag { display: block; margin-top: 3px; color: var(--green-text); font-size: 12px; }
 .prep-dishes-cell { min-width: 190px; }
 .prep-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .prep-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 4px 2px 8px; border-radius: 999px; color: var(--green-dark); background: var(--sage); font-size: 12px; }
@@ -126,7 +126,7 @@ button.menu-flag:hover { border-color: #cfd8c2; background: #f5f7f0; }
 .menu-quick-new { min-height: 30px; padding: 0 12px; border: 1px dashed #c9d1bd; border-radius: 999px; color: var(--green-dark); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
 .menu-quick-new:hover { border-color: var(--green); background: var(--sage); }
 .menu-quick-add { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.menu-quick-add input { width: 180px; min-height: 30px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; }
+.menu-quick-add input { width: 180px; min-height: 30px; padding: 0 10px; border: 1px solid var(--field-border); border-radius: 999px; }
 .menu-editor-pane .menu-quick-new { justify-self: start; }
 .menu-editor-pane .menu-quick-add input { width: 200px; }
 .menu-pick .menu-pick-create { border-color: #cfd8c2; border-style: dashed; background: #f6f8f1; }

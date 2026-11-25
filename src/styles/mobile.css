@@ -1,6 +1,6 @@
 /* Phones and touch screens. Imported after responsive.css, so it overrides the compact sizes there. */
 .topbar-brand, .mobile-tabbar, .mobile-sheet-backdrop { display: none; }
-.kitchen-link .nav-icon { color: var(--green); }
+.kitchen-link .nav-icon { color: var(--green-text); }
 
 @media (max-width: 780px) {
   /* The side bar gives way to a tab bar at the bottom, within reach of the thumb. */
@@ -21,7 +21,7 @@
   .content-wrap { padding: 20px 14px 24px; }
 
   .mobile-tabbar { position: fixed; z-index: 9; inset: auto 0 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid #e3e6dc; background: rgba(250,250,247,.97); backdrop-filter: blur(12px); }
-  .mobile-tabbar button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border: 0; border-radius: 12px; color: #757c70; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mobile-tabbar button { display: grid; justify-items: center; gap: 3px; min-height: 52px; padding: 6px 2px; border: 0; border-radius: 12px; color: #5d6458; background: transparent; font-size: 12px; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .mobile-tabbar button svg { width: 22px; height: 22px; }
   .mobile-tabbar button.active { color: var(--green-dark); background: var(--sage); }
   .tabbar-dots { height: 22px; font-size: 20px; font-weight: 800; line-height: 18px; letter-spacing: 1px; }
@@ -35,37 +35,37 @@
   .mobile-sheet-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .mobile-sheet-grid button { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: #4d5a46; background: #fff; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
   .mobile-sheet-grid button span { flex: 1; min-width: 0; }
-  .mobile-sheet-grid button small { color: #9ca194; font-size: 12px; }
+  .mobile-sheet-grid button small { color: #646a5f; font-size: 12px; }
   .mobile-sheet-grid button.active { border-color: var(--green); background: var(--sage); }
   .mobile-sheet-menus { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 14px; }
-  .mobile-sheet-menus > span { width: 100%; color: #8b9086; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
+  .mobile-sheet-menus > span { width: 100%; color: #5f665a; font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
   .mobile-sheet-menus button { min-height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; color: #4d5a46; background: #fff; font-size: 13px; cursor: pointer; }
   .mobile-sheet-menus button.active { border-color: var(--green); background: var(--sage); }
   .mobile-sheet-foot { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
   .mobile-sheet-foot button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; color: #5d6857; background: #fff; font-size: 14px; cursor: pointer; }
-  .toast { right: 12px; bottom: calc(84px + env(safe-area-inset-bottom)); left: 12px; max-width: none; font-size: 14px; }
+  .toast, .toast[popover] { inset: auto 12px calc(84px + env(safe-area-inset-bottom)) 12px; max-width: none; font-size: 14px; }
 
   /* Readable text: nothing below 11px on a phone. */
   .page-subtitle { font-size: 13px; }
-  .eyebrow, .dialog-kicker { font-size: 10px; }
+  .eyebrow, .dialog-kicker { font-size: 12px; }
   .filter-tab { font-size: 12px; }
   .sort-tools select { max-width: 140px; min-height: 36px; font-size: 13px; }
-  .overview-label, .overview-foot { font-size: 10px; }
+  .overview-label, .overview-foot { font-size: 12px; }
   .card-title { font-size: 14px; }
   .card-description { font-size: 12px; }
-  .card-stat, .card-cost small { font-size: 11px; }
+  .card-stat, .card-cost small { font-size: 12px; }
   .card-cost { font-size: 13px; }
-  .list-layout .card-flag { font-size: 10px; }
+  .list-layout .card-flag { font-size: 12px; }
   .card-action { width: 34px; height: 34px; }
-  .page-footer { font-size: 11px; }
+  .page-footer { font-size: 12px; }
   .button { min-height: 42px; padding: 0 14px; font-size: 13px; }
   .button-small, .button-quiet { min-height: 38px; font-size: 12px; }
-  .field-hint { font-size: 11px; }
+  .field-hint { font-size: 12px; }
   .form-field > label, .field-label { font-size: 12px; }
   .form-field input:not([type=checkbox]):not([type=file]), .form-field select, .form-field textarea { min-height: 44px; font-size: 16px; }
   .form-check, .check-option { min-height: 40px; font-size: 13px; }
   .menu-stats { grid-template-columns: repeat(3, 1fr); }
-  .menu-stats span { font-size: 10px; }
+  .menu-stats span { font-size: 12px; }
   .menu-dishes li, .menu-note { font-size: 12px; }
   .prep-card-tasks label { min-height: 40px; }
   .stock-table th, .stock-table td { font-size: 12px; }

@@ -41,7 +41,7 @@ export function RecipeLibrary() {
           {rights.canCreate ? <button className="button button-quiet" type="button" onClick={() => fileInput.current?.click()}><UploadIcon />{t("Importa")}</button> : null}
           <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "print", menuId: pickedMenu?.id })}><PrintIcon />{t("Stampe")}</button>
           <input
-            ref={fileInput} className="visually-hidden" type="file" accept="application/json,.json"
+            ref={fileInput} className="visually-hidden" type="file" accept="application/json,.json" tabIndex={-1} aria-hidden="true"
             onChange={async (event) => { const file = event.target.files?.[0]; if (file) await importJson(file); event.target.value = ""; }}
           />
         </div>
@@ -64,7 +64,7 @@ export function RecipeLibrary() {
       <div className="list-controls">
         <div className="filter-tabs" role="group" aria-label={t("Filtra ricette")}>
           {([["all", "Tutte"], ["menu", "In menu"], ["archive", "Basi"]] as [ViewFilter, string][]).map(([filter, label]) => (
-            <button key={filter} type="button" className={"filter-tab" + (view.filter === filter && !(filter === "menu" && view.menuId) ? " active" : "")} onClick={() => setView({ filter, menuId: null, category: ALL_CATEGORIES, page: 1 })}>
+            <button key={filter} type="button" className={"filter-tab" + (view.filter === filter && !(filter === "menu" && view.menuId) ? " active" : "")} aria-pressed={view.filter === filter && !(filter === "menu" && view.menuId)} onClick={() => setView({ filter, menuId: null, category: ALL_CATEGORIES, page: 1 })}>
               {t(label)} <span>{count(filter)}</span>
             </button>
           ))}
@@ -76,8 +76,8 @@ export function RecipeLibrary() {
             <option value="cost-low">{t("Costo più basso")}</option><option value="category">{t("Categoria")}</option>
           </select>
           <span className="control-divider" />
-          <button type="button" className={"view-toggle" + (view.layout === "grid" ? " active" : "")} onClick={() => setView({ layout: "grid" })} aria-label={t("Vista a schede")} title={t("Vista a schede")}><GridIcon /></button>
-          <button type="button" className={"view-toggle" + (view.layout === "list" ? " active" : "")} onClick={() => setView({ layout: "list" })} aria-label={t("Vista elenco")} title={t("Vista elenco")}><ListIcon /></button>
+          <button type="button" className={"view-toggle" + (view.layout === "grid" ? " active" : "")} aria-pressed={view.layout === "grid"} onClick={() => setView({ layout: "grid" })} aria-label={t("Vista a schede")} title={t("Vista a schede")}><GridIcon /></button>
+          <button type="button" className={"view-toggle" + (view.layout === "list" ? " active" : "")} aria-pressed={view.layout === "list"} onClick={() => setView({ layout: "list" })} aria-label={t("Vista elenco")} title={t("Vista elenco")}><ListIcon /></button>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { linkByName, recipesOutOfSync, recipesUsing, resolveIngredient } from "@/lib/recipes/catalog";
+import { linkByName, recipesOutOfSync, recipesUsing, resolveIngredient, sameData } from "@/lib/recipes/catalog";
 import type { Ingredient, Recipe, StockItem } from "@/lib/types";
 
 const butter = {
@@ -37,6 +37,10 @@ describe("ingredient catalogue", () => {
     expect(synced).toHaveLength(1);
     expect(synced[0].ingredients[0].allergens).toEqual(["Latte"]);
     expect(recipesOutOfSync(synced, [butter])).toEqual([]);
+    // Read back from Postgres the keys come in another order: still in sync, nothing to save again.
+    const reordered = synced.map((recipe) => ({ ...recipe, ingredients: recipe.ingredients.map((row) => Object.fromEntries(Object.entries(row).reverse()) as typeof row) }));
+    expect(recipesOutOfSync(reordered, [butter])).toEqual([]);
+    expect(sameData({ a: 1, b: [{ x: 1, y: undefined }] }, { b: [{ x: 1 }], a: 1 })).toBe(true);
     expect(recipesUsing("p1", [dish, sauce]).map((recipe) => recipe.id)).toEqual(["d", "sauce"]);
   });
 });

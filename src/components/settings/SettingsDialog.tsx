@@ -70,15 +70,15 @@ export function SettingsDialog({ initialTab }: { initialTab?: SettingsTab }) {
   });
 
   return (
-    <Dialog size={onCompany || onOrders || (onPeople && manage) ? "wide" : "normal"}>
+    <Dialog size={onCompany || onOrders || (onPeople && manage) ? "wide" : "normal"} warnOnClose={!onCompany && !onOrders}>
       <DialogHeader kicker={access ? access.company.name.toUpperCase() : t("IL TUO SPAZIO")} title={t("Impostazioni")}
         subtitle={t(access ? "La cucina (valuta, lingua, GP, personale, liste) e la compagnia (persone, sedi, ruoli e permessi)." : "Valuta, lingua, calcolo GP, personale e liste della tua cucina.")} />
       <div className="settings-layout">
-        <nav className="settings-nav">
+        <nav className="settings-nav" aria-label={t("Sezioni delle impostazioni")}>
           {tabs.length && company.length ? <span className="settings-nav-group">{t("Cucina")}</span> : null}
-          {tabs.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{title}</button>)}
+          {tabs.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} aria-pressed={tab === key} onClick={() => setTab(key)}>{title}</button>)}
           {company.length ? <span className="settings-nav-group">{t("Compagnia")}</span> : null}
-          {company.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{title}</button>)}
+          {company.map(([key, title]) => <button key={key} type="button" className={tab === key ? "active" : ""} aria-pressed={tab === key} onClick={() => setTab(key)}>{title}</button>)}
         </nav>
         <div className="settings-body">
           {onOrders ? <OrdersPane /> : onCompany ? <section className="settings-pane active settings-company"><CompanySettings key={tab} section={tab} /></section> : onPeople ? (

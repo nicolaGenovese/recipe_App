@@ -31,7 +31,7 @@ export function PrintDialog({ mode: initialMode = "recipes", recipeId, menuId: i
     : dishesOfMenus(data.menus, data.menus.filter((row) => row.active).map((row) => row.id), data.recipes);
 
   return (
-    <Dialog>
+    <Dialog warnOnClose={false}>
       <DialogHeader kicker={t("STAMPA ED ESPORTAZIONE")} title={t("Prepara le tue stampe")} subtitle={t("Scegli il formato e controlla l'anteprima.")} />
       <div className="dialog-body">
         <div className="print-options">

@@ -49,7 +49,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
   const allergenInfo = allergenStatus(recipe, data.stockItems, data.recipes);
 
   return (
-    <Dialog>
+    <Dialog warnOnClose={false}>
       <DialogHeader kicker={t("SCHEDA RICETTA")} title={recipe.name} subtitle={recipe.description || t("Dettagli, ingredienti e indicazioni per la cucina.")} />
       <div className="detail-hero">
         <div className={"detail-photo cover-" + coverType(recipe)}>

@@ -19,7 +19,7 @@ function PrepCard({ list }: { list: PrepList }) {
       <header className="prep-card-head">
         <div>
           <span className="menu-status on">{f.dateLabel(list.date)}</span>
-          <h3>{list.name}</h3>
+          <h2>{list.name}</h2>
           <p>{menus.length ? menus.join(" · ") : t("Nessun menu collegato")}</p>
         </div>
         <div className="prep-progress" title={fmt(t("{0} di {1} fatte"), done, total)}>

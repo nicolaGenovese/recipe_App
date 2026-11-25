@@ -44,7 +44,7 @@ export function SummaryTab({ weekId }: { weekId: string }) {
       </div>
 
       <section className="perf-days">
-        <h4>{t("Costo del personale per giorno")}</h4>
+        <h3>{t("Costo del personale per giorno")}</h3>
         <div className="stock-table-wrap">
           <table className="stock-table">
             <thead><tr>{makeRotaFormat(f.locale).dayHeads(weekId).map((head) => <th key={head.key}>{head.name} {head.day}</th>)}<th>{t("Totale")}</th></tr></thead>
@@ -60,7 +60,7 @@ export function SummaryTab({ weekId }: { weekId: string }) {
 
       <div className="perf-columns">
         <section>
-          <h4>{t("Sprechi per motivo")}</h4>
+          <h3>{t("Sprechi per motivo")}</h3>
           <table className="stock-table">
             <tbody>
               {WASTE_REASONS.map((reason) => <tr key={reason}><td>{t(REASON_LABELS[reason])}</td><td className="stock-value">{f.money(waste.byReason[reason])}</td></tr>)}
@@ -69,7 +69,7 @@ export function SummaryTab({ weekId }: { weekId: string }) {
           </table>
         </section>
         <section>
-          <h4>{t("Cosa si butta di più")}</h4>
+          <h3>{t("Cosa si butta di più")}</h3>
           <table className="stock-table">
             <tbody>
               {waste.byItem.slice(0, 6).map((row) => <tr key={row.name}><td>{row.name} <small>×{row.count}</small></td><td className="stock-value">{f.money(row.cost)}</td></tr>)}

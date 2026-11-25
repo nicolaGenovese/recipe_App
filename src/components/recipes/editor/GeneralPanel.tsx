@@ -91,7 +91,7 @@ export function GeneralPanel({ form, patch }: { form: RecipeForm; patch: FormPat
             <div className="image-picker">
               <div className="image-preview">{form.image ? <img src={form.image} alt={t("Anteprima")} /> : <PlateIcon />}</div>
               <div>
-                <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => pickImage(event.target.files?.[0])} />
+                <input type="file" accept="image/png,image/jpeg,image/webp" aria-label={t("Foto della ricetta")} onChange={(event) => pickImage(event.target.files?.[0])} />
                 <p>{t("JPG, PNG o WebP · max 1,5 MB")}</p>
               </div>
             </div>

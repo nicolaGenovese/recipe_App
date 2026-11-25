@@ -8,12 +8,12 @@
 .settings-pane > p { margin-bottom: 13px; color: #6c6f68; font-size: 12px; line-height: 1.55; }
 .editable-list { display: grid; gap: 6px; }
 .editable-row { display: flex; align-items: center; gap: 7px; }
-.editable-row input { flex: 1; min-width: 0; height: 32px; padding: 0 8px; border: 1px solid #e7e9e2; border-radius: 6px; color: #596254; background: #fff; font-size: 12px; }
+.editable-row input { flex: 1; min-width: 0; height: 32px; padding: 0 8px; border: 1px solid var(--field-border); border-radius: 6px; color: #596254; background: #fff; font-size: 12px; }
 .editable-row button { display: grid; flex: 0 0 auto; place-items: center; width: 27px; height: 27px; border: 0; border-radius: 5px; color: #766e67; background: transparent; font-size: 14px; cursor: pointer; }
 .editable-row button:hover { color: #a34e3f; background: #fbefeb; }
-.settings-add { margin-top: 9px; padding: 0; border: 0; color: #61764f; background: transparent; font-size: 12px; font-weight: 650; cursor: pointer; }
+.settings-add { min-height: 28px; margin-top: 6px; padding: 0; border: 0; color: #4e6239; background: transparent; font-size: 12px; font-weight: 650; cursor: pointer; }
 .settings-add:hover { color: #394b31; }
-.settings-note { margin-top: 14px; padding: 9px 10px; border-radius: 7px; color: #6c7167; background: #f0f2eb; font-size: 11px; line-height: 1.55; }
+.settings-note { margin-top: 14px; padding: 9px 10px; border-radius: 7px; color: #5c6157; background: #f0f2eb; font-size: 12px; line-height: 1.55; }
 /* Settings: general and GP rules */
 .settings-pane .form-grid { margin-bottom: 12px; }
 .settings-subtitle { margin: 16px 0 9px; color: #68725f; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
@@ -24,12 +24,12 @@
 .settings-check small { color: #6c6f68; font-size: 12px; line-height: 1.45; }
 
 /* Staff list. */
-.staff-table input:not([type="checkbox"]) { width: 100%; min-height: 30px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.staff-table input:not([type="checkbox"]) { width: 100%; min-height: 30px; padding: 0 7px; border: 1px solid var(--field-border); border-radius: 6px; background: #fff; }
 .staff-table td:nth-child(3) input { max-width: 90px; text-align: right; }
 .staff-table input[type="checkbox"] { accent-color: var(--green); }
 .staff-inactive td { opacity: .55; }
 .settings-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; color: #5d6857; font-size: 13px; }
-.settings-inline input { width: 80px; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 7px; }
+.settings-inline input { width: 80px; min-height: 30px; padding: 0 6px; border: 1px solid var(--field-border); border-radius: 7px; }
 .rota-name { display: block; color: #30392e; font-weight: 600; }
 .rota-person-meta { display: block; margin-top: 2px; color: #6c7168; font-size: 12px; }
 .rota-person-meta.missing { color: #a3593f; }

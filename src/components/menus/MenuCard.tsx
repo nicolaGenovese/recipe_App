@@ -26,7 +26,7 @@ export function MenuCard({ menu }: { menu: Menu }) {
       <header className="menu-card-head">
         <div>
           <span className={"menu-status" + (menu.active ? " on" : "")}>{t(menu.active ? "Attivo" : "Sospeso")}</span>
-          <h3>{menu.name}</h3>
+          <h2>{menu.name}</h2>
           {menu.description ? <p>{menu.description}</p> : null}
           {when ? (
             <span className="menu-when">

@@ -175,6 +175,21 @@ Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tab
 2. Crea il componente usando `Dialog` e `DialogHeader` da `components/ui/Dialog.tsx`.
 3. Aggiungi il caso in `components/shell/DialogHost.tsx` e aprila con `openDialog({ kind: "…" })`.
 
+## Accessibilità
+
+Obiettivo: WCAG 2.2 livello AA. Regole da seguire per ogni pagina nuova:
+
+- **Colori** (`styles/tokens.css`): testo almeno 4,5:1 sullo sfondo (3:1 sopra i 24 px, o 18,7 px in grassetto). Per il testo verde si usa `--green-text`, non `--green`, che sui fondi chiari si ferma a 4,2:1. I bordi dei campi usano `--field-border` (almeno 3:1 su bianco e sulla carta); `--line` resta per i divisori.
+- **Focus da tastiera**: un anello blu `--focus` su ogni controllo, definito una volta in `tokens.css` con `:focus-visible`. Non scrivere `outline: 0`; se un campo non può mostrarlo, lo mostra il riquadro intorno con `:focus-within`, come la ricerca in alto.
+- **Testo**: almeno 12 px a schermo (le stampe possono scendere). Anche `<small>` ha il minimo di 12 px.
+- **Bersagli**: pulsanti e link alti almeno 24 px (28 per i filtri e le voci aggiunte); in modalità cucina molto di più.
+- **Stato**: un pulsante che si comporta da scheda o filtro ha `aria-pressed`, una voce di navigazione della pagina aperta ha `aria-current="page"`. Il colore da solo non basta.
+- **Finestre** (`components/ui/Dialog.tsx`): il titolo è collegato alla finestra (`aria-labelledby`), il focus va sul primo campo e torna al pulsante che l'ha aperta. Esc, la × e il clic fuori chiedono prima di perdere quello che è stato scritto; per le finestre che non sono moduli (stampa, scheda ricetta, azioni) si passa `warnOnClose={false}`. I campi di ricerca (`type="search"` o `data-not-an-edit`) non contano come modifiche. Il pulsante principale del piè di pagina azzera l'avviso, perché salva.
+- **Messaggi** (`Toast` in `components/ui/bits.tsx`): gli errori vengono letti subito (`role="alert"`) e restano finché non si chiudono; gli altri si leggono con calma (`role="status"`) e spariscono da soli. Il messaggio è un popover, quindi resta sopra una finestra aperta.
+- **Struttura**: «Vai al contenuto» è il primo elemento raggiungibile con Tab; ogni pagina ha un solo `h1` e i livelli dei titoli non saltano; i campi file nascosti dietro un pulsante hanno `tabIndex={-1}`.
+- **Movimento**: con «riduci movimento» nel sistema animazioni e transizioni si spengono.
+- **Controllo**: in fondo a una modifica conviene passare la pagina con la tastiera (Tab, Invio, Esc) e controllare i contrasti dei colori nuovi.
+
 ## Traduzioni
 
 Il testo italiano è la chiave: scrivi `t("Salva bozza")` e aggiungi `"Salva bozza": "Save draft"` in `lib/i18n/en.ts`. Una chiave mancante mostra il testo italiano anche in inglese. Per i testi con valori usa `fmt(t("Stock {0}"), numero)`. Per i simboli di valuta scrivi "€" nel testo e passa da `f.withCurrency(…)`.
@@ -189,7 +204,9 @@ Il testo italiano è la chiave: scrivi `t("Salva bozza")` e aggiungi `"Salva boz
 - **Turni.** Si possono modificare la settimana corrente e le tre successive; le settimane prima sono storico in sola lettura. Le modifiche si salvano da sole 0,7 secondi dopo l'ultima battuta, una alla volta in coda (`useRotaActions`). L'esportazione Excel carica `public/vendor/xlsx.full.min.js` (SheetJS, preso dalla vecchia app) solo al primo clic. La stampa crea il foglio fuori da `.app-shell`, che le regole di stampa nascondono.
 - **Report inviati.** All'invio il report salva le regole GP in `gpRules` e da lì in poi usa quelle. Riaprirlo le toglie.
 - **Celle dell'inventario.** Si salvano all'uscita dalla cella o con Invio, una alla volta in coda.
-- **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni, tracce e kcal. Lo fa solo chi può modificare quelle ricette.
+- **Catalogo ingredienti.** Il magazzino è l'unica fonte dei dati di un ingrediente. All'avvio e dopo ogni modifica a prodotti, consegne o ricette base, le ricette vengono riallineate al catalogo (`useRecipeActions().syncRecipeCosts`, `lib/recipes/catalog.ts`) e risalvate se qualcosa è cambiato: costo, ma anche nome, fornitore, allergeni, tracce e kcal. Lo fa solo chi può modificare quelle ricette. Il confronto usa `sameData`, che non guarda l'ordine delle chiavi: Postgres (jsonb) le rimette in un ordine suo, e un confronto del testo JSON faceva risalvare tutte le ricette a ogni apertura.
+- **Connessione degli account.** Better Auth usa un gruppo di connessioni WebSocket a Neon (`lib/server/auth/auth.ts`). Se la lettura della sessione fallisce, `resetAuth()` lo ricrea e la lettura si riprova una volta, così un database che si risveglia o una rete che cade per un attimo non fanno uscire nessuno.
+- **Archivio irraggiungibile all'apertura.** Se la pagina arriva senza dati, l'app mostra «Carico i dati della cucina…» e, se anche il secondo tentativo fallisce, una schermata con «Riprova» (`loadError` in `AppProvider`), mai una cucina vuota.
 - **Permessi.** La protezione vera è sul server: ogni route chiede il contesto e il permesso. Il browser nasconde solo i pulsanti e le cifre (`body.no-costs`, `body.no-pay`) che il ruolo non può usare; i dati nascosti arrivano già a zero da `redactState`.
 - **Compagnie e sedi.** Le funzioni di `lib/server/directory.ts` leggono come proprietario del database, quindi ognuna controlla da sé la compagnia. I dati invece passano sempre da `store.scoped(...)`, che usa il ruolo limitato `rs_tenant` e la row-level security.
 - **Cassa e comande.** Il webhook `/api/pos/:token` è l'unica API senza account: `findPosSite` cerca il token come proprietario del database, poi tutto passa da `store.scoped(...)` della sede trovata. Le comande non sono in `/api/state` (crescono ogni sera): gli schermi le chiedono a `/api/orders`. Le vendite della cassa invece sì, già sommate per settimana in `salesWeeks`.

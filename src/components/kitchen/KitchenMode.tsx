@@ -112,10 +112,11 @@ export function KitchenMode() {
   );
 
   // A screen for orders only (fixed at the pass or a station): no clock, tabs or other sections.
-  if (panel === "orders" && ordersOnly) return <div className="kitchen kitchen-orders-only">{orders}</div>;
+  if (panel === "orders" && ordersOnly) return <div className="kitchen kitchen-orders-only"><h1 className="visually-hidden">{t("Comande")}</h1>{orders}</div>;
 
   return (
     <div className="kitchen">
+      <h1 className="visually-hidden">{t("Modalità cucina")}</h1>
       <header className="kitchen-head">
         <div className="kitchen-when">
           <strong>{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</strong>

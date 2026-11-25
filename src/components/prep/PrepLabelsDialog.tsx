@@ -33,7 +33,7 @@ export function PrepLabelsDialog({ id }: { id: string }) {
   const labels = rows.filter((row) => row.include).flatMap((row) => Array.from({ length: Math.min(50, Math.max(0, Math.round(num(row.copies)))) }, (_, copy) => ({ ...row, key: row.taskId + ":" + copy })));
 
   return (
-    <Dialog size="wide">
+    <Dialog size="wide" warnOnClose={false}>
       <DialogHeader kicker={t("ETICHETTE")} title={list.name} subtitle={t("Data di preparazione e di scadenza per ogni preparazione. I giorni arrivano dalla ricetta base, se indicati.")} />
       <div className="dialog-body">
         <div className="labels-edit">

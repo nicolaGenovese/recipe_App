@@ -6,15 +6,15 @@
 .stock-tabs .editor-tab { font-size: 13px; }
 .stock-generate, .stock-toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 18px; }
 .stock-generate .form-field { width: 170px; }
-.stock-toolbar input[type=search], .stock-toolbar select { min-width: 0; height: 36px; padding: 0 9px; border: 1px solid #e4e7de; border-radius: 7px; color: #343d32; background: #fff; font-size: 13px; }
+.stock-toolbar input[type=search], .stock-toolbar select { min-width: 0; height: 36px; padding: 0 9px; border: 1px solid var(--field-border); border-radius: 7px; color: #343d32; background: #fff; font-size: 13px; }
 .stock-toolbar input[type=search] { flex: 1 1 220px; }
 .stock-table-wrap { overflow-x: auto; border: 1px solid #e7e8e1; border-radius: 10px; background: #fff; }
 .stock-table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 .stock-table th { padding: 9px 10px; border-bottom: 1px solid #e9ebe5; color: #6b7167; background: #f5f6f1; font-size: 12px; font-weight: 650; text-align: left; white-space: nowrap; }
 .stock-table td { padding: 8px 10px; border-bottom: 1px solid #f0f1ec; color: #565f52; vertical-align: middle; }
 .stock-table tbody tr:last-child td { border-bottom: 0; }
-.stock-link { padding: 0; border: 0; color: var(--green-dark); background: transparent; font-weight: 680; cursor: pointer; }
-.stock-link:hover { color: var(--green); }
+.stock-link { min-height: 24px; padding: 0; border: 0; color: var(--green-dark); background: transparent; font-weight: 680; cursor: pointer; }
+.stock-link:hover { color: var(--green-text); }
 .stock-expansion > td { padding: 12px; background: #f7f8f3; }
 .stock-summary { max-width: 560px; margin-bottom: 11px; border: 1px solid #e7e8e1; background: #fff; }
 .stock-summary td:last-child, .stock-summary th:last-child { text-align: right; }
@@ -26,7 +26,7 @@
 .stock-supplier h3 { margin-bottom: 8px; padding: 8px 10px; border-radius: 7px; color: #4b5c42; background: #e4ebdb; font-size: 13px; font-weight: 680; }
 .stock-lines td:last-child, .stock-lines th:last-child { text-align: right; }
 .stock-lines td:first-child { min-width: 190px; }
-.stock-lines input { width: 74px; height: 29px; padding: 0 6px; border: 1px solid #e4e7de; border-radius: 5px; color: #343d32; background: #fcfcfa; font-size: 13px; }
+.stock-lines input { width: 74px; height: 29px; padding: 0 6px; border: 1px solid var(--field-border); border-radius: 5px; color: #343d32; background: #fcfcfa; font-size: 13px; }
 .stock-lines .stock-group td { text-align: left; }
 .stock-group td { color: #4c5845; background: #f0f1ea; font-weight: 680; }
 .stock-value { font-weight: 650; white-space: nowrap; }
@@ -70,7 +70,7 @@
 .stock-pick-row strong { display: block; overflow: hidden; color: #3f4b39; font-weight: 640; text-overflow: ellipsis; white-space: nowrap; }
 .stock-pick-row small { color: #6b6f67; font-size: 12px; }
 .stock-pick-qty { display: flex; align-items: center; gap: 5px; }
-.stock-pick-qty input { width: 84px; height: 29px; padding: 0 6px; border: 1px solid #e4e7de; border-radius: 5px; background: #fcfcfa; font-size: 13px; }
+.stock-pick-qty input { width: 84px; height: 29px; padding: 0 6px; border: 1px solid var(--field-border); border-radius: 5px; background: #fcfcfa; font-size: 13px; }
 .stock-pick-qty input.stock-over { border-color: #d68b6e; color: #944d3e; background: #fcf2ef; }
 .stock-pick-portions { width: 90px; }
 .stock-pick-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 14px 0 0; }

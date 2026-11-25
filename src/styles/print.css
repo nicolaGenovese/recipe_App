@@ -8,9 +8,14 @@
 .preview-sheet h3 { color: #30392e; font-size: 14px; }.preview-sheet > p { margin: 4px 0 11px; color: #92978d; font-size: 8px; }
 .preview-recipe { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid #eef0e9; color: #667060; font-size: 9px; }
 .preview-recipe strong { color: #42503a; font-weight: 640; }.preview-recipe small { display: block; margin-top: 3px; color: #9da297; font-size: 8px; }.preview-allergens { grid-column: 1 / -1; color: #997653; font-size: 8px; }
-.toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; max-width: min(370px, calc(100vw - 30px)); padding: 11px 14px; transform: translateY(12px); border: 1px solid #e0e5d8; border-radius: 9px; color: #41543a; background: #f5f7f1; box-shadow: var(--shadow); font-size: 13px; opacity: 0; pointer-events: none; transition: .2s ease; }
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.error { border-color: #f0d4cc; color: #944d3e; background: #fcf2ef; }
+.toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; display: flex; align-items: flex-start; gap: 10px; max-width: min(400px, calc(100vw - 30px)); margin: 0; padding: 11px 8px 11px 14px; transform: translateY(12px); border: 1px solid #cfd8c2; border-radius: 10px; color: #33452d; background: #f5f7f1; box-shadow: 0 12px 30px rgba(39, 48, 37, .16); font-size: 14px; line-height: 1.4; opacity: 0; pointer-events: none; transition: .2s ease; }
+.toast[popover] { inset: auto 22px 20px auto; overflow: visible; }
+.toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.toast-text { flex: 1; min-width: 0; padding-top: 2px; }
+.toast-icon { display: grid; flex: 0 0 auto; width: 24px; height: 24px; place-items: center; border-radius: 50%; color: #fff; background: #a63e2b; font-size: 14px; }
+.toast-close { flex: 0 0 auto; width: 28px; height: 28px; margin: -2px 0; padding: 0; border: 0; border-radius: 7px; color: inherit; background: transparent; font-size: 20px; line-height: 1; cursor: pointer; }
+.toast-close:hover { background: rgba(0, 0, 0, .06); }
+.toast.error { border-color: #e2b4a7; color: #7e3526; background: #fcf2ef; }
 .print-images { margin-top: 12px; }
 
 /* Allergen matrix: dishes down, allergens across, printed in landscape. */

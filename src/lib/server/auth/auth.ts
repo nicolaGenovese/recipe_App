@@ -24,10 +24,10 @@ function trustedOrigins(): string[] {
   return [...hosts, ...(own ? [own] : []), ...(process.env.VERCEL ? [] : ["http://localhost:3000", "http://localhost:3010"])];
 }
 
-function createAuth(url: string) {
+function createAuth(url: string, pool: Pool) {
   return betterAuth({
     appName: "Recipe Studio",
-    database: new Pool({ connectionString: url }),
+    database: pool,
     secret: authSecret(url),
     baseURL: process.env.BETTER_AUTH_URL?.trim() || undefined,
     trustedOrigins: trustedOrigins(),
@@ -44,14 +44,36 @@ export type Auth = ReturnType<typeof createAuth>;
 /** Change this after upgrading better-auth, so the next start checks its tables again. */
 const AUTH_SCHEMA = "better-auth@1.7";
 
-let instance: { url: string; auth: Auth; ready: Promise<void> | null } | null = null;
+let instance: { url: string; auth: Auth; pool: Pool; ready: Promise<void> | null } | null = null;
+
+/** Connections open only when needed and close after a few idle seconds; a broken one is dropped. */
+function openPool(url: string): Pool {
+  const pool = new Pool({ connectionString: url, idleTimeoutMillis: 5000 });
+  pool.on("error", (error: unknown) => console.error("Connessione degli account interrotta:", error instanceof Error ? error.message : error));
+  return pool;
+}
 
 /** Better Auth for this database, or null in local mode (no DATABASE_URL: one kitchen, no accounts). */
 export function getAuth(): Auth | null {
   const db = database();
   if (!db) return null;
-  if (!instance || instance.url !== db.url) instance = { url: db.url, auth: createAuth(db.url), ready: null };
+  if (!instance || instance.url !== db.url) {
+    const pool = openPool(db.url);
+    instance = { url: db.url, auth: createAuth(db.url, pool), pool, ready: null };
+  }
   return instance.auth;
+}
+
+/**
+ * Starts again with fresh connections. A pool can stay broken after the database went to sleep or the
+ * network dropped; the next request then opens new connections instead of failing every time.
+ */
+export function resetAuth(): void {
+  if (!instance) return;
+  const old = instance;
+  void old.pool.end().catch(() => undefined);
+  const pool = openPool(old.url);
+  instance = { url: old.url, auth: createAuth(old.url, pool), pool, ready: old.ready };
 }
 
 /** Creates or updates the Better Auth tables, once per AUTH_SCHEMA. */

@@ -2,15 +2,15 @@
 .rota-view { display: grid; gap: 12px; }
 .rota-nav { display: flex; align-items: center; justify-content: center; gap: 16px; }
 .rota-current { min-width: min(380px, 62vw); text-align: center; }
-.rota-current p { margin: 0 0 4px; color: var(--green); font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+.rota-current p { margin: 0 0 4px; color: var(--green-text); font-size: 12px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
 .rota-current h2 { margin: 0; color: #30392e; font-size: 16px; }
 .rota-nav-button { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--green-dark); background: #fff; font-size: 18px; cursor: pointer; }
 .rota-nav-button:hover:not(:disabled) { background: var(--sage); }
 .rota-nav-button:disabled { opacity: .35; cursor: default; }
 .rota-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .rota-history { display: flex; align-items: center; gap: 8px; color: #5d6857; font-size: 13px; }
-.rota-history select { min-height: 32px; max-width: 360px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
-.rota-status { margin-left: auto; color: var(--green); font-size: 13px; }
+.rota-history select { min-height: 32px; max-width: 360px; padding: 0 8px; border: 1px solid var(--field-border); border-radius: 8px; background: #fff; }
+.rota-status { margin-left: auto; color: var(--green-text); font-size: 13px; }
 .rota-hint { margin: 0; }
 
 .rota-table { min-width: 980px; table-layout: fixed; }

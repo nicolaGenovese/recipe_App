@@ -1,6 +1,6 @@
 import "server-only";
 import { ALL_PERMISSIONS, type AccessInfo, type Permission } from "@/lib/access/permissions";
-import { authReady, getAuth } from "@/lib/server/auth/auth";
+import { authReady, getAuth, resetAuth } from "@/lib/server/auth/auth";
 import { database } from "@/lib/server/db";
 import { loadAccess, type SessionUser } from "@/lib/server/directory";
 import { getStore, type Scope, type ScopedStore } from "@/lib/server/store";
@@ -33,7 +33,12 @@ export async function sessionUser(headers: Headers): Promise<SessionUser | null>
   if (!auth) return null;
   await getStore().ready();
   await authReady();
-  const session = await auth.api.getSession({ headers });
+  // One more try with fresh connections: a dropped database connection should not sign anyone out.
+  const session = await auth.api.getSession({ headers }).catch(async () => {
+    resetAuth();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    return (getAuth() ?? auth).api.getSession({ headers });
+  });
   return session ? { id: session.user.id, name: session.user.name, email: session.user.email } : null;
 }
 

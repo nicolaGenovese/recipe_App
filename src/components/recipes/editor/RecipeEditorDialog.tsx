@@ -84,7 +84,7 @@ export function RecipeEditorDialog({ initial, startTab = "general" }: { initial?
         ) : null}
         <div className="editor-tabs">
           {TABS.map(([key, label]) => (
-            <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} onClick={() => setTab(key)}>{t(label)}</button>
+            <button key={key} type="button" className={"editor-tab" + (tab === key ? " active" : "")} aria-pressed={tab === key} onClick={() => setTab(key)}>{t(label)}</button>
           ))}
         </div>
         <div className="dialog-body">

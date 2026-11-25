@@ -10,7 +10,7 @@
 .safety-today .safety-status { margin-left: auto; }
 .safety-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .safety-bar label { display: flex; align-items: center; gap: 6px; color: #5d6857; font-size: 13px; }
-.safety-bar input[type="date"] { min-height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.safety-bar input[type="date"] { min-height: 32px; padding: 0 8px; border: 1px solid var(--field-border); border-radius: 8px; background: #fff; }
 .safety-table th small { display: block; margin-top: 2px; color: #6c6f68; font-weight: 500; }
 .safety-table tbody tr { cursor: pointer; }
 .safety-table tbody tr:hover td { background: #fafaf6; }
@@ -25,12 +25,12 @@
 .safety-pending { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; padding: 10px; border: 1px dashed #e8b7a6; border-radius: 9px; background: #fffaf7; }
 .safety-pending strong { margin-right: 4px; color: #6d3a2e; font-size: 13px; }
 .safety-readings { margin: 12px 0; }
-.safety-temp { width: 100%; max-width: 110px; min-height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; font-variant-numeric: tabular-nums; }
-.safety-temp.out { border-color: #e8a493; color: #944d3e; background: #fcf2ef; font-weight: 700; }
+.safety-temp { width: 100%; max-width: 110px; min-height: 34px; padding: 0 8px; border: 1px solid var(--field-border); border-radius: 7px; background: #fff; font-variant-numeric: tabular-nums; }
+.safety-temp.out { border-color: #c27c63; color: #944d3e; background: #fcf2ef; font-weight: 700; }
 .safety-alert { display: grid; gap: 5px; margin: 12px 0; padding: 10px 12px; border: 1px solid #f0c4b6; border-radius: 9px; background: #fcf2ef; }
 .safety-alert strong { color: #7a2a18; font-size: 13px; }
 .safety-alert label { color: #6d3a2e; font-size: 13px; }
-.safety-alert textarea { min-height: 60px; padding: 8px; border: 1px solid #ebc2b4; border-radius: 7px; background: #fff; }
+.safety-alert textarea { min-height: 60px; padding: 8px; border: 1px solid #c27c63; border-radius: 7px; background: #fff; }
 .safety-cool { margin: 12px 0; }
 .safety-checks { margin: 12px 0; }
 .safety-checklist { display: grid; gap: 4px; margin: 12px 0; padding: 0; list-style: none; }
@@ -40,7 +40,7 @@
 .safety-checklist input[type="checkbox"] { accent-color: var(--green); }
 .safety-item-by { min-height: 28px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
 .safety-checklist small { color: #6c7168; font-size: 12px; text-align: right; }
-.safety-equipment input, .safety-equipment select { width: 100%; min-height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.safety-equipment input, .safety-equipment select { width: 100%; min-height: 30px; padding: 0 6px; border: 1px solid var(--field-border); border-radius: 6px; background: #fff; }
 .safety-print, .labels-print { display: none; }
 .labels-table input[type="number"] { width: 70px; }
 

@@ -21,6 +21,8 @@ interface AppContextValue {
   update: (change: (data: AppData) => AppData) => void;
   reload: () => Promise<void>;
   loaded: boolean;
+  /** Set when the archive could not be read at all: the app shows why and a way to try again, not an empty kitchen. */
+  loadError: string | null;
   health: Health | null;
   refreshHealth: () => Promise<void>;
   language: Language;
@@ -40,6 +42,7 @@ interface AppContextValue {
   closeDialog: () => void;
   toast: Toast | null;
   notify: (message: string, error?: boolean) => void;
+  dismissToast: () => void;
   /** True when the app sits behind accounts or the shared password, so a "log out" button makes sense. */
   accessProtected: boolean;
   /** Signed-in user, company, site and permissions; null in local mode, where everything is allowed. */
@@ -80,6 +83,8 @@ export function AppProvider({ initialState, accessProtected = false, children }:
   const [data, setData] = useState<AppData>(() => (initialState ? toData(initialState) : fallbackData()));
   const dataRef = useRef(data);
   const [loaded, setLoaded] = useState(Boolean(initialState));
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const everLoaded = useRef(Boolean(initialState));
   const [health, setHealth] = useState<Health | null>(null);
   const [access, setAccess] = useState<AccessInfo | null>(initialState?.access ?? null);
   const [sharedShifts, setSharedShifts] = useState<SharedShift[]>(initialState?.sharedShifts ?? []);
@@ -104,9 +109,11 @@ export function AppProvider({ initialState, accessProtected = false, children }:
   const notify = useCallback((message: string, error = false) => {
     clearTimeout(toastTimer.current);
     setToast({ message, error, id: Date.now() });
-    // Longer messages stay longer, so they can be read.
-    toastTimer.current = setTimeout(() => setToast(null), Math.min(8000, Math.max(2800, message.length * 55)));
+    // Errors stay until they are closed, so there is time to read what went wrong and act on it.
+    // Other messages stay longer when they are longer.
+    if (!error) toastTimer.current = setTimeout(() => setToast(null), Math.min(9000, Math.max(3500, message.length * 60)));
   }, []);
+  const dismissToast = useCallback(() => { clearTimeout(toastTimer.current); setToast(null); }, []);
 
   const setLanguage = useCallback((next: Language) => {
     setLanguageState(next);
@@ -124,8 +131,13 @@ export function AppProvider({ initialState, accessProtected = false, children }:
       setAccess(state.access ?? null);
       setSharedShifts(state.sharedShifts ?? []);
       if (state.settings?.language) setLanguage(state.settings.language);
+      everLoaded.current = true;
+      setLoadError(null);
     } catch (error) {
-      notify(t("Archivio non raggiungibile:") + " " + t(error instanceof Error ? error.message : String(error)), true);
+      const message = t(error instanceof Error ? error.message : String(error));
+      // Never loaded: a screen that says so. Already loaded: the data on screen stays, with a message.
+      if (!everLoaded.current) setLoadError(message);
+      else notify(message.startsWith(t("Archivio non raggiungibile:").replace(/:$/, "")) ? message : t("Archivio non raggiungibile:") + " " + message, true);
     }
     setLoaded(true);
   }, [notify, setLanguage, t, update]);
@@ -142,13 +154,13 @@ export function AppProvider({ initialState, accessProtected = false, children }:
   useEffect(() => { document.documentElement.lang = language; document.title = t("Ricette · Recipe Studio"); }, [language, t]);
 
   const value: AppContextValue = {
-    data, current, update, reload, loaded, health, refreshHealth, language, setLanguage, t, f, fmt,
+    data, current, update, reload, loaded, loadError, health, refreshHealth, language, setLanguage, t, f, fmt,
     gpRules: data.settings.gp, onMenu,
     view, setView: useCallback((change) => setViewState((old) => ({ ...old, ...change })), []),
     stockView,
     setStockView: useCallback((change) => setStockViewState((old) => ({ ...old, ...(typeof change === "function" ? change(old) : change) })), []),
     dialog, openDialog: setDialog, closeDialog: useCallback(() => setDialog(null), []),
-    toast, notify, accessProtected,
+    toast, notify, dismissToast, accessProtected,
     access, sharedShifts,
     can: useCallback((permission: Permission) => canDo(access, permission), [access]),
     switchSite: useCallback(async (siteId: string) => {

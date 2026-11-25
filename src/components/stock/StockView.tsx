@@ -33,7 +33,7 @@ export function StockView() {
       <div className="stock-head">
         <div className="editor-tabs stock-tabs">
           {TABS.map(([key, label]) => (
-            <button key={key} type="button" className={"editor-tab" + (stockView.tab === key ? " active" : "")} onClick={() => switchTab(key)}>{t(label)}</button>
+            <button key={key} type="button" className={"editor-tab" + (stockView.tab === key ? " active" : "")} aria-pressed={stockView.tab === key} onClick={() => switchTab(key)}>{t(label)}</button>
           ))}
         </div>
         <button className="button button-secondary" type="button" onClick={() => openDialog({ kind: "stockPicker" })}>{t("Crea ricetta dal magazzino")}</button>

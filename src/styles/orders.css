@@ -105,7 +105,7 @@
 .pos-events pre { max-height: 220px; margin: 0; padding: 10px; overflow: auto; border-top: 1px solid var(--line); background: var(--soft); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .pos-stations { display: grid; gap: 8px; }
 .pos-station { display: grid; grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) auto auto; align-items: center; gap: 8px; }
-.pos-station input[type="text"], .pos-field input { min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; }
+.pos-station input[type="text"], .pos-field input { min-width: 0; padding: 8px 10px; border: 1px solid var(--field-border); border-radius: 9px; font-size: 14px; }
 .pos-fields { display: flex; flex-wrap: wrap; gap: 12px 18px; }
 .pos-field { display: grid; gap: 4px; color: #5d6857; font-size: 12px; font-weight: 600; }
 .pos-field input[type="number"] { width: 90px; }
@@ -114,7 +114,7 @@
 .pos-dishes { width: 100%; border-collapse: collapse; font-size: 13px; }
 .pos-dishes th, .pos-dishes td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
 .pos-dishes th { color: var(--muted); font-size: 12px; font-weight: 600; }
-.pos-dishes select { width: 100%; max-width: 260px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+.pos-dishes select { width: 100%; max-width: 260px; padding: 6px 8px; border: 1px solid var(--field-border); border-radius: 8px; font-size: 13px; }
 .pos-dishes small { display: block; color: var(--muted); }
 .pos-dishes .pos-auto { color: #355a2f; }
 .pos-dishes .pos-missing { color: #a3321c; font-weight: 700; }

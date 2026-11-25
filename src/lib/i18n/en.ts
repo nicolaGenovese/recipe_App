@@ -1547,4 +1547,16 @@ export const EN: Record<string, string> = {
   "Indirizzo non valido.": "Invalid address.",
   "Firma non valida.": "Invalid signature.",
   "Avviso non salvato, riprova.": "Notice not saved, try again.",
+  // Accessibility
+  "Vai al contenuto": "Skip to content",
+  "Chiudere senza salvare? Le modifiche andranno perse.": "Close without saving? Your changes will be lost.",
+  "Chiudi il messaggio": "Close the message",
+  "Foto della ricetta": "Recipe photo",
+  "Controllo l'archivio…": "Checking storage…",
+  "Sezioni delle impostazioni": "Settings sections",
+  "Archivio non raggiungibile. Controlla la connessione e riprova tra poco; se continua, avvisa chi gestisce l'app.": "Storage unreachable. Check the connection and try again in a moment; if it keeps happening, tell whoever manages the app.",
+  "Non riesco a caricare i dati della cucina": "The kitchen data could not be loaded",
+  "Non è stato cancellato niente: i dati restano nell'archivio e tornano appena la connessione riprende.": "Nothing has been deleted: the data are safe in storage and come back as soon as the connection does.",
+  "Riprovo…": "Trying again…",
+  "Carico i dati della cucina…": "Loading the kitchen data…",
 };
