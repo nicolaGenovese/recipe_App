@@ -1568,4 +1568,5 @@ export const EN: Record<string, string> = {
   "{0} aperte": "{0} open",
   "Niente oggi": "Nothing today",
   "Sezioni della modalità cucina": "Kitchen mode sections",
+  "Ricette base": "Base recipes",
 };

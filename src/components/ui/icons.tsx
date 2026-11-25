@@ -84,3 +84,9 @@ export function ChecklistIcon() {
 export function BackIcon() {
   return <svg viewBox="0 0 20 20" fill="none"><path d="M12.5 4.5 7 10l5.5 5.5" /></svg>;
 }
+export function LeafIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M4 16c0-7 4.5-11.5 12.5-12-.3 8-4.8 12.5-11 12.3M4 16l6.5-6.5" /></svg>;
+}
+export function PotIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M3.5 9h13v5a3 3 0 0 1-3 3h-7a3 3 0 0 1-3-3V9ZM2 9h16M7.5 6.5c0-1.2 1-1.6 1-2.8M11.5 6.5c0-1.2 1-1.6 1-2.8" /></svg>;
+}
