@@ -360,7 +360,9 @@ function Roles({ directory, busy, change, editable }: { directory: CompanyDirect
 const ACTIONS: Record<string, string> = {
   price: "Prezzo cambiato", pay: "Paga cambiata", rota: "Turni salvati", role: "Ruolo o permessi cambiati", "role-deleted": "Ruolo eliminato",
   member: "Incarico cambiato", "member-removed": "Accesso tolto", invite: "Invito creato", site: "Sede salvata", "site-deleted": "Sede eliminata",
-  area: "Area salvata", "area-deleted": "Area eliminata", company: "Compagnia rinominata"
+  area: "Area salvata", "area-deleted": "Area eliminata", company: "Compagnia rinominata",
+  "pos.connect": "Cassa collegata", "pos.disconnect": "Cassa scollegata", "pos.pause": "Cassa sospesa", "pos.resume": "Cassa riattivata", "pos.secret": "Segreto della cassa cambiato",
+  support: "Correzione dell'assistenza"
 };
 
 function Audit({ placeName, f }: { placeName: (siteId: string | null) => string; f: ReturnType<typeof useApp>["f"] }) {

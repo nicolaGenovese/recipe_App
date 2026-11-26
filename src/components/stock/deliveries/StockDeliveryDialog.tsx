@@ -27,6 +27,10 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
   const guard = useGuard();
   const { saveDelivery, deleteDelivery } = useStockActions();
   const base = id ? data.stockDeliveries.find((row) => row.id === id) ?? null : null;
+  // One id for this dialog: a second press on save (or a retry after a slow answer) updates the same
+  // delivery instead of saving the invoice again.
+  const [draftId] = useState(() => id ?? newId());
+  const [saving, setSaving] = useState(false);
   const closed = Boolean(base) && isDeliveryClosed(base!, data.stockReports);
 
   const [invoiceNumber, setInvoiceNumber] = useState(base?.invoiceNumber ?? "");
@@ -122,11 +126,15 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
     return { kind: "ok", label: read };
   }
 
-  const submit = guard(() => saveDelivery({
+  const submit = guard(async () => {
+    if (saving) return;
+    setSaving(true);
+    try { await saveDelivery({ id: draftId,
     base, invoiceNumber: invoiceNumber.trim(), date: date.trim(), supplier: supplier.trim(), invoiceAmount: invoiceAmount.trim(), updatePrices,
     rows: rows.map((row) => ({ name: row.name.trim(), quantity: num(row.quantity), price: num(row.price) })),
     invoiceNames: rows.filter((row) => row.scan && row.name.trim()).map((row) => ({ name: row.name.trim(), text: row.scan!.text }))
-  }));
+    }); } finally { setSaving(false); }
+  });
 
   return (
     <Dialog size="wide">
@@ -200,7 +208,7 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
           </div>
           <div className="dialog-footer-right">
             <button className="button button-quiet" type="button" onClick={closeDialog}>{t(closed ? "Chiudi" : "Annulla")}</button>
-            {closed ? null : <button className="button button-primary" type="submit">{t("Salva consegna")}</button>}
+            {closed ? null : <button className="button button-primary" type="submit" disabled={saving} aria-busy={saving}>{t(saving ? "Salvataggio…" : "Salva consegna")}</button>}
           </div>
         </footer>
       </form>

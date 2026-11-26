@@ -19,6 +19,8 @@ export interface DeliveryRowInput { name: string; quantity: number; price: numbe
 
 export interface DeliveryInput {
   base: StockDelivery | null;
+  /** Id chosen when the dialog opened: pressing save again updates the same delivery instead of adding a copy. */
+  id?: string;
   invoiceNumber: string;
   date: string;
   supplier: string;
@@ -216,7 +218,7 @@ export function useStockActions() {
     const rows = input.rows.filter((row) => row.name || row.quantity);
     if (!rows.length || rows.some((row) => !row.name || row.quantity <= 0)) { notify(t("Ogni riga deve avere prodotto e quantità."), true); return; }
     const sameKey = (a: unknown, b: unknown) => String(a || "").trim().toLocaleLowerCase() === String(b || "").trim().toLocaleLowerCase();
-    const id = input.base?.id ?? newId();
+    const id = input.base?.id ?? input.id ?? newId();
     const duplicate = current().stockDeliveries.some((other) => other.id !== id && sameKey(other.invoiceNumber, invoiceNumber) && sameKey(other.supplier, supplier));
     if (duplicate && !window.confirm(fmt(t("La fattura {0} di questo fornitore è già registrata. Salvarla comunque?"), invoiceNumber))) return;
     const missing = Array.from(new Set(rows.filter((row) => !findStockItemByName(current().stockItems, row.name)).map((row) => row.name)));

@@ -1619,4 +1619,10 @@ export const EN: Record<string, string> = {
   "Provala con la tua cucina.": "Try it with your kitchen.",
   "Due minuti: il tuo account, la compagnia e la prima sede. Il personale lo inviti dopo.": "Two minutes: your account, the company and the first site. Invite your team afterwards.",
   "Chiusura|giornata": "Closing time",
+  "Cassa collegata": "Till connected",
+  "Cassa scollegata": "Till disconnected",
+  "Cassa sospesa": "Till paused",
+  "Segreto della cassa cambiato": "Till secret changed",
+  "Correzione dell'assistenza": "Support correction",
+  "Cassa riattivata": "Till resumed",
 };
