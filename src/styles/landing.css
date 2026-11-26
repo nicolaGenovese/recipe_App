@@ -1,0 +1,142 @@
+/* Landing page (sign in): the public front of the app. One typeface, Archivo, narrow and heavy for
+   headings like a kitchen's labels and tickets; the app's green and paper; red only where it means
+   an allergy, as in the app. Every text pair is above 7:1. */
+.landing {
+  --l-ink: #1d2a1b;
+  --l-text: #3c4438;
+  --l-green: #2b3d28;
+  --l-paper: #f7f7f3;
+  --l-steel: #d3d8cc;
+  --l-sage: #e3ebd6;
+  --l-red: #9b1f19;
+  min-height: 100dvh;
+  color: var(--l-ink);
+  background: var(--l-paper);
+  font-family: var(--font-landing), ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.landing h1, .landing h2, .landing h3, .landing time { font-stretch: 72%; font-weight: 800; letter-spacing: -.005em; }
+.landing a { color: inherit; }
+.landing .skip-link { color: #fff; }
+.landing-head, .landing main > section, .landing-foot { padding-inline: max(16px, min(6vw, 72px)); }
+
+/* Header */
+.landing-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-block: 18px; }
+.landing-brand { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 800; text-decoration: none; }
+.landing-mark { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 10px; color: #fff; background: var(--l-green); }
+.landing-mark svg { width: 24px; height: 24px; }
+.landing-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+.landing-lang { display: inline-flex; gap: 4px; }
+.landing-lang button { min-height: 32px; padding: 0 8px; border: 0; border-radius: 6px; color: var(--l-text); background: transparent; font: inherit; font-size: 14px; cursor: pointer; }
+.landing-lang button:hover { background: var(--l-sage); }
+.landing-link { font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.landing-cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; color: #fff !important; background: var(--l-green); font-weight: 700; text-decoration: none; }
+.landing-cta:hover { background: var(--l-ink); }
+.landing-cta.big, .landing-link.big { min-height: 54px; font-size: 18px; }
+.landing-cta.big { padding: 0 26px; }
+.landing-link.big { display: inline-flex; align-items: center; }
+
+/* Hero: the pitch, the sign in card and the kitchen's paperwork */
+.landing-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 28px 64px; }
+.landing-pitch h1 { max-width: 15ch; margin: 0; font-size: clamp(46px, 7vw, 96px); line-height: .94; text-wrap: balance; }
+.landing-lead { max-width: 56ch; margin: 22px 0 0; color: var(--l-text); font-size: clamp(17px, 1.6vw, 20px); }
+.landing-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin: 28px 0 0; }
+.landing-signin .login-card.embedded { width: 100%; padding: 26px; border: 1px solid var(--l-steel); border-radius: 16px; background: #fff; box-shadow: none; }
+.landing-signin .login-card.embedded h2 { margin: 0; font-size: 28px; font-stretch: 72%; font-weight: 800; }
+.landing-signin .login-card.embedded p { color: var(--l-text); font-size: 15px; }
+.landing-signin .login-card.embedded .button-primary { min-height: 46px; font-size: 16px; }
+.landing-props { position: relative; min-height: 330px; }
+
+.ticket { position: relative; width: min(290px, 78%); padding: 16px 18px 26px; color: #1b1b18; background: #fff; transform: rotate(-2.5deg); box-shadow: 0 16px 34px rgba(29, 42, 27, .14); font-stretch: 85%; animation: ticket-print 1s cubic-bezier(.2, .7, .2, 1) both .2s;
+  /* The torn edge of a printer roll. */
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 16px 10px repeat-x;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - 10px) no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 16px 10px repeat-x; }
+.ticket-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 6px; border-bottom: 2px dashed #8d9386; font-size: 22px; }
+.ticket-head span { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ticket-sub { margin-top: 6px; color: #3f413a; font-size: 15px; }
+.ticket-allergy { display: grid; margin: 10px 0; padding: 6px 10px; border-radius: 6px; color: #fff; background: var(--l-red); font-size: 17px; font-weight: 700; line-height: 1.25; }
+.ticket-allergy span { font-size: 12px; letter-spacing: .06em; }
+.ticket ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 19px; font-weight: 650; line-height: 1.2; }
+.ticket li small { display: block; padding-left: 26px; color: #5c3a10; font-size: 15px; font-weight: 700; }
+.ticket li.held { color: #55584f; }
+.ticket li.held small { color: #55584f; font-weight: 600; }
+.prep-label { position: absolute; right: 0; bottom: 6px; display: grid; gap: 2px; width: min(220px, 56%); padding: 0 16px 14px; overflow: hidden; border-radius: 10px; color: #1b1b18; background: #fff; transform: rotate(3deg); box-shadow: 0 12px 26px rgba(29, 42, 27, .14); font-stretch: 85%; font-size: 15px; }
+.prep-label::before { display: block; height: 12px; margin: 0 -16px 10px; background: #2f6e3a; content: ""; }
+.prep-label strong { font-size: 24px; font-stretch: 72%; font-weight: 800; }
+.prep-label .prep-use { font-weight: 800; }
+.prep-label .prep-allergens { margin-top: 4px; color: var(--l-red); font-weight: 700; }
+@keyframes ticket-print { from { clip-path: inset(0 0 100% 0); transform: translateY(-18px) rotate(-2.5deg); } to { clip-path: inset(0 0 0 0); transform: rotate(-2.5deg); } }
+
+/* A day in the kitchen: a real sequence, marked by the time it happens */
+.landing-day { padding-block: 72px; border-top: 1px solid var(--l-steel); }
+.landing h2 { max-width: 20ch; margin: 0 0 32px; font-size: clamp(32px, 4.2vw, 56px); line-height: 1; text-wrap: balance; }
+.landing-day ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.landing-day li { position: relative; padding: 0 0 28px 28px; border-left: 3px solid var(--l-steel); }
+.landing-day li::before { position: absolute; top: 10px; left: -9px; width: 15px; height: 15px; border: 3px solid var(--l-paper); border-radius: 50%; background: var(--l-green); content: ""; }
+.landing-day time { display: block; color: var(--l-green); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.landing-day h3 { margin: 6px 0 4px; font-size: 24px; }
+.landing-day p { max-width: 42ch; margin: 0; color: var(--l-text); }
+
+/* The real cost of a dish */
+.landing-cost { display: grid; gap: 32px; align-items: center; padding-block: 72px; background: var(--l-sage); }
+.landing-cost-text p { max-width: 52ch; margin: 0; color: var(--l-text); font-size: 18px; }
+.landing-cost-text h2 { margin-bottom: 18px; }
+.cost-sheet { max-width: 440px; margin: 0; padding: 22px 24px; border: 1px solid var(--l-steel); border-radius: 16px; background: #fff; }
+.cost-sheet figcaption { font-size: 30px; font-stretch: 72%; font-weight: 800; }
+.cost-sheet dl { display: grid; gap: 10px; margin: 14px 0 0; }
+.cost-sheet dl div { display: flex; align-items: baseline; gap: 10px; }
+.cost-sheet dt { color: var(--l-text); }
+.cost-sheet dl div::after { order: 1; flex: 1; border-bottom: 2px dotted #9aa192; content: ""; }
+.cost-sheet dd { order: 2; margin: 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cost-sheet .cost-gp dd { color: var(--l-green); font-size: 40px; font-stretch: 72%; font-weight: 800; line-height: 1; }
+.cost-alert { margin: 18px 0 0; padding: 10px 12px; border-left: 4px solid #8a5a00; border-radius: 4px; color: #4a3200; background: #fdf3dc; font-size: 15px; font-weight: 600; }
+
+/* Roles: three columns divided by rules, not boxed cards */
+.landing-roles { padding-block: 72px; }
+.roles-grid { display: grid; gap: 28px; }
+.role { padding-top: 18px; border-top: 3px solid var(--l-green); }
+.role h3 { margin: 0 0 12px; font-size: 26px; }
+.role ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; color: var(--l-text); }
+.role li { position: relative; padding-left: 22px; }
+.role li::before { position: absolute; top: .62em; left: 2px; width: 9px; height: 9px; background: var(--l-green); content: ""; }
+
+/* Ready for the inspector */
+.landing-inspect { padding-block: 72px; color: #fff; background: var(--l-green); }
+.landing-inspect h2 { color: #fff; }
+.landing-inspect ul { display: grid; gap: 22px; margin: 0; padding: 0; list-style: none; }
+.landing-inspect li { max-width: 46ch; color: #e8eedf; }
+.landing-inspect strong { display: block; margin-bottom: 4px; color: #fff; font-size: 22px; font-stretch: 72%; font-weight: 800; }
+
+/* In short */
+.landing-facts ul { display: flex; flex-wrap: wrap; gap: 12px 0; margin: 0; padding: 26px 0; list-style: none; border-bottom: 1px solid var(--l-steel); color: var(--l-text); font-weight: 600; }
+.landing-facts li { padding-right: 22px; margin-right: 22px; border-right: 1px solid var(--l-steel); }
+.landing-facts li:last-child { border-right: 0; }
+
+/* Last call */
+.landing-final { padding-block: 80px; }
+.landing-final h2 { margin-bottom: 14px; }
+.landing-final p { max-width: 50ch; margin: 0 0 28px; color: var(--l-text); font-size: 19px; }
+
+.landing-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-block: 24px 32px; color: var(--l-text); font-size: 15px; }
+
+/* Wider screens: the pitch and the props on the left, sign in on the right; the day in a row. */
+@media (min-width: 1040px) {
+  .landing-hero { grid-template-columns: minmax(0, 1fr) minmax(330px, 400px); grid-template-areas: "pitch signin" "props signin"; column-gap: 64px; align-items: start; }
+  .landing-pitch { grid-area: pitch; }
+  .landing-signin { grid-area: signin; position: sticky; top: 24px; }
+  .landing-props { grid-area: props; max-width: 560px; }
+  .landing-day ol { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+  .landing-day li { padding: 30px 0 0; border-top: 3px solid var(--l-steel); border-left: 0; }
+  .landing-day li::before { top: -9px; left: 0; }
+  .landing-cost { grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); column-gap: 64px; }
+  .roles-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+  .landing-inspect ul { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+}
+@media (max-width: 560px) {
+  .landing-nav .landing-cta { display: none; }
+  .landing-props { min-height: 360px; }
+  .prep-label { bottom: 0; }
+  .landing-facts ul { display: grid; }
+  .landing-facts li { padding-right: 0; margin-right: 0; border-right: 0; }
+}

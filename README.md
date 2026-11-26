@@ -82,6 +82,7 @@ L'app online gira su Vercel (<https://recipe-app-delta-ten.vercel.app>, progetto
 
 L'elenco completo è in [docs/FUNZIONI.md](docs/FUNZIONI.md).
 
+- **Pagina d'ingresso** che fa da vetrina per i nuovi clienti, con l'accesso integrato.
 - **Ricette e basi**, con costi dal magazzino, allergeni e tracce che arrivano solo dai prodotti, conferma degli allergeni con nome e data.
 - **Menu** per sede, con giorni e orari di disponibilità, matrice allergeni e stampe.
 - **Prep list** generate dai piatti, con etichette di preparazione e scadenza.

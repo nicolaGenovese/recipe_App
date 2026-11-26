@@ -175,6 +175,13 @@ Le compagnie esistenti tengono i loro ruoli: il permesso nuovo va dato dalla tab
 2. Crea il componente usando `Dialog` e `DialogHeader` da `components/ui/Dialog.tsx`.
 3. Aggiungi il caso in `components/shell/DialogHost.tsx` e aprila con `openDialog({ kind: "…" })`.
 
+## Pagina d'ingresso
+
+`app/login/page.tsx` con il database mostra `Landing` (`app/login/Landing.tsx`): la vetrina dell'app con dentro il riquadro d'accesso (`AccountLogin` con `embedded`). Il carattere Archivo arriva da `app/login/fonts.ts` (`next/font`, scaricato e servito dall'app al momento della build) e vale solo qui; gli stili sono in `styles/landing.css`, con colori propri sotto `.landing`.
+
+- **Lingua:** pagine d'accesso e registrazione escono dal server già nella lingua giusta. `serverLanguage` legge il cookie `rs_lang` (scritto da `storeLanguage` insieme al localStorage) oppure la lingua del browser, e `LanguageScope` la passa a `useWords`. Così il server e il browser disegnano lo stesso testo, senza errori di idratazione.
+- **Testi:** solo funzioni che l'app ha davvero, senza prezzi, numeri di clienti o nomi di locali reali. Esempi e comanda disegnata usano piatti generici.
+
 ## Accessibilità
 
 Obiettivo: WCAG 2.2 livello AA, e AAA per il contrasto dei testi. Regole da seguire per ogni pagina nuova:

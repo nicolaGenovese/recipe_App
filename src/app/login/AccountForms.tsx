@@ -1,12 +1,31 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { BrandIcon } from "@/components/ui/icons";
-import { makeTranslate, readStoredLanguage } from "@/lib/i18n";
+import { LANGUAGE_STORAGE_KEY, makeTranslate, readStoredLanguage, storeLanguage } from "@/lib/i18n";
+import type { Language } from "@/lib/types";
 
-/** The app's words in the browser's language; account pages have no archive yet to take it from. */
+const WordsContext = createContext<Language | null>(null);
+
+/**
+ * The language chosen on the server for an account page, so the page the server sends and the one the
+ * browser draws are the same. A choice saved only in this browser (from before the cookie) wins after
+ * the first paint, and is copied to the cookie for next time.
+ */
+export function LanguageScope({ language, children }: { language: Language; children: ReactNode }) {
+  const [current, setCurrent] = useState(language);
+  useEffect(() => {
+    let saved: string | null = null;
+    try { saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY); } catch { /* Private mode. */ }
+    if ((saved === "it" || saved === "en") && saved !== language) { storeLanguage(saved); setCurrent(saved); }
+  }, [language]);
+  return <WordsContext.Provider value={current}><div lang={current}>{children}</div></WordsContext.Provider>;
+}
+
+/** The app's words in the page's language; account pages have no archive yet to take it from. */
 export function useWords() {
-  return makeTranslate(typeof window === "undefined" ? "en" : readStoredLanguage());
+  const scoped = useContext(WordsContext);
+  return makeTranslate(scoped ?? (typeof window === "undefined" ? "en" : readStoredLanguage()));
 }
 
 /** Sends JSON and returns the parsed answer, or throws the server's message. */
@@ -17,17 +36,17 @@ export async function send<T = unknown>(url: string, body: unknown): Promise<T> 
   return payload as T;
 }
 
-export function AccountCard({ title, intro, children }: { title: string; intro?: ReactNode; children: ReactNode }) {
-  return (
-    <main className="login-page">
-      <div className="login-card account-card">
-        <span className="brand-mark" aria-hidden="true"><BrandIcon /></span>
-        <h1>{title}</h1>
-        {intro ? <p>{intro}</p> : null}
-        {children}
-      </div>
-    </main>
+/** The account card, on a page of its own or, `embedded`, inside the landing page. */
+export function AccountCard({ title, intro, children, embedded = false }: { title: string; intro?: ReactNode; children: ReactNode; embedded?: boolean }) {
+  const card = (
+    <div className={"login-card account-card" + (embedded ? " embedded" : "")}>
+      {embedded ? null : <span className="brand-mark" aria-hidden="true"><BrandIcon /></span>}
+      {embedded ? <h2>{title}</h2> : <h1>{title}</h1>}
+      {intro ? <p>{intro}</p> : null}
+      {children}
+    </div>
   );
+  return embedded ? card : <main className="login-page">{card}</main>;
 }
 
 export function Field({ id, label, type = "text", value, onChange, autoComplete, autoFocus, hint }: {

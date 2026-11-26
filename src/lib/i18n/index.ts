@@ -3,6 +3,14 @@ import type { Language } from "@/lib/types";
 
 export const LANGUAGES: [Language, string][] = [["it", "Italiano"], ["en", "English"]];
 export const LANGUAGE_STORAGE_KEY = "recipe-studio-language";
+/** The same choice in a cookie, so pages rendered on the server (sign in, sign up) come out in it. */
+export const LANGUAGE_COOKIE = "rs_lang";
+
+/** Language for a page rendered on the server: the saved choice, otherwise the browser's first language. */
+export function serverLanguage(cookie: string | undefined, acceptLanguage: string | null): Language {
+  if (cookie === "it" || cookie === "en") return cookie;
+  return (acceptLanguage ?? "").trim().toLowerCase().startsWith("it") ? "it" : "en";
+}
 
 export type Translate = (source: string) => string;
 
@@ -38,4 +46,5 @@ export function readStoredLanguage(): Language {
 }
 export function storeLanguage(language: Language): void {
   try { localStorage.setItem(LANGUAGE_STORAGE_KEY, language); } catch { /* Private mode: the archive still keeps it. */ }
+  try { document.cookie = LANGUAGE_COOKIE + "=" + language + "; path=/; max-age=31536000; samesite=lax"; } catch { /* No cookies: the server pages use the browser's language. */ }
 }

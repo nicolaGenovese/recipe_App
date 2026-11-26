@@ -7,7 +7,7 @@ import { AccountCard, Field, NewAccountFields, SignInForm, accountReady, send, u
  * Sign in with email and password. While the data that existed before accounts has no owner, the
  * page offers the first access instead: whoever knows the old app password creates the owner account.
  */
-export function AccountLogin({ target, claim, appPassword }: { target: string; claim: boolean; appPassword: boolean }) {
+export function AccountLogin({ target, claim, appPassword, embedded = false }: { target: string; claim: boolean; appPassword: boolean; embedded?: boolean }) {
   const t = useWords();
   const [mode, setMode] = useState<"signin" | "claim">(claim ? "claim" : "signin");
   const [account, setAccount] = useState({ name: "", email: "", password: "" });
@@ -21,7 +21,7 @@ export function AccountLogin({ target, claim, appPassword }: { target: string; c
 
   if (mode === "claim") {
     return (
-      <AccountCard title={t("Primo accesso")} intro={t("Ora ognuno entra con il proprio account. Crea l'account del titolare: i dati di oggi diventano la tua compagnia e la tua prima sede, e poi inviti il personale.")}>
+      <AccountCard embedded={embedded} title={t("Primo accesso")} intro={t("Ora ognuno entra con il proprio account. Crea l'account del titolare: i dati di oggi diventano la tua compagnia e la tua prima sede, e poi inviti il personale.")}>
         <form className="account-form" onSubmit={onSubmit}>
           <NewAccountFields value={account} onChange={setAccount} />
           <Field id="claimCompany" label={t("Nome della compagnia")} value={company} onChange={setCompany} hint={t("Es. Rossi Ristorazione. Si può cambiare dopo.")} />
@@ -35,8 +35,9 @@ export function AccountLogin({ target, claim, appPassword }: { target: string; c
     );
   }
   return (
-    <AccountCard title="Recipe Studio" intro={t("Accedi con la tua email.")}>
-      <SignInForm target={target} />
+    <AccountCard embedded={embedded} title={embedded ? t("Accedi") : "Recipe Studio"} intro={t("Accedi con la tua email.")}>
+      {/* On the landing page the cursor does not jump into the form: visitors read first. */}
+      <SignInForm target={target} autoFocus={!embedded} />
       <p className="account-links">
         <a href="/registrati">{t("Crea una nuova compagnia")}</a>
         {claim ? <button type="button" className="link-button" onClick={() => setMode("claim")}>{t("Primo accesso del titolare")}</button> : null}
