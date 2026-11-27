@@ -1,6 +1,6 @@
 "use client";
 
-import { UNIT_CATALOG } from "@/lib/stock/units";
+import { UNIT_CATALOG, unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 
 /**
@@ -16,7 +16,7 @@ export function UnitSelect({ value, onChange, id, label, className }: { value: s
   return (
     <select id={id} className={className} value={value.trim()} aria-label={label ?? t("Unità")} onChange={(event) => onChange(event.target.value)}>
       {value.trim() ? null : <option value="">{t("Unità")}</option>}
-      {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+      {units.map((unit) => <option key={unit} value={unit}>{unitText(unit, t)}</option>)}
     </select>
   );
 }

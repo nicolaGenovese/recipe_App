@@ -6,6 +6,7 @@ import { hasCost, hasImage, margin, portionsOf, totalCost } from "@/lib/recipes/
 import { methodSteps, printQuantity, printScale, scaledRow } from "@/lib/recipes/print";
 import { countLabel } from "@/lib/i18n";
 import { num } from "@/lib/num";
+import { unitText } from "@/lib/stock/units";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 
@@ -68,7 +69,7 @@ export function RecipeSheet({ recipe, portions, costs, image }: { recipe: Recipe
               <tbody>
                 {rows.map((row, index) => (
                   <tr key={index}>
-                    <td className="sheet-qty">{num(row.quantity) ? printQuantity(row.quantity, f.locale) + " " + (row.unit || "") : ""}</td>
+                    <td className="sheet-qty">{num(row.quantity) ? printQuantity(row.quantity, f.locale) + " " + unitText(row.unit, t) : ""}</td>
                     <td>{row.name}{row.type === BASE ? <small> · {t("base")}</small> : null}</td>
                     {costs ? <td className="sheet-cost">{f.money(num(row.quantity) * num(row.unitCost))}</td> : null}
                   </tr>

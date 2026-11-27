@@ -1,6 +1,7 @@
 "use client";
 
 import { leftToPrep } from "@/lib/prep/prep";
+import { unitText } from "@/lib/stock/units";
 import type { PrepList } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 
@@ -22,7 +23,7 @@ export function PrepPrintSheet({ list }: { list: PrepList }) {
             <tr key={task.id}>
               <td>{task.done ? "☑" : "☐"}</td>
               <td>{task.name}</td>
-              <td>{task.quantity ? leftToPrep(task) + " " + task.unit : ""}</td>
+              <td>{task.quantity ? leftToPrep(task) + " " + unitText(task.unit, t) : ""}</td>
               <td>{task.recipeIds.map((id) => names.get(id)).filter(Boolean).join(", ")}</td>
               <td>{task.notes}</td>
             </tr>

@@ -1,3 +1,4 @@
+import type { Translate } from "@/lib/i18n";
 import { num } from "@/lib/num";
 import type { StockItem } from "@/lib/types";
 
@@ -7,9 +8,23 @@ const UNIT_SCALE: Record<string, number> = {
   g: 1, kg: 1000, ml: 1, cl: 10, l: 1000, tsp: 5, tbsp: 15, oz: 28.3495, lb: 453.592, "fl oz": 28.4131, pint: 568.261
 };
 const UNIT_ALIASES: Record<string, string> = {
-  gr: "g", lt: "l", pints: "pint", pinta: "pint", pinte: "pint", pt: "pint", pc: "pz", pcs: "pz", each: "pz",
-  floz: "fl oz", "fl. oz": "fl oz", lbs: "lb", porzione: "porz", portion: "porz", portions: "porz"
+  gr: "g", lt: "l", pints: "pint", pinta: "pint", pinte: "pint", pt: "pint", pc: "pz", pcs: "pz", each: "pz", piece: "pz", pieces: "pz",
+  floz: "fl oz", "fl. oz": "fl oz", lbs: "lb", porzione: "porz", portion: "porz", portions: "porz", ptn: "porz", ptns: "porz",
+  bunch: "mazzo", bunches: "mazzo", pack: "confezione", packs: "confezione"
 };
+
+/**
+ * Units written as Italian words or abbreviations. They are stored as they are (the code and the
+ * Italian screens use them) and shown through the translations: pc, ptn, bunch and pack in English.
+ */
+const WORD_UNITS = ["pz", "porz", "mazzo", "confezione"];
+
+/** A unit as the person reading it expects: "pz" is "pc" in English; g, kg, ml… stay as they are. */
+export function unitText(unit: unknown, t: Translate): string {
+  const raw = String(unit ?? "").trim();
+  const key = unitKey(raw);
+  return WORD_UNITS.includes(key) ? t(key) : raw;
+}
 
 /** Every unit the app knows, in the order shown in Settings. The kitchen picks which ones to offer. */
 export const UNIT_CATALOG: { key: string; label: string; group: "metric" | "imperial" | "count" }[] = [

@@ -1,5 +1,6 @@
 "use client";
 
+import { unitText } from "@/lib/stock/units";
 import { useRecipeRights } from "@/state/useRights";
 import { AllergenTags, Callout, MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
@@ -32,7 +33,7 @@ function IngredientTable({ recipe }: { recipe: Recipe }) {
       <thead><tr><th>{t("Ingrediente")}</th><th>{t("Tipo")}</th><th>{t("Quantità")}</th><th className="cost-only">{t("Costo")}</th></tr></thead>
       <tbody>
         {list.map((item, index) => (
-          <tr key={index}><td>{item.name}</td><td>{t(item.type) || t("Prodotto")}</td><td>{num(item.quantity)} {item.unit || ""}</td><td className="cost-only">{f.money(num(item.quantity) * num(item.unitCost))}</td></tr>
+          <tr key={index}><td>{item.name}</td><td>{t(item.type) || t("Prodotto")}</td><td>{num(item.quantity)} {unitText(item.unit, t)}</td><td className="cost-only">{f.money(num(item.quantity) * num(item.unitCost))}</td></tr>
         ))}
       </tbody>
     </table>

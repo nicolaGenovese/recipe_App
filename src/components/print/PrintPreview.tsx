@@ -4,6 +4,7 @@ import { RecipeSheet } from "@/components/print/RecipeSheet";
 import { allergenStatus, matrixColumns } from "@/lib/recipes/allergens";
 import { hasImage, portionCost, portionsOf } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
+import { unitText } from "@/lib/stock/units";
 import type { Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import type { PrintMode } from "@/state/dialogs";
@@ -92,7 +93,7 @@ export function PrintPreview({ mode, recipes, images, single, menuName, portions
         </div>
       );
     }
-    const ingredients = (recipe.ingredients || []).map((item) => item.name + " · " + num(item.quantity) + " " + (item.unit || "")).join(" / ") || t("Ingredienti da completare");
+    const ingredients = (recipe.ingredients || []).map((item) => item.name + " · " + num(item.quantity) + " " + unitText(item.unit, t)).join(" / ") || t("Ingredienti da completare");
     return (
       <div key={recipe.id} className="preview-recipe">
         <div>

@@ -9,6 +9,7 @@ import { KIND_LABELS, PRODUCT_KINDS } from "@/lib/stock/kind";
 import { productCostPreview } from "@/lib/stock/preview";
 import type { ProductForm } from "@/lib/stock/productForm";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
+import { unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 
 /**
@@ -24,11 +25,11 @@ function CostPreview({ form, onFix }: { form: ProductForm; onFix: (content: numb
     <div className={"product-preview" + (bad ? " bad" : "")} aria-live="polite">
       <strong>{t("Costo nelle ricette")}</strong>
       <span>
-        {fmt(t("1 {0} = {1}, contiene {2} {3}"), unitOfSale, f.money(form.price), num(form.recipeContent) || 0, form.recipeUnit)}
-        {" → "}{fmt(t("1 {0} = {1}"), form.recipeUnit, f.unitMoney(preview.perRecipeUnit))}
+        {fmt(t("1 {0} = {1}, contiene {2} {3}"), unitOfSale, f.money(form.price), num(form.recipeContent) || 0, unitText(form.recipeUnit, t))}
+        {" → "}{fmt(t("1 {0} = {1}"), unitText(form.recipeUnit, t), f.unitMoney(preview.perRecipeUnit))}
       </span>
       <span className="product-preview-main">
-        {fmt(t("In ricetta: 1 {0} = {1} · {2} {0} = {3}"), preview.rowUnit, f.unitMoney(preview.perRowUnit), preview.sampleAmount, f.money(preview.sampleCost))}
+        {fmt(t("In ricetta: 1 {0} = {1} · {2} {0} = {3}"), unitText(preview.rowUnit, t), f.unitMoney(preview.perRowUnit), preview.sampleAmount, f.money(preview.sampleCost))}
       </span>
       {preview.warnings.map((warning) => {
         if (warning.kind === "kiloAsGrams") {

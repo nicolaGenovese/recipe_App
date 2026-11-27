@@ -7,6 +7,7 @@ import { CheckPill } from "@/components/ui/Field";
 import { num } from "@/lib/num";
 import { availableInRecipeUnits, maxBatches } from "@/lib/stock/inventory";
 import { ingredientFromSource, recipeSources } from "@/lib/stock/sources";
+import { unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 
 interface Pick { checked: boolean; quantity: string }
@@ -63,13 +64,13 @@ export function RecipePickerDialog() {
               <div key={source.id} className="stock-pick-row">
                 <input type="checkbox" checked={state.checked} aria-label={fmt(t("Seleziona {0}"), source.name)} onChange={(event) => setPick(source.id, { checked: event.target.checked })} />
                 <div><strong>{source.name}</strong><small>{t(source.supplier) || "—"}</small></div>
-                <span>{f.quantity(available)} {source.recipeUnit}</span>
+                <span>{f.quantity(available)} {unitText(source.recipeUnit, t)}</span>
                 <span>{f.money(cost)}</span>
                 <span className="stock-pick-qty">
                   <input type="number" min="0" step="0.001" value={state.quantity} aria-label={t("Quantità in ricetta") + " · " + source.name}
                     className={state.checked && num(state.quantity) > available ? "stock-over" : ""}
                     onChange={(event) => setPick(source.id, { quantity: event.target.value, ...(num(event.target.value) > 0 ? { checked: true } : {}) })} />
-                  <small>{source.recipeUnit}</small>
+                  <small>{unitText(source.recipeUnit, t)}</small>
                 </span>
               </div>
             );

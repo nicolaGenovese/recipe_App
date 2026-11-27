@@ -7,6 +7,7 @@ import { Datalist, FieldShell, SelectField, TextField } from "@/components/ui/Fi
 import { dateKey, num } from "@/lib/num";
 import { WASTE_REASONS, wasteUnitCost } from "@/lib/performance/waste";
 import { isFood } from "@/lib/stock/kind";
+import { unitText } from "@/lib/stock/units";
 import type { WasteLog, WasteReason } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -24,7 +25,7 @@ export function WasteDialog({ id }: { id?: string }) {
   const [date, setDate] = useState(base?.date ?? dateKey(new Date()));
   const [name, setName] = useState(base?.name ?? "");
   const [quantity, setQuantity] = useState(base ? String(base.quantity) : "");
-  const [unit, setUnit] = useState(base?.unit ?? "");
+  const [unit, setUnit] = useState(() => unitText(base?.unit ?? "", t));
   const [unitCost, setUnitCost] = useState(base ? String(base.unitCost) : "");
   const [reason, setReason] = useState<WasteReason>(base?.reason ?? "expired");
   const [by, setBy] = useState(base?.by ?? "");
@@ -44,7 +45,7 @@ export function WasteDialog({ id }: { id?: string }) {
     const p = r ? undefined : data.stockItems.find((row) => row.name.trim().toLocaleLowerCase() === lower);
     if (!r && !p) return;
     const nextUnit = r ? "porz" : p!.recipeUnit;
-    setUnit(nextUnit);
+    setUnit(unitText(nextUnit, t));
     const cost = wasteUnitCost(r ? "recipe" : "product", (r ?? p)!.id, nextUnit, data.recipes, data.stockItems);
     setUnitCost(cost === null ? "" : String(cost));
   }
@@ -65,7 +66,7 @@ export function WasteDialog({ id }: { id?: string }) {
             </FieldShell>
             <SelectField label={t("Motivo")} name="wasteReason" value={reason} onChange={(value) => setReason(value as WasteReason)} options={WASTE_REASONS.map((value) => ({ value, label: t(REASON_LABELS[value]) }))} />
             <TextField label={t("Quantità *")} name="wasteQty" type="number" step="0.01" value={quantity} onChange={setQuantity} />
-            <TextField label={t("Unità")} name="wasteUnit" value={unit} onChange={setUnit} placeholder="kg, l, pz, porz" />
+            <TextField label={t("Unità")} name="wasteUnit" value={unit} onChange={setUnit} placeholder={t("kg, l, pz, porz")} />
             <TextField label={f.withCurrency(t("Costo per unità €"))} name="wasteCost" type="number" step="0.0001" value={unitCost} onChange={setUnitCost} hint={f.withCurrency(t("Totale")) + ": " + f.money(total)} />
             <TextField label={t("Data")} name="wasteDate" type="date" value={date} onChange={setDate} />
             <StaffField value={by} date={date} onChange={setBy} label={t("Registrato da *")} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { leftToPrep, prepProgress, sortPrepLists } from "@/lib/prep/prep";
+import { unitText } from "@/lib/stock/units";
 import type { PrepList } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -33,7 +34,7 @@ function PrepCard({ list }: { list: PrepList }) {
             <label>
               <input type="checkbox" checked={task.done} onChange={guard(() => toggleTask(list.id, task.id))} />
               <span className="prep-task-name">{task.name}</span>
-              {task.quantity ? <span className="prep-task-qty">{leftToPrep(task)} {task.unit}</span> : null}
+              {task.quantity ? <span className="prep-task-qty">{leftToPrep(task)} {unitText(task.unit, t)}</span> : null}
             </label>
             {task.recipeIds.length ? <small>→ {task.recipeIds.map((id) => names.get(id) ?? t("Ricetta eliminata")).join(", ")}</small> : null}
           </li>

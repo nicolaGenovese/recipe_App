@@ -3,6 +3,7 @@
 import { REASON_LABELS } from "@/components/performance/WasteDialog";
 import { addDays } from "@/lib/num";
 import { wasteBetween, wasteCost, wasteTotals } from "@/lib/performance/waste";
+import { unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 
 /** The waste register of the week. */
@@ -25,7 +26,7 @@ export function WasteTab({ weekId }: { weekId: string }) {
               <tr key={log.id} onClick={() => openDialog({ kind: "waste", id: log.id })}>
                 <td>{f.stockDate(log.date)}</td>
                 <td>{log.name}</td>
-                <td>{log.quantity} {log.unit}</td>
+                <td>{log.quantity} {unitText(log.unit, t)}</td>
                 <td>{t(REASON_LABELS[log.reason])}</td>
                 <td className="stock-value">{f.money(wasteCost(log))}</td>
                 <td>{log.by}</td>

@@ -5,6 +5,7 @@ import { UnitSelect } from "@/components/ui/UnitSelect";
 import { FREE, linkedBase, linkedProduct, resolveIngredient } from "@/lib/recipes/catalog";
 import { ingredientFromDraft, INGREDIENT_TYPES, type IngredientDraft } from "@/lib/recipes/form";
 import { num } from "@/lib/num";
+import { unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 
 interface Props {
@@ -63,7 +64,7 @@ export function IngredientRow({ row, onChange, onRemove, onAddToCatalog, adding 
           <AllergenPicker value={row.allergens} onChange={(allergens) => onChange({ allergens })} />
         )}
         {linked
-          ? <span className="ingredient-readonly">{shown?.kcal ? Math.round(shown.kcal * 10) / 10 + " kcal/" + row.unit : "— kcal"}</span>
+          ? <span className="ingredient-readonly">{shown?.kcal ? Math.round(shown.kcal * 10) / 10 + " kcal/" + unitText(row.unit, t) : "— kcal"}</span>
           : <input type="number" min="0" step="0.1" value={row.kcal} aria-label={t("kcal per unità")} placeholder={t("kcal / unità")} onChange={(event) => onChange({ kcal: event.target.value })} />}
       </div>
       <div className="ingredient-source">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { kitchenPrepLists } from "@/lib/kitchen/today";
 import { leftToPrep, prepProgress } from "@/lib/prep/prep";
+import { unitText } from "@/lib/stock/units";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
 import { usePrepActions } from "@/state/actions/usePrepActions";
@@ -48,7 +49,7 @@ export function KitchenPrep({ today, onLeave }: { today: string; onLeave: () => 
                       <strong>{task.name || t("Preparazione")}</strong>
                       {task.recipeIds.length || task.notes ? <small>{[task.recipeIds.map((id) => names.get(id) ?? "").filter(Boolean).join(", "), task.notes].filter(Boolean).join(" · ")}</small> : null}
                     </span>
-                    {task.quantity ? <span className="kitchen-qty">{leftToPrep(task)} <small>{task.unit}</small></span> : null}
+                    {task.quantity ? <span className="kitchen-qty">{leftToPrep(task)} <small>{unitText(task.unit, t)}</small></span> : null}
                   </button>
                 </li>
               ))}

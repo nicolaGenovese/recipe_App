@@ -10,6 +10,7 @@ Tutte le formule sono in `src/lib/` e coperte dai test (`npm test`).
 - Prezzo suggerito = costo per porzione ÷ (1 − margine obiettivo), più IVA se il margine è sul netto.
 - Un ingrediente collegato a un prodotto costa: prezzo del prodotto ÷ contenuto per unità di vendita, convertito nell'unità della ricetta.
 - Peso e volume usano la stessa scala: 1 g = 1 ml, cl = 10, tsp = 5, tbsp = 15, oz = 28,35 g, lb = 453,6 g, fl oz = 28,41 ml, pint = 568,3 ml (misure UK). Le unità che non si convertono (per esempio pz verso kg) mantengono il costo scritto a mano, e la scheda segnala il costo incompleto.
+- Le unità scritte come parole italiane (`pz`, `porz`, `mazzo`, `confezione`) si salvano così, perché il codice le usa come chiavi, e si **mostrano nella lingua di chi legge**: in inglese pc, ptn, bunch e pack (`unitText` in `lib/stock/units.ts`). Scritte a mano, anche le forme inglesi (pc, pcs, piece, each, ptn, portion, bunch, pack) valgono come le italiane nei calcoli.
 - L'acqua non conta mai come costo mancante.
 
 ## Scheda prodotto: costo nelle ricette — `lib/stock/preview.ts`

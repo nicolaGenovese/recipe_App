@@ -2,6 +2,7 @@
 
 import { num } from "@/lib/num";
 import { dishesUsingBase, leftToPrep } from "@/lib/prep/prep";
+import { unitText } from "@/lib/stock/units";
 import type { PrepTask, Recipe } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 
@@ -40,7 +41,7 @@ export function PrepTaskRow({ task, index, count, dishes, onChange, onMove, onRe
       <td><input type="number" min="0" step="0.01" value={task.quantity || ""} onChange={(event) => onChange({ quantity: Math.max(0, num(event.target.value)) })} aria-label={t("Serve")} /></td>
       <td><input type="number" min="0" step="0.01" value={task.onHand || ""} onChange={(event) => onChange({ onHand: Math.max(0, num(event.target.value)) })} aria-label={t("Pronto")} /></td>
       <td className="stock-value">{task.quantity ? leftToPrep(task) : "—"}</td>
-      <td><input className="prep-unit" value={task.unit} onChange={(event) => onChange({ unit: event.target.value })} aria-label={t("Unità")} /></td>
+      <td><input className="prep-unit" value={unitText(task.unit, t)} onChange={(event) => onChange({ unit: event.target.value })} aria-label={t("Unità")} /></td>
       <td className="prep-dishes-cell">
         <div className="prep-chips">
           {task.recipeIds.map((recipeId) => (

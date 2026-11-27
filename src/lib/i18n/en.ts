@@ -1083,10 +1083,10 @@ export const EN: Record<string, string> = {
   "pint · pinte": "pint · pints",
   "tsp · cucchiaino": "tsp · teaspoon",
   "tbsp · cucchiaio": "tbsp · tablespoon",
-  "pz · pezzi": "pz · pieces",
-  "porz · porzioni": "porz · portions",
-  "mazzo · mazzi": "mazzo · bunches",
-  "confezione · confezioni": "confezione · packs",
+  "pz · pezzi": "pc · pieces",
+  "porz · porzioni": "ptn · portions",
+  "mazzo · mazzi": "bunch · bunches",
+  "confezione · confezioni": "pack · packs",
   // Quick menu
   "Menu “{0}” creato.": "Menu “{0}” created.",
   "Nome del nuovo menu": "New menu name",
@@ -1667,4 +1667,11 @@ export const EN: Record<string, string> = {
   "Costi": "Costs",
   "Stampata il {0}": "Printed on {0}",
   "aggiornata il": "updated on",
+
+  // Units stored as Italian words or abbreviations, shown in English
+  "pz": "pc",
+  "porz": "ptn",
+  "mazzo": "bunch",
+  "confezione": "pack",
+  "kg, l, pz, porz": "kg, l, pc, ptn",
 };
