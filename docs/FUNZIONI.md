@@ -17,6 +17,7 @@ Stato al 25/11/2026. Questo documento elenca cosa fa oggi l'app, cosa resta da f
   - **Campanello**: piatti da riconfermare e prodotti con gli allergeni da controllare, prima degli ingredienti non nel magazzino.
 - Basi e preparazioni riutilizzabili, collegabili come ingrediente di altre ricette.
 - Creazione, modifica, duplicazione, eliminazione; ricetta creata dal magazzino scegliendo i prodotti.
+- **Stampa della ricetta**: «Stampa ricetta» nella scheda del piatto (anche da Comande, con il tasto «i») e «Stampa» nel menu «···» della card. Una pagina A4 con categoria, nome, descrizione, porzioni, tecnica e giorni di conservazione; il riquadro allergeni (contiene, può contenere, indicazioni e stato del controllo, in rosso se non controllati); ingredienti in tabella con quantità e unità; metodo a passi numerati (una riga per passo, i numeri già scritti vengono tolti); MEP, impiattamento, controlli e note quando ci sono; data di stampa e di aggiornamento. Si scelgono le **porzioni**: le quantità si ricalcolano (16 porzioni di una ricetta da 8 raddoppiano tutto). Facoltativi la foto e, per chi vede i costi, i costi (per riga, totale, per porzione, prezzo e margine). Da «Stampe» si stampano le schede di tutti i piatti di un menu, una per pagina.
 
 ### Menu
 
@@ -115,7 +116,7 @@ In ordine di utilità, secondo quanto discusso finora.
 3. **Più avvisi nel campanello** (vedi [AVVISI.md](AVVISI.md)): controlli HACCP di oggi non fatti, registri fuori limite senza azione, consegne senza controllo, allergeni da riconfermare, prodotti sotto il minimo o senza prezzo, ricette a costo zero, prezzi cambiati molto, turni e prep list mancanti; per ruolo, su tre livelli, e ognuno porta dove si risolve.
 4. **Abbonamenti e vendita** (vedi [PIANO-VENDITA.md](PIANO-VENDITA.md)): Stripe, prova gratuita, limiti di scansione per sede, email di sistema per inviti e recupero password.
 5. **Costi delle basi nei piatti.** Oggi una base collegata a un piatto ha quantità 0 e il suo costo non arriva al piatto: va collegato il costo per porzione o per kg della base.
-6. **Scalare una ricetta** (per esempio da una dose a 3 kg) e stampare la scheda scalata.
+6. **Scalare una ricetta a peso** (per esempio una dose da 3 kg) e salvarne la versione scalata; oggi si scala per porzioni solo in stampa.
 7. **Storico dei prezzi** di prodotti e piatti.
 8. **Chef special e menu stagionali**: piatti a tempo con data di inizio e fine.
 9. **Turni legati alla persona invece che al nome**, così un cambio di nome non separa i turni già scritti.

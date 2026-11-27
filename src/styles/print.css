@@ -3,11 +3,15 @@
 .print-option { display: flex; align-items: flex-start; gap: 10px; min-height: 63px; padding: 11px; border: 1px solid #d7d9d2; border-radius: 9px; background: #fff; cursor: pointer; }
 .print-option:has(input:checked) { border-color: #bfcdb0; background: #f4f6ef; }
 .print-option input { margin: 2px 0 0; accent-color: var(--green); }
-.print-option strong { display: block; color: #47513e; font-size: 9px; }.print-option small { display: block; margin-top: 4px; color: #9ba095; font-size: 8px; line-height: 1.45; }
+.print-option strong { display: block; color: var(--ink); font-size: 14px; }
+.print-option small { display: block; margin-top: 4px; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
 .print-preview { max-height: 35vh; overflow: auto; margin-top: 14px; padding: 14px; border: 1px solid #d5d7d1; border-radius: 8px; background: #fff; }
-.preview-sheet h3 { color: #30392e; font-size: 14px; }.preview-sheet > p { margin: 4px 0 11px; color: #92978d; font-size: 8px; }
-.preview-recipe { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid #d6d8d2; color: #485044; font-size: 9px; }
-.preview-recipe strong { color: #42503a; font-weight: 640; }.preview-recipe small { display: block; margin-top: 3px; color: #9da297; font-size: 8px; }.preview-allergens { grid-column: 1 / -1; color: #5f4933; font-size: 8px; }
+.preview-sheet h3 { color: #1b1f1a; font-size: 18px; }
+.preview-sheet > p { margin: 4px 0 11px; color: var(--muted); font-size: 12px; }
+.preview-recipe { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 9px 0; border-top: 1px solid #d6d8d2; color: #33372f; font-size: 13px; }
+.preview-recipe strong { color: #1b1f1a; font-weight: 640; }
+.preview-recipe small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
+.preview-allergens { grid-column: 1 / -1; color: #5a3d1a; font-size: 12px; }
 .toast { position: fixed; z-index: 20; right: 22px; bottom: 20px; display: flex; align-items: flex-start; gap: 10px; max-width: min(400px, calc(100vw - 30px)); margin: 0; padding: 11px 8px 11px 14px; transform: translateY(12px); border: 1px solid #cfd8c2; border-radius: 10px; color: #33452d; background: #f5f7f1; box-shadow: 0 12px 30px rgba(39, 48, 37, .16); font-size: 14px; line-height: 1.4; opacity: 0; pointer-events: none; transition: .2s ease; }
 .toast[popover] { inset: auto 22px 20px auto; overflow: visible; }
 .toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
@@ -19,26 +23,83 @@
 .print-images { margin-top: 12px; }
 
 /* Allergen matrix: dishes down, allergens across, printed in landscape. */
-.matrix-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .matrix-table th, .matrix-table td { padding: 4px 3px; border: 1px solid #d6dacf; text-align: center; vertical-align: middle; }
 .matrix-table th.matrix-dish { min-width: 120px; text-align: left; font-weight: 600; }
-.matrix-table th.matrix-dish small { display: block; color: #92978d; font-size: 7px; font-weight: 400; }
+.matrix-table th.matrix-dish small { display: block; color: var(--muted); font-size: 11px; font-weight: 400; }
 .matrix-col { height: 92px; vertical-align: bottom !important; }
-.matrix-col span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-size: 8px; font-weight: 600; }
+.matrix-col span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-size: 11px; font-weight: 600; }
 .matrix-table td.has { font-size: 11px; font-weight: 700; color: #30392e; }
 .matrix-table td.may { font-size: 11px; color: #494f45; }
-.matrix-table td.matrix-check, .matrix-table th.matrix-check { min-width: 64px; font-size: 7px; white-space: nowrap; }
+.matrix-table td.matrix-check, .matrix-table th.matrix-check { min-width: 64px; font-size: 11px; white-space: nowrap; }
 .matrix-table tr.unchecked td.matrix-check { color: #743f2d; font-weight: 600; }
 .matrix-table tbody tr:nth-child(even) { background: #fafbf8; }
-.matrix-legend { margin: 8px 0 0 !important; color: #494f45 !important; font-size: 8px; }
-.matrix-warning { margin: 8px 0 0 !important; padding: 6px 8px; border: 1px solid #e8c9bd; border-radius: 6px; color: #7a432f !important; background: #fdf5f1; font-size: 8px; }
-.preview-allergens small { display: block; margin-top: 2px; color: #4c4f47; font-size: 7px; }
+.matrix-legend { margin: 8px 0 0 !important; color: #494f45 !important; font-size: 12px; }
+.matrix-warning { margin: 8px 0 0 !important; padding: 6px 8px; border: 1px solid #e8c9bd; border-radius: 6px; color: #7a432f !important; background: #fdf5f1; font-size: 12px; }
+.preview-allergens small { display: block; margin-top: 2px; color: #4c4f47; font-size: 12px; }
 
 @page allergen-matrix { size: A4 landscape; margin: 10mm; }
 @media print {
   .allergen-sheet { page: allergen-matrix; }
+  /* On paper the matrix stays compact, so every dish fits a landscape page. */
   .matrix-table { font-size: 10px; }
+  .matrix-col span, .matrix-table th.matrix-dish small, .matrix-table td.matrix-check, .matrix-table th.matrix-check { font-size: 8.5px; }
+  .matrix-legend, .matrix-warning { font-size: 9px; }
+  .preview-recipe { font-size: 10.5pt; }
+  .preview-recipe small, .preview-allergens, .preview-allergens small { font-size: 9.5pt; }
   .matrix-table thead { display: table-header-group; }
   .matrix-table tr { break-inside: avoid; }
   .print-menu-pick, .print-images { display: none !important; }
+}
+
+/* Recipe sheets: one recipe per page, black on white, allergens boxed at the top. */
+.print-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; margin-top: 12px; }
+.print-controls .print-images { margin-top: 0; }
+.print-portions { display: grid; gap: 4px; }
+.print-portions span { color: var(--ink); font-size: 13px; font-weight: 650; }
+.print-portions input { width: 110px; }
+.print-portions small { max-width: 280px; }
+.print-preview:has(.recipe-sheets) { max-height: 58vh; }
+.recipe-sheet { color: #1b1f1a; font-size: 13px; line-height: 1.45; }
+.recipe-sheet + .recipe-sheet { margin-top: 22px; padding-top: 22px; border-top: 2px dashed #8d9287; }
+.sheet-head { display: flex; justify-content: space-between; gap: 16px; padding-bottom: 10px; border-bottom: 2px solid #1b1f1a; }
+.sheet-kicker { margin: 0; color: #3d4239; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.recipe-sheet h3 { margin: 2px 0 0; color: #111; font-size: 24px; line-height: 1.1; }
+.sheet-description, .sheet-facts { margin: 6px 0 0; color: #33372f; }
+.sheet-facts { font-weight: 650; }
+.sheet-photo { flex: 0 0 auto; width: 120px; height: 86px; border-radius: 6px; object-fit: cover; }
+.sheet-allergens { margin: 12px 0 4px; padding: 9px 12px; border: 2px solid #1b1f1a; border-radius: 8px; }
+.sheet-allergens p { margin: 0; }
+.sheet-allergens p + p { margin-top: 4px; }
+.sheet-allergens.unchecked { border-color: #8a2d1c; }
+.sheet-verdict { color: #33372f; font-size: 12px; }
+.sheet-allergens.unchecked .sheet-verdict { color: #8a2d1c; font-weight: 700; }
+.sheet-columns { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 22px; }
+.sheet-part { margin-top: 12px; break-inside: avoid; }
+.sheet-part h4 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid #8d9287; color: #111; font-size: 12px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.sheet-part p { margin: 0 0 4px; }
+.sheet-ingredients table { width: 100%; border-collapse: collapse; }
+.sheet-ingredients td { padding: 4px 6px 4px 0; border-bottom: 1px solid #d9dbd4; vertical-align: top; }
+.sheet-ingredients td.sheet-qty { width: 1%; padding-right: 12px; font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; white-space: nowrap; }
+.sheet-ingredients td.sheet-cost { width: 1%; color: #33372f; text-align: right; white-space: nowrap; }
+.sheet-ingredients small { color: #4a4f46; font-size: 11px; }
+.sheet-method ol { margin: 0; padding-left: 20px; }
+.sheet-method li { margin-bottom: 6px; padding-left: 2px; }
+.sheet-checks { margin: 0; padding-left: 18px; columns: 2; column-gap: 22px; }
+.sheet-foot { margin-top: 14px; padding-top: 6px; border-top: 1px solid #8d9287; color: #4a4f46; font-size: 11px; }
+@media (max-width: 640px) {
+  .sheet-head { flex-direction: column-reverse; }
+  .sheet-columns { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sheet-checks { columns: 1; }
+}
+@page recipe-sheet { size: A4 portrait; margin: 12mm; }
+@media print {
+  .print-controls { display: none !important; }
+  .recipe-sheet { page: recipe-sheet; font-size: 10.5pt; }
+  .recipe-sheet + .recipe-sheet { margin-top: 0; padding-top: 0; border-top: 0; break-before: page; }
+  .recipe-sheet h3 { font-size: 20pt; }
+  .sheet-head { flex-direction: row; }
+  .sheet-columns { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 8mm; }
+  .sheet-checks { columns: 2; }
+  .sheet-ingredients tr { break-inside: avoid; }
 }

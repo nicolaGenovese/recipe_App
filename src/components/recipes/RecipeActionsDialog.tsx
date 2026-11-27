@@ -18,6 +18,7 @@ export function RecipeActionsDialog({ id }: { id: string }) {
   const editable = rights.canEdit(recipe);
   const options = ([
     [t("Modifica"), t("Aggiorna ingredienti, istruzioni e costi."), () => openDialog({ kind: "recipeEditor", recipe }), editable],
+    [t("Stampa"), t("Scheda con allergeni, ingredienti e metodo, anche per più porzioni."), () => openDialog({ kind: "print", mode: "folder", recipeId: id }), true],
     [t("Duplica"), t("Crea una copia modificabile."), () => actions.cloneRecipe(id), rights.canCreate],
     [t("Menu"), t("Scegli in quali menu compare questo piatto."), () => openDialog({ kind: "recipeMenus", id }), rights.canMenus],
     [recipe.archivedBatch ? t("Rimuovi dalle basi") : t("Salva come base"), t("Organizza le preparazioni riutilizzabili."), () => actions.toggleArchive(id), editable],

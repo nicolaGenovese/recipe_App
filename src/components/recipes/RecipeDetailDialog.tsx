@@ -3,7 +3,7 @@
 import { useRecipeRights } from "@/state/useRights";
 import { AllergenTags, Callout, MetricTile } from "@/components/ui/bits";
 import { Dialog, DialogHeader } from "@/components/ui/Dialog";
-import { PlateIcon } from "@/components/ui/icons";
+import { PlateIcon, PrintIcon } from "@/components/ui/icons";
 import { allergenStatus } from "@/lib/recipes/allergens";
 import { calories, coverType, hasCost, hasImage, margin, portionCost, portionsOf, recipeCostGaps, totalCost } from "@/lib/recipes/math";
 import { num } from "@/lib/num";
@@ -108,7 +108,7 @@ export function RecipeDetailDialog({ id }: { id: string }) {
       </div>
       <footer className="dialog-footer">
         <div>
-          <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "print", mode: "folder", recipeId: recipe.id })}>{t("Stampa scheda")}</button>
+          <button className="button button-secondary button-small" type="button" onClick={() => openDialog({ kind: "print", mode: "folder", recipeId: recipe.id })}><PrintIcon />{t("Stampa ricetta")}</button>
           <button className="button button-quiet" type="button" onClick={() => openDialog({ kind: "safetyCooking", recipeId: recipe.id })}>{t("Registra temperatura")}</button>
         </div>
         <div className="dialog-footer-right">
