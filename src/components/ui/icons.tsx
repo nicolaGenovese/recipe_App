@@ -90,3 +90,9 @@ export function LeafIcon() {
 export function PotIcon() {
   return <svg viewBox="0 0 20 20" fill="none"><path d="M3.5 9h13v5a3 3 0 0 1-3 3h-7a3 3 0 0 1-3-3V9ZM2 9h16M7.5 6.5c0-1.2 1-1.6 1-2.8M11.5 6.5c0-1.2 1-1.6 1-2.8" /></svg>;
 }
+export function BookIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M10 5.2C8.4 4 6.2 3.5 3 3.6v11.6c3.2-.1 5.4.4 7 1.6 1.6-1.2 3.8-1.7 7-1.6V3.6c-3.2-.1-5.4.4-7 1.6ZM10 5.2v11.6" /></svg>;
+}
+export function BinIcon() {
+  return <svg viewBox="0 0 20 20" fill="none"><path d="M3.5 5.5h13M8 5.5V3.8h4v1.7M5 5.5l.8 11h8.4l.8-11M8.3 8.5l.3 5.5M11.7 8.5l-.3 5.5" /></svg>;
+}

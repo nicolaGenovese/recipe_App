@@ -1674,4 +1674,22 @@ export const EN: Record<string, string> = {
   "mazzo": "bunch",
   "confezione": "pack",
   "kg, l, pz, porz": "kg, l, pc, ptn",
+
+  // Kitchen mode: recipes to read at the station and quick waste
+  "Una porzione in meno": "One portion less",
+  "Una porzione in più": "One portion more",
+  "Torna a {0}": "Back to {0}",
+  "Cerca una ricetta": "Find a recipe",
+  "Nome, categoria o ingrediente": "Name, category or ingredient",
+  "Quali ricette": "Which recipes",
+  "Nessuna ricetta trovata.": "No recipes found.",
+  "{0} in menu": "{0} on menus",
+  "Cosa si butta *": "What is thrown away *",
+  "Piatto, base o prodotto": "Dish, base or product",
+  "Voce libera: il costo si aggiunge da Andamento.": "Free entry: the cost can be added in Performance.",
+  "Meno": "Less",
+  "Più": "More",
+  "Facoltative": "Optional",
+  "Costo dello spreco: {0}": "Cost of the waste: {0}",
+  "Sprechi di oggi": "Today's waste",
 };

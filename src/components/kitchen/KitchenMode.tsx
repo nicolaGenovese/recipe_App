@@ -6,9 +6,11 @@ import { KitchenCooking } from "@/components/kitchen/KitchenCooking";
 import { KitchenDeliveries } from "@/components/kitchen/KitchenDeliveries";
 import { KitchenOrders } from "@/components/kitchen/KitchenOrders";
 import { KitchenPrep } from "@/components/kitchen/KitchenPrep";
+import { KitchenRecipes } from "@/components/kitchen/KitchenRecipes";
 import { KitchenTemperatures } from "@/components/kitchen/KitchenTemperatures";
+import { KitchenWaste } from "@/components/kitchen/KitchenWaste";
 import { readStored, store, useNow, useWakeLock } from "@/components/kitchen/parts";
-import { BackIcon, ChecklistIcon, ClipboardIcon, FlameIcon, ThermometerIcon, TicketIcon, TruckIcon } from "@/components/ui/icons";
+import { BackIcon, BinIcon, BookIcon, ChecklistIcon, ClipboardIcon, FlameIcon, ThermometerIcon, TicketIcon, TruckIcon } from "@/components/ui/icons";
 import { KITCHEN_KEY, kitchenPrepLists, slotOf, uncheckedDeliveries } from "@/lib/kitchen/today";
 import { dateKey } from "@/lib/num";
 import { missingToday } from "@/lib/safety/rules";
@@ -17,7 +19,7 @@ import { staffAtSite } from "@/lib/staff";
 import { useApp } from "@/state/AppProvider";
 import { makeChime, useOrdersFeed } from "@/state/useOrdersFeed";
 
-type Panel = "orders" | "prep" | "temperature" | "cooking" | "delivery" | "checklist";
+type Panel = "orders" | "prep" | "temperature" | "cooking" | "delivery" | "checklist" | "recipes" | "waste";
 
 const BY_KEY = "recipe-studio:kitchen-by";
 /** Remembered on each device, so a screen fixed at a station opens on it again after a restart. */
@@ -30,7 +32,8 @@ const SOUND_KEY = "recipe-studio:orders-sound";
 type Badge = { count: number; tone: "todo" | "info" | "done" | "none" };
 
 const ICONS: Record<Panel, ReactNode> = {
-  orders: <TicketIcon />, prep: <ClipboardIcon />, temperature: <ThermometerIcon />, cooking: <FlameIcon />, delivery: <TruckIcon />, checklist: <ChecklistIcon />
+  orders: <TicketIcon />, prep: <ClipboardIcon />, temperature: <ThermometerIcon />, cooking: <FlameIcon />, delivery: <TruckIcon />, checklist: <ChecklistIcon />,
+  recipes: <BookIcon />, waste: <BinIcon />
 };
 
 /** Phones and tablets get a page of large buttons instead of a row of tabs; a computer keeps the tabs. */
@@ -53,7 +56,7 @@ function useLauncher(): boolean {
  * once and signs every record.
  */
 export function KitchenMode() {
-  const { data, setView, t, f, fmt, access, can, notify } = useApp();
+  const { data, setView, t, f, fmt, access, can, notify, onMenu } = useApp();
   useWakeLock();
   const now = useNow();
   const today = dateKey(now);
@@ -113,6 +116,8 @@ export function KitchenMode() {
   const missingOf = (kind: string) => missing.filter((key) => key.startsWith(kind + ":")).length;
   const todaysOf = (kind: "cooking" | "delivery") => data.safetyLogs.filter((log) => log.kind === kind && log.date === today).length;
   const pending = uncheckedDeliveries(data.stockDeliveries, data.safetyLogs, today).length;
+  const wasteAllowed = can("waste.record");
+  const wasteToday = data.wasteLogs.filter((log) => log.date === today).length;
 
   const pickBy = (name: string) => { setBy(name); store(BY_KEY, name); };
   // Leaving is remembered on this device: it opens in the normal app until kitchen mode is chosen again.
@@ -128,7 +133,10 @@ export function KitchenMode() {
     ["temperature", t("Temperature"), todo(missingOf("temperature"))],
     ["cooking", t("Cottura e abbattimento"), info(todaysOf("cooking"))],
     ["delivery", t("Consegne"), pending ? todo(pending) : info(todaysOf("delivery"))],
-    ["checklist", t("Checklist"), todo(missingOf("checklist"))]
+    ["checklist", t("Checklist"), todo(missingOf("checklist"))],
+    // Recipes have nothing to do: the tile says how many dishes are on the menus.
+    ["recipes", t("Ricette"), { count: onMenu.size || data.recipes.length, tone: "none" }],
+    ...(wasteAllowed ? [["waste", t("Sprechi"), info(wasteToday)] as [Panel, string, Badge]] : [])
   ];
 
   const who = (
@@ -157,7 +165,8 @@ export function KitchenMode() {
   const atHome = launcher && home;
   const current = tabs.find(([key]) => key === panel);
   /** What a tile says under its name, in words: the same information as the badge. */
-  const stateText = (key: Panel, badge: Badge) => badge.tone === "todo" ? fmt(t("{0} da fare"), badge.count)
+  const stateText = (key: Panel, badge: Badge) => key === "recipes" ? fmt(t(onMenu.size ? "{0} in menu" : "{0} ricette"), badge.count)
+    : badge.tone === "todo" ? fmt(t("{0} da fare"), badge.count)
     : badge.tone === "done" ? t("Tutto fatto")
       : badge.tone === "info" ? (key === "orders" ? fmt(t(badge.count === 1 ? "{0} aperta" : "{0} aperte"), badge.count) : fmt(t("{0} oggi"), badge.count))
         : t("Niente oggi");
@@ -190,7 +199,7 @@ export function KitchenMode() {
 
       {atHome ? (
         <main className="kitchen-body">
-          <nav className={"kitchen-home" + (tabs.length > 4 ? " six" : "")} aria-label={t("Sezioni della modalità cucina")}>
+          <nav className={"kitchen-home" + (tabs.length > 6 ? " eight" : tabs.length > 4 ? " six" : "")} aria-label={t("Sezioni della modalità cucina")}>
             {tabs.map(([key, label, badge]) => (
               <button key={key} type="button" className={"kitchen-tile " + badge.tone} onClick={() => openPanel(key)}>
                 <span className="kitchen-tile-icon" aria-hidden="true">{ICONS[key]}</span>
@@ -215,7 +224,9 @@ export function KitchenMode() {
           : panel === "temperature" ? <KitchenTemperatures today={today} by={by} slotNow={slotOf(now)} />
             : panel === "cooking" ? <KitchenCooking today={today} by={by} />
               : panel === "delivery" ? <KitchenDeliveries today={today} by={by} />
-                : <KitchenChecklists today={today} by={by} />}
+                : panel === "recipes" ? <KitchenRecipes />
+                  : panel === "waste" && wasteAllowed ? <KitchenWaste today={today} by={by} />
+                    : <KitchenChecklists today={today} by={by} />}
       </main>
       )}
     </div>

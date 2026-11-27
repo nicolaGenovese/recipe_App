@@ -10,7 +10,8 @@ export type WasteDraft = Omit<WasteLog, "id" | "createdAt" | "updatedAt"> & { id
 export function usePerformanceActions() {
   const { current, update, notify, t, closeDialog } = useApp();
 
-  async function saveWaste(draft: WasteDraft) {
+  /** Saves a waste record; returns it, or nothing when something is missing. */
+  async function saveWaste(draft: WasteDraft): Promise<WasteLog | undefined> {
     if (!draft.name.trim() || !(draft.quantity > 0)) { notify(t("Indica cosa è stato buttato e quanto."), true); return; }
     if (!draft.by.trim()) { notify(t("Indica chi registra lo spreco."), true); return; }
     const now = new Date().toISOString();
@@ -18,6 +19,7 @@ export function usePerformanceActions() {
     update((data) => ({ ...data, wasteLogs: upsert(data.wasteLogs, saved) }));
     closeDialog();
     notify(t("Spreco registrato."));
+    return saved;
   }
 
   async function deleteWaste(id: string) {
