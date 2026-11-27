@@ -1,4 +1,5 @@
 import type { AccessInfo } from "@/lib/access/permissions";
+import type { ProductKind } from "@/lib/stock/kind";
 
 // Shared data shapes. They match the JSON stored on disk and in Neon, so old archives load unchanged.
 
@@ -157,6 +158,8 @@ export interface StockItem {
   name: string;
   supplier: string;
   group: string;
+  /** Food when missing; cleaning products and supplies stay out of recipes, allergens and the GP. */
+  kind?: ProductKind;
   measurement: Measurement | string;
   unitOfSale: string;
   unitsPerPack: number;
@@ -196,6 +199,8 @@ export interface ReportLine {
   unitsPerPack: number;
   price: number;
   batch: boolean;
+  /** Set for cleaning products and supplies: their own section, outside the GP. */
+  kind?: ProductKind;
   opening: number;
   invoiceQty: number;
   delivered: number;

@@ -1,13 +1,14 @@
 import { num } from "@/lib/num";
+import { productKind, storedKind, type ProductKind } from "@/lib/stock/kind";
 import { unitFactor } from "@/lib/stock/units";
 import type { Ingredient, StockItem } from "@/lib/types";
 
 /** The product sheet as typed: every field is text until it is saved. */
-export type ProductForm = Record<"name" | "code" | "parLevel" | "supplier" | "group" | "measurement" | "unitOfSale" | "price" | "unitsPerPack" | "initialStock" | "recipeContent" | "recipeUnit" | "kcal" | "allergens" | "mayContain" | "allergensChecked" | "note", string>;
+export type ProductForm = Record<"name" | "kind" | "code" | "parLevel" | "supplier" | "group" | "measurement" | "unitOfSale" | "price" | "unitsPerPack" | "initialStock" | "recipeContent" | "recipeUnit" | "kcal" | "allergens" | "mayContain" | "allergensChecked" | "note", string>;
 
 export function productForm(item: Partial<StockItem>): ProductForm {
   return {
-    name: item.name ?? "", code: item.code ?? "", parLevel: String(item.parLevel || 0), supplier: item.supplier ?? "", group: item.group ?? "",
+    name: item.name ?? "", kind: productKind(item), code: item.code ?? "", parLevel: String(item.parLevel || 0), supplier: item.supplier ?? "", group: item.group ?? "",
     measurement: item.measurement || "Pack", unitOfSale: item.unitOfSale ?? "", price: String(item.price || 0), unitsPerPack: String(item.unitsPerPack || 1),
     initialStock: String(item.initialStock || 0), recipeContent: String(item.recipeContent || 1), recipeUnit: item.recipeUnit || "kg",
     kcal: String(item.kcal || 0), allergens: (item.allergens || []).join(", "), mayContain: (item.mayContain || []).join(", "),
@@ -17,10 +18,13 @@ export function productForm(item: Partial<StockItem>): ProductForm {
   };
 }
 
-/** The product to save. The code stays empty when not typed: the store assigns the next one. */
+/**
+ * The product to save. The code stays empty when not typed: the store assigns the next one. A
+ * cleaning product or supply keeps whatever recipe fields it had, but nothing reads them.
+ */
 export function productFromForm(form: ProductForm, id: string): StockItem {
   return {
-    id, code: form.code.trim(), parLevel: Math.max(0, num(form.parLevel)), name: form.name.trim(), supplier: form.supplier.trim(), group: form.group.trim(),
+    id, ...storedKind(productKind({ kind: form.kind as ProductKind })), code: form.code.trim(), parLevel: Math.max(0, num(form.parLevel)), name: form.name.trim(), supplier: form.supplier.trim(), group: form.group.trim(),
     measurement: form.measurement || "Pack", unitOfSale: form.unitOfSale.trim(), price: num(form.price), unitsPerPack: Math.max(1, num(form.unitsPerPack) || 1),
     initialStock: num(form.initialStock), recipeContent: num(form.recipeContent) || 1, recipeUnit: form.recipeUnit.trim() || "kg", kcal: num(form.kcal),
     allergens: form.allergens.split(",").map((value) => value.trim()).filter(Boolean),

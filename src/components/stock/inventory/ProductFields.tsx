@@ -5,6 +5,7 @@ import { AllergenPicker } from "@/components/ui/AllergenPicker";
 import { CheckPill, Datalist, FieldShell, SelectField, TextAreaField, TextField } from "@/components/ui/Field";
 import { UnitSelect } from "@/components/ui/UnitSelect";
 import { num } from "@/lib/num";
+import { KIND_LABELS, PRODUCT_KINDS } from "@/lib/stock/kind";
 import { productCostPreview } from "@/lib/stock/preview";
 import type { ProductForm } from "@/lib/stock/productForm";
 import { MEASURE_LABELS, MEASUREMENTS } from "@/lib/stock/sources";
@@ -58,18 +59,28 @@ interface Props {
   nested?: boolean;
 }
 
-/** Every field of a stock product, shared by the product dialog and the recipe editor. */
+/**
+ * Every field of a stock product, shared by the product dialog and the recipe editor. Cleaning
+ * products and supplies show only what stock needs: no recipe unit, kcal or allergens. Inside the
+ * recipe editor the product is always food, so the kind is not asked.
+ */
 export function ProductFields({ form, setForm, idPrefix = "field-", nested = false }: Props) {
   const { data, f, t } = useApp();
   const set = (key: keyof ProductForm) => (value: string) => setForm((old) => ({ ...old, [key]: value }));
   const id = (key: string) => idPrefix + key;
   const suppliers = Array.from(new Set(data.stockItems.map((row) => row.supplier).filter(Boolean)));
   const groups = Array.from(new Set(data.stockItems.map((row) => row.group).filter(Boolean)));
+  const food = form.kind === "food";
 
   return (
     <>
       <div className="form-grid">
         <TextField id={id("name")} label={t("Nome del prodotto *")} name="name" value={form.name} onChange={set("name")} required={!nested} wide />
+        {nested ? null : (
+          <SelectField id={id("kind")} label={t("Tipo")} name="kind" value={form.kind} onChange={set("kind")} wide
+            options={PRODUCT_KINDS.map((value) => ({ value, label: t(KIND_LABELS[value]) }))}
+            hint={t(food ? "Va nelle ricette: costo, allergeni e kcal arrivano da qui." : "Resta in magazzino, consegne e report, ma non va nelle ricette, non ha allergeni e non conta nel GP.")} />
+        )}
         <TextField id={id("code")} label={t("Codice")} name="code" value={form.code} onChange={set("code")} hint={t("Se lo lasci vuoto viene assegnato in automatico.")} />
         <TextField id={id("parLevel")} label={t("Livello minimo")} name="parLevel" type="number" step="0.01" value={form.parLevel} onChange={set("parLevel")} hint={t("Sotto questa giacenza il prodotto va riordinato. 0 = nessun controllo.")} />
         <TextField id={id("supplier")} label={t("Fornitore")} name="supplier" value={form.supplier} onChange={set("supplier")} list={id("suppliers")} />
@@ -80,20 +91,22 @@ export function ProductFields({ form, setForm, idPrefix = "field-", nested = fal
         <TextField id={id("price")} label={f.withCurrency(t("Prezzo per unità di vendita (€)"))} name="price" type="number" step="0.01" value={form.price} onChange={set("price")} />
         <TextField id={id("unitsPerPack")} label={t("Pezzi per confezione")} name="unitsPerPack" type="number" step="1" min={1} value={form.unitsPerPack} onChange={set("unitsPerPack")} hint={t("Solo per la misura Pezzo: il valore è pezzi ÷ pezzi per confezione × prezzo.")} />
         <TextField id={id("initialStock")} label={t("Giacenza iniziale")} name="initialStock" type="number" step="0.01" value={form.initialStock} onChange={set("initialStock")} hint={t("Usata finché non esiste un report inviato o un conteggio in Inventario.")} />
-        <TextField id={id("recipeContent")} label={t("Contenuto per unità di vendita")} name="recipeContent" type="number" step="0.001" value={form.recipeContent} onChange={set("recipeContent")} hint={t("Es. un cartone da 10 kg = 10.")} />
-        <FieldShell label={t("Unità nelle ricette")} htmlFor={id("recipeUnit")}><UnitSelect id={id("recipeUnit")} value={form.recipeUnit} onChange={set("recipeUnit")} /></FieldShell>
-        <TextField id={id("kcal")} label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
-        <CostPreview form={form} onFix={(content) => setForm((old) => ({ ...old, recipeContent: String(content) }))} />
-        <FieldShell label={t("Allergeni")} htmlFor={id("allergens")} wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
-        <FieldShell label={t("Può contenere (tracce)")} htmlFor={id("mayContain")} wide hint={t("Dall'etichetta del fornitore (\"may contain\"). I piatti che usano il prodotto lo ereditano.")}>
-          <AllergenPicker value={form.mayContain} onChange={set("mayContain")} />
-        </FieldShell>
-        <div className={"allergen-checked" + (form.allergensChecked === "1" ? " ok" : "")}>
-          <CheckPill id={id("allergensChecked")} checked={form.allergensChecked === "1"} onChange={(checked) => setForm((old) => ({ ...old, allergensChecked: checked ? "1" : "" }))}>
-            {t("Allergeni controllati sull'etichetta")}
-          </CheckPill>
-          <small>{t("Spunta anche se il prodotto non ha allergeni. Finché non è spuntato, i piatti che lo usano non si possono confermare.")}</small>
-        </div>
+        {food ? <>
+          <TextField id={id("recipeContent")} label={t("Contenuto per unità di vendita")} name="recipeContent" type="number" step="0.001" value={form.recipeContent} onChange={set("recipeContent")} hint={t("Es. un cartone da 10 kg = 10.")} />
+          <FieldShell label={t("Unità nelle ricette")} htmlFor={id("recipeUnit")}><UnitSelect id={id("recipeUnit")} value={form.recipeUnit} onChange={set("recipeUnit")} /></FieldShell>
+          <TextField id={id("kcal")} label={t("kcal per unità ricetta")} name="kcal" type="number" step="0.1" value={form.kcal} onChange={set("kcal")} />
+          <CostPreview form={form} onFix={(content) => setForm((old) => ({ ...old, recipeContent: String(content) }))} />
+          <FieldShell label={t("Allergeni")} htmlFor={id("allergens")} wide><AllergenPicker value={form.allergens} onChange={set("allergens")} /></FieldShell>
+          <FieldShell label={t("Può contenere (tracce)")} htmlFor={id("mayContain")} wide hint={t("Dall'etichetta del fornitore (\"may contain\"). I piatti che usano il prodotto lo ereditano.")}>
+            <AllergenPicker value={form.mayContain} onChange={set("mayContain")} />
+          </FieldShell>
+          <div className={"allergen-checked" + (form.allergensChecked === "1" ? " ok" : "")}>
+            <CheckPill id={id("allergensChecked")} checked={form.allergensChecked === "1"} onChange={(checked) => setForm((old) => ({ ...old, allergensChecked: checked ? "1" : "" }))}>
+              {t("Allergeni controllati sull'etichetta")}
+            </CheckPill>
+            <small>{t("Spunta anche se il prodotto non ha allergeni. Finché non è spuntato, i piatti che lo usano non si possono confermare.")}</small>
+          </div>
+        </> : null}
         <TextAreaField id={id("note")} label={t("Note")} name="note" value={form.note} onChange={set("note")} wide />
       </div>
       <Datalist id={id("suppliers")} values={suppliers} />

@@ -6,7 +6,7 @@ import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { CheckPill } from "@/components/ui/Field";
 import { num } from "@/lib/num";
 import { availableInRecipeUnits, maxBatches } from "@/lib/stock/inventory";
-import { ingredientFromSource, stockSources } from "@/lib/stock/sources";
+import { ingredientFromSource, recipeSources } from "@/lib/stock/sources";
 import { useApp } from "@/state/AppProvider";
 
 interface Pick { checked: boolean; quantity: string }
@@ -19,7 +19,7 @@ export function RecipePickerDialog() {
   const [portions, setPortions] = useState("4");
   const [picks, setPicks] = useState<Record<string, Pick>>({});
 
-  const rows = useMemo(() => stockSources(data.stockItems, data.recipes).sort((a, b) => a.name.localeCompare(b.name)).map((source) => ({
+  const rows = useMemo(() => recipeSources(data.stockItems, data.recipes).sort((a, b) => a.name.localeCompare(b.name)).map((source) => ({
     source,
     available: availableInRecipeUnits(source, data.stockReports, data.stockDeliveries),
     cost: num(source.price) / (num(source.recipeContent) || 1),

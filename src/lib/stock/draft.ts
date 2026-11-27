@@ -1,5 +1,6 @@
 import { clone, num } from "@/lib/num";
 import { applyDeliveries } from "@/lib/stock/deliveries";
+import { productKind, storedKind } from "@/lib/stock/kind";
 import { buildReportLines, latestSubmitted, lineFromSource, nextReportNumber, summarizeReport } from "@/lib/stock/report";
 import type { GpRules, StockDelivery, StockReport, StockSource } from "@/lib/types";
 
@@ -22,7 +23,12 @@ export function syncDraftLines(report: StockReport, sources: StockSource[], repo
   sources.forEach((source) => {
     const line = draft.lines.find((row) => row.itemId === source.id);
     if (!line) draft.lines.push(lineFromSource(source, previous));
-    else Object.assign(line, { name: source.name, supplier: source.supplier || "", group: source.group || "", measurement: source.measurement, unitOfSale: source.unitOfSale || "", unitsPerPack: num(source.unitsPerPack) || 1 });
+    else {
+      Object.assign(line, { name: source.name, supplier: source.supplier || "", group: source.group || "", measurement: source.measurement, unitOfSale: source.unitOfSale || "", unitsPerPack: num(source.unitsPerPack) || 1 });
+      // A product moved to cleaning or supplies (or back to food) changes section in the open draft.
+      delete line.kind;
+      Object.assign(line, storedKind(productKind(source)));
+    }
   });
   return applyDeliveries(draft, deliveries, previous);
 }

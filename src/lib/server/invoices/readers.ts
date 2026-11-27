@@ -24,6 +24,9 @@ export function invoicePrompt(hints: ReadHints): string {
     "- lines: one entry per product line. description as printed; code = supplier product code or \"\";",
     "  quantity = units of sale delivered (cases, packs, kg…); unitPrice = price per unit of sale excluding VAT;",
     "  lineTotal = line total excluding VAT or null.",
+    "  kind = \"food\" for anything eaten or drunk (ingredients, drinks, coffee); \"cleaning\" for detergents, sanitisers,",
+    "  degreasers, dishwasher and laundry products, cloths, scourers, gloves and blue roll; \"supplies\" for other non-food:",
+    "  packaging, takeaway boxes, foil, cling film, baking paper, napkins, gas.",
     "Skip delivery charges, deposits, credits, VAT and subtotal lines. Never invent values: use \"\" or null when unreadable.",
     "Write numbers as plain numbers without currency symbols."
   ].join("\n");
@@ -46,7 +49,8 @@ const GEMINI_SCHEMA = {
           code: { type: "STRING" },
           quantity: { type: "NUMBER" },
           unitPrice: { type: "NUMBER" },
-          lineTotal: { type: "NUMBER", nullable: true }
+          lineTotal: { type: "NUMBER", nullable: true },
+          kind: { type: "STRING", enum: ["food", "cleaning", "supplies"] }
         },
         required: ["description", "quantity", "unitPrice"]
       }
@@ -205,11 +209,12 @@ export const demoReader: InvoiceReader = {
   name: "demo",
   async read() {
     return normalizeScan({
-      supplier: "Chapple & Jenkins", invoiceNumber: "DEMO-1001", date: new Date().toISOString().slice(0, 10), netTotal: 100,
+      supplier: "Chapple & Jenkins", invoiceNumber: "DEMO-1001", date: new Date().toISOString().slice(0, 10), netTotal: 112,
       lines: [
-        { description: "CHEDDAR MATURE COLOURED 5KG", code: "CH510", quantity: 2, unitPrice: 30, lineTotal: 60 },
-        { description: "Double Cream 2L", code: "", quantity: 4, unitPrice: 7.5, lineTotal: 30 },
-        { description: "TRUFFLE OIL 250ML", code: "TR250", quantity: 1, unitPrice: 10, lineTotal: 10 }
+        { description: "CHEDDAR MATURE COLOURED 5KG", code: "CH510", quantity: 2, unitPrice: 30, lineTotal: 60, kind: "food" },
+        { description: "Double Cream 2L", code: "", quantity: 4, unitPrice: 7.5, lineTotal: 30, kind: "food" },
+        { description: "TRUFFLE OIL 250ML", code: "TR250", quantity: 1, unitPrice: 10, lineTotal: 10, kind: "food" },
+        { description: "HEAVY DUTY DEGREASER 5LTR", code: "DG5", quantity: 1, unitPrice: 12, lineTotal: 12, kind: "cleaning" }
       ]
     });
   }

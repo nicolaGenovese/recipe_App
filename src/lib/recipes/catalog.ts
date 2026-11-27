@@ -1,5 +1,6 @@
 import { num } from "@/lib/num";
 import { allergens, calories, portionCost, portionsOf, traces } from "@/lib/recipes/math";
+import { isFood } from "@/lib/stock/kind";
 import { recipeUnitFor, unitFactor } from "@/lib/stock/units";
 import type { Ingredient, Recipe, StockItem } from "@/lib/types";
 
@@ -21,8 +22,11 @@ function withTraces(row: Ingredient, list: string[]): Ingredient {
   return list.length ? { ...rest, mayContain: list } : rest;
 }
 
-/** A product whose allergens nobody has checked yet: its empty list does not mean "none". */
-export const allergensToFill = (item: Pick<StockItem, "allergensChecked">) => item.allergensChecked === false;
+/**
+ * A food product whose allergens nobody has checked yet: its empty list does not mean "none".
+ * Cleaning products and supplies never go into a dish, so they have no allergens to check.
+ */
+export const allergensToFill = (item: Pick<StockItem, "allergensChecked" | "kind">) => isFood(item) && item.allergensChecked === false;
 
 export function linkedProduct(row: Pick<Ingredient, "stockItemId">, stockItems: StockItem[]): StockItem | undefined {
   if (!row.stockItemId || row.stockItemId.startsWith(RECIPE_LINK)) return undefined;

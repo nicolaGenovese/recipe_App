@@ -4,6 +4,7 @@ import { InventoryTableRow } from "@/components/stock/inventory/InventoryTableRo
 import { Callout, MetricTile } from "@/components/ui/bits";
 import { CheckPill } from "@/components/ui/Field";
 import { inventoryRow } from "@/lib/stock/inventory";
+import { isFood, KIND_LABELS, PRODUCT_KINDS, productKind, type ProductKind } from "@/lib/stock/kind";
 import { INVENTORY_COLUMNS, sortInventory } from "@/lib/stock/inventory-sort";
 import { MEASURE_LABELS } from "@/lib/stock/sources";
 import { useApp } from "@/state/AppProvider";
@@ -11,13 +12,16 @@ import type { InventorySortKey } from "@/state/view";
 
 export function InventoryTab() {
   const { data, stockView, setStockView, openDialog, f, t } = useApp();
-  const { inventoryQuery, inventoryGroup, inventoryReorderOnly, inventorySort } = stockView;
+  const { inventoryQuery, inventoryGroup, inventoryKind, inventoryReorderOnly, inventorySort } = stockView;
   const all = data.stockItems.map((item) => ({ item, data: inventoryRow(item, data.stockReports, data.stockDeliveries) }));
   const groups = Array.from(new Set(data.stockItems.map((item) => item.group).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const query = inventoryQuery.trim().toLocaleLowerCase();
   const unitLabel = (item: { measurement: string }) => t(MEASURE_LABELS[item.measurement] || item.measurement || "");
 
+  const nonFoodValue = all.filter((row) => !isFood(row.item)).reduce((total, row) => total + row.data.value, 0);
+
   const rows = sortInventory(all.filter(({ item, data: row }) => (!inventoryGroup || item.group === inventoryGroup) &&
+    (!inventoryKind || productKind(item) === inventoryKind) &&
     (!query || [item.code, item.name, item.supplier, item.group].join(" ").toLocaleLowerCase().includes(query)) &&
     (!inventoryReorderOnly || row.status === "reorder")), inventorySort.key, inventorySort.dir, unitLabel);
 
@@ -26,7 +30,9 @@ export function InventoryTab() {
   return (
     <>
       <div className="pill-metrics stock-inv-metrics">
-        <MetricTile label={t("Valore totale")}>{f.money(all.reduce((total, row) => total + row.data.value, 0))}</MetricTile>
+        <MetricTile label={t("Valore totale")} foot={nonFoodValue ? <small className="field-hint">{t("di cui non alimentari") + " " + f.money(nonFoodValue)}</small> : undefined}>
+          {f.money(all.reduce((total, row) => total + row.data.value, 0))}
+        </MetricTile>
         <MetricTile label={t("Prodotti da riordinare")}>{all.filter((row) => row.data.status === "reorder").length}</MetricTile>
       </div>
       <div className="stock-toolbar">
@@ -34,6 +40,10 @@ export function InventoryTab() {
         <select aria-label={t("Reparto")} value={inventoryGroup} onChange={(event) => setStockView({ inventoryGroup: event.target.value })}>
           <option value="">{t("Tutti i reparti")}</option>
           {groups.map((group) => <option key={group} value={group}>{t(group)}</option>)}
+        </select>
+        <select aria-label={t("Tipo")} value={inventoryKind} onChange={(event) => setStockView({ inventoryKind: event.target.value as "" | ProductKind })}>
+          <option value="">{t("Tutti i tipi")}</option>
+          {PRODUCT_KINDS.map((kind) => <option key={kind} value={kind}>{t(KIND_LABELS[kind])}</option>)}
         </select>
         <CheckPill checked={inventoryReorderOnly} onChange={(checked) => setStockView({ inventoryReorderOnly: checked })}>{t("Solo da riordinare")}</CheckPill>
         <button className="button button-primary" type="button" onClick={() => openDialog({ kind: "stockItem" })}>{t("Nuovo prodotto")}</button>

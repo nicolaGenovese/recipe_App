@@ -5,6 +5,7 @@ import { clone, dateKey, newId, num, upsert } from "@/lib/num";
 import { applyDeliveries, isDeliveryClosed } from "@/lib/stock/deliveries";
 import { newDraftReport, periodError, syncDraftLines } from "@/lib/stock/draft";
 import { inventoryRow, nextStockCode } from "@/lib/stock/inventory";
+import { storedKind, type ProductKind } from "@/lib/stock/kind";
 import { draftReport, latestSubmitted } from "@/lib/stock/report";
 import { findStockItemByName, stockSources } from "@/lib/stock/sources";
 import { FREE, recipesUsing } from "@/lib/recipes/catalog";
@@ -15,7 +16,8 @@ import { useApp } from "@/state/AppProvider";
 import { useRecipeActions } from "@/state/actions/useRecipeActions";
 
 /** Rows typed in the delivery dialog, before they are matched to products. */
-export interface DeliveryRowInput { name: string; quantity: number; price: number }
+/** A delivery row; `kind` is used only when the row creates a new product. */
+export interface DeliveryRowInput { name: string; quantity: number; price: number; kind?: ProductKind }
 
 export interface DeliveryInput {
   base: StockDelivery | null;
@@ -194,9 +196,10 @@ export function useStockActions() {
 
   async function createMissingProducts(names: string[], supplier: string, rows: DeliveryRowInput[]) {
     for (const name of names) {
-      const price = rows.find((row) => row.name.toLocaleLowerCase() === name.toLocaleLowerCase())?.price ?? 0;
+      const row = rows.find((entry) => entry.name.toLocaleLowerCase() === name.toLocaleLowerCase());
+      const price = row?.price ?? 0;
       await saveItem({
-        id: newId(), code: nextStockCode(current().stockItems), parLevel: 0, name, supplier, group: "", measurement: "Pack", unitOfSale: "",
+        id: newId(), ...storedKind(row?.kind ?? "food"), code: nextStockCode(current().stockItems), parLevel: 0, name, supplier, group: "", measurement: "Pack", unitOfSale: "",
         price, unitsPerPack: 1, initialStock: 0, recipeContent: 1, recipeUnit: "kg", kcal: 0, allergens: [], allergensChecked: false
       });
     }

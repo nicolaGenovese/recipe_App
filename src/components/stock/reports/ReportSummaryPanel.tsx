@@ -15,6 +15,8 @@ export function ReportSummaryPanel({ report }: { report: StockReport }) {
     ["Totale giacenza di chiusura", f.money(summary.closingTotal)], ["Totale fatture", f.money(summary.invoicesTotal)],
     ["Trasferimenti stock", f.money(summary.transfer)], ["Vendite food nette", f.money(summary.netSales)],
     ["GP", <span key="gp" className={gpClass(summary)}>{f.percent(summary.gp)}</span>],
+    // Cleaning products and supplies: what they cost in the period, outside the GP.
+    ...(summary.nonFood ? [["Non alimentari usati (fuori dal GP)", f.money(summary.nonFood.used)] as [string, React.ReactNode]] : []),
     // Recorded waste explains part of the cost of sales.
     ["Sprechi registrati nel periodo", <span key="waste">{f.money(waste)}{summary.netSales > 0 ? " · " + ((waste / summary.netSales) * 100).toFixed(1) + "%" : ""}</span>]
   ];

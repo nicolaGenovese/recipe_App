@@ -6,6 +6,7 @@ import { Dialog, DialogHeader } from "@/components/ui/Dialog";
 import { Datalist, FieldShell, SelectField, TextField } from "@/components/ui/Field";
 import { dateKey, num } from "@/lib/num";
 import { WASTE_REASONS, wasteUnitCost } from "@/lib/performance/waste";
+import { isFood } from "@/lib/stock/kind";
 import type { WasteLog, WasteReason } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -70,7 +71,8 @@ export function WasteDialog({ id }: { id?: string }) {
             <StaffField value={by} date={date} onChange={setBy} label={t("Registrato da *")} />
             <TextField label={t("Note")} name="wasteNotes" value={notes} onChange={setNotes} />
           </div>
-          <Datalist id="wasteItems" values={[...data.recipes.map((row) => row.name), ...data.stockItems.map((row) => row.name)]} />
+          {/* Food waste: cleaning products and supplies are not suggested. */}
+          <Datalist id="wasteItems" values={[...data.recipes.map((row) => row.name), ...data.stockItems.filter(isFood).map((row) => row.name)]} />
         </div>
         <footer className="dialog-footer">
           <div>{base ? <button className="button button-quiet danger" type="button" onClick={guard(() => deleteWaste(base.id))}>{t("Elimina")}</button> : <span />}</div>

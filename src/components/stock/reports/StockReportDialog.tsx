@@ -41,7 +41,9 @@ export function StockReportDialog({ id }: { id: string }) {
           <div className="stock-print-head"><h2>{fmt(t("Stock {0}"), report.number)}</h2><p>{period}</p></div>
           <div className="pill-metrics">
             <MetricTile label={t("Giacenza di apertura")}>{f.money(summary.openingTotal)}</MetricTile>
-            <MetricTile label={t("Totale giacenza di chiusura")}>{f.money(summary.closingTotal)}</MetricTile>
+            <MetricTile label={t("Totale giacenza di chiusura")} foot={summary.nonFood ? <small className="field-hint">{fmt(t("+ {0} non alimentari"), f.money(summary.nonFood.closing))}</small> : undefined}>
+              {f.money(summary.closingTotal)}
+            </MetricTile>
             <MetricTile label={t("Costo del venduto")}>{f.money(summary.costOfSales)}</MetricTile>
             <MetricTile label={t("GP")} id="stockSumGp" foot={<small className="field-hint" id="stockSumTarget">{summary.target > 0 ? fmt(t("Obiettivo {0}"), f.percent(summary.target)) : ""}</small>}>
               <span className={gpClass(summary)}>{f.percent(summary.gp)}</span>
@@ -61,10 +63,17 @@ export function StockReportDialog({ id }: { id: string }) {
             <div className="form-field">
               <label htmlFor="stockInvoices">{t("Totale fatture (vuoto = calcolo automatico)")}</label>
               <input id="stockInvoices" type="number" min="0" step="0.01" value={invoices} disabled={!editable} onChange={(event) => setInvoices(event.target.value)} />
-              <small className="field-hint">{fmt(t("Calcolo automatico: {0}"), f.money(summary.invoicesAuto))}</small>
+              <small className="field-hint">
+                {summary.nonFood ? fmt(t("Calcolo automatico, solo alimenti: {0} (non alimentari esclusi: {1})"), f.money(summary.invoicesAuto), f.money(summary.nonFood.invoices))
+                  : fmt(t("Calcolo automatico: {0}"), f.money(summary.invoicesAuto))}
+              </small>
             </div>
           </div>
-          <Callout title={t("Calcolo")}>{gpFormula(summary.rules, t)}</Callout>
+          <Callout title={t("Calcolo")}>
+            {gpFormula(summary.rules, t)}
+            {summary.nonFood ? " " + fmt(t("Pulizia e materiali di consumo restano fuori: {0} usati nel periodo (apertura {1} + fatture {2} − chiusura {3})."),
+              f.money(summary.nonFood.used), f.money(summary.nonFood.opening), f.money(summary.nonFood.invoices), f.money(summary.nonFood.closing)) : null}
+          </Callout>
           {editable ? <Callout title={t("Consegne")}>{t("Le consegne registrate sono già incluse. In Qtà fattura inserisci solo eventuali aggiunte a mano.")}</Callout> : null}
           {supplierNames(current.lines).map((supplier, index) => (
             <SupplierSection key={supplier} lines={current.lines} supplier={supplier} total={totals[index].total} editable={editable} onLine={setLine} />

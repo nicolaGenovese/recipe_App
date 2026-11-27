@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 import { num } from "@/lib/num";
+import { isFood } from "@/lib/stock/kind";
 import { BATCH_SUPPLIER, closingValue, linesForSupplier } from "@/lib/stock/report";
 import { MEASURE_LABELS } from "@/lib/stock/sources";
 import type { ReportLine } from "@/lib/types";
@@ -27,6 +28,7 @@ export function SupplierSection({ lines, supplier, total, editable, onLine }: {
   return (
     <section className="stock-supplier">
       <h3>{t(supplier) || "—"}</h3>
+      {rows.length && !rows.some(isFood) ? <p className="field-hint stock-section-note">{t("Non alimentari: esclusi dal costo del venduto e dal GP.")}</p> : null}
       <div className="stock-table-wrap">
         <table className="stock-table stock-lines">
           <thead><tr>{heads.map((label) => <th key={label}>{t(label)}</th>)}</tr></thead>

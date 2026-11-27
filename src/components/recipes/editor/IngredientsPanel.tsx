@@ -8,7 +8,8 @@ import { Datalist } from "@/components/ui/Field";
 import { changeUnit, ingredientDraft, ingredientFromDraft, matchIngredient, type IngredientDraft, type RecipeForm } from "@/lib/recipes/form";
 import { resolveIngredient } from "@/lib/recipes/catalog";
 import { totalCost } from "@/lib/recipes/math";
-import { stockSources } from "@/lib/stock/sources";
+import { isFood } from "@/lib/stock/kind";
+import { recipeSources } from "@/lib/stock/sources";
 import type { StockItem } from "@/lib/types";
 import { useState } from "react";
 import { useApp } from "@/state/AppProvider";
@@ -19,9 +20,10 @@ export function IngredientsPanel({ form, patch }: { form: RecipeForm; patch: For
   const { createProduct } = useStockActions();
   // The row whose full product sheet is open under it.
   const [adding, setAdding] = useState<string | null>(null);
-  const sources = stockSources(data.stockItems, data.recipes);
+  // Cleaning products and supplies are in stock but never in a dish.
+  const sources = recipeSources(data.stockItems, data.recipes);
   const names = Array.from(new Set(data.recipes.flatMap((item) => (item.ingredients || []).map((row) => row.name))
-    .concat(data.recipes.filter((item) => item.archivedBatch).map((item) => item.name), data.stockItems.map((item) => item.name)).filter(Boolean)));
+    .concat(data.recipes.filter((item) => item.archivedBatch).map((item) => item.name), data.stockItems.filter(isFood).map((item) => item.name)).filter(Boolean)));
   const suppliers = Array.from(new Set(data.recipes.flatMap((item) => (item.ingredients || []).map((row) => row.supplier)).filter(Boolean)));
 
   const change = (key: string, update: Partial<IngredientDraft>) => patch((old) => ({

@@ -1,5 +1,6 @@
 import { num } from "@/lib/num";
 import { allergens, calories, portionCost, portionsOf } from "@/lib/recipes/math";
+import { isFood } from "@/lib/stock/kind";
 import { BATCH_SUPPLIER } from "@/lib/stock/report";
 import { convertQuantity, recipeUnitFor, unitFactor } from "@/lib/stock/units";
 import type { Ingredient, Recipe, StockItem, StockSource } from "@/lib/types";
@@ -12,6 +13,11 @@ export function stockSources(stockItems: StockItem[], recipes: Recipe[]): StockS
     allergens: allergens(recipe), kcal: calories(recipe) / portionsOf(recipe), initialStock: 0, batch: true
   }));
   return stockItems.map((item) => ({ ...item, batch: false })).concat(batches);
+}
+
+/** What a recipe can use: food products and base recipes, never cleaning products or supplies. */
+export function recipeSources(stockItems: StockItem[], recipes: Recipe[]): StockSource[] {
+  return stockSources(stockItems.filter(isFood), recipes);
 }
 
 /** Cost of one recipe unit straight from the product price, before any unit conversion. */

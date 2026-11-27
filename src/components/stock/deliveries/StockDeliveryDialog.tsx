@@ -9,6 +9,7 @@ import { prepareInvoiceFiles } from "@/lib/invoices/upload";
 import { dateKey, newId, num } from "@/lib/num";
 import { api } from "@/state/api";
 import { isDeliveryClosed } from "@/lib/stock/deliveries";
+import { KIND_LABELS, PRODUCT_KINDS, type ProductKind } from "@/lib/stock/kind";
 import { findStockItemByName } from "@/lib/stock/sources";
 import { useApp } from "@/state/AppProvider";
 import { useGuard } from "@/state/actions/useGuard";
@@ -17,9 +18,10 @@ import { useStockActions } from "@/state/actions/useStockActions";
 /** What the scanner read for a row: the printed text, how sure the match was and the name it suggested. */
 interface RowScan { text: string; status: MatchStatus; suggested: string; oldPrice: number | null }
 
-interface Row { key: string; name: string; quantity: string; price: string; scan?: RowScan }
+/** `kind` matters only while the name is not a product yet: it is the kind of the product saving creates. */
+interface Row { key: string; name: string; quantity: string; price: string; kind: ProductKind; scan?: RowScan }
 
-const blankRow = (): Row => ({ key: newId(), name: "", quantity: "", price: "" });
+const blankRow = (): Row => ({ key: newId(), name: "", quantity: "", price: "", kind: "food" });
 
 /** Goods received with an invoice. Quantities add to the open report and to stock on hand. */
 export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; files?: File[] }) {
@@ -39,7 +41,7 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
   const [invoiceAmount, setInvoiceAmount] = useState(base?.invoiceAmount === null || base?.invoiceAmount === undefined ? "" : String(base.invoiceAmount));
   const [updatePrices, setUpdatePrices] = useState(true);
   const [rows, setRows] = useState<Row[]>(() => base?.lines.length
-    ? base.lines.map((line) => ({ key: newId(), name: line.name, quantity: String(line.quantity), price: String(line.price) }))
+    ? base.lines.map((line) => ({ key: newId(), name: line.name, quantity: String(line.quantity), price: String(line.price), kind: "food" as ProductKind }))
     : [blankRow(), blankRow(), blankRow()]);
 
   const fileInput = useRef<HTMLInputElement>(null);
@@ -96,7 +98,7 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
         const match = matchLine(line, who, data.stockItems);
         const name = match.item?.name ?? line.description;
         return {
-          key: newId(), name, quantity: String(line.quantity), price: String(line.unitPrice),
+          key: newId(), name, quantity: String(line.quantity), price: String(line.unitPrice), kind: line.kind,
           scan: { text: line.description, status: match.status, suggested: name, oldPrice: match.priceChanged ? num(match.item?.price) : null }
         };
       });
@@ -131,7 +133,7 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
     setSaving(true);
     try { await saveDelivery({ id: draftId,
     base, invoiceNumber: invoiceNumber.trim(), date: date.trim(), supplier: supplier.trim(), invoiceAmount: invoiceAmount.trim(), updatePrices,
-    rows: rows.map((row) => ({ name: row.name.trim(), quantity: num(row.quantity), price: num(row.price) })),
+    rows: rows.map((row) => ({ name: row.name.trim(), quantity: num(row.quantity), price: num(row.price), kind: row.kind })),
     invoiceNames: rows.filter((row) => row.scan && row.name.trim()).map((row) => ({ name: row.name.trim(), text: row.scan!.text }))
     }); } finally { setSaving(false); }
   });
@@ -172,6 +174,13 @@ export function StockDeliveryDialog({ id, files: startFiles }: { id?: string; fi
                         <td>
                           <input list="stockDeliveryProducts" value={row.name} aria-label={t("Prodotto")} onChange={(event) => changeRow(row.key, { name: event.target.value })} />
                           {state ? <small className={"scan-note " + state.kind}>{state.kind === "ok" ? "✓ " : state.kind === "check" ? "⚠ " : "＋ "}{state.label}</small> : null}
+                          {/* A name that is not a product yet: saving creates it, of the kind chosen here. */}
+                          {!item && row.name.trim() ? (
+                            <select className="delivery-kind" value={row.kind} aria-label={t("Tipo del prodotto nuovo") + " · " + row.name}
+                              onChange={(event) => changeRow(row.key, { kind: event.target.value as ProductKind })}>
+                              {PRODUCT_KINDS.map((kind) => <option key={kind} value={kind}>{t(KIND_LABELS[kind])}</option>)}
+                            </select>
+                          ) : null}
                         </td>
                         <td><input type="number" min="0" step="0.01" value={row.quantity} aria-label={t("Quantità ricevuta")} onChange={(event) => changeRow(row.key, { quantity: event.target.value })} /></td>
                         <td>{t(item?.unitOfSale || "")}</td>

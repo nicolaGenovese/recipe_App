@@ -18,7 +18,7 @@ describe("invoice readers", () => {
     vi.stubGlobal("fetch", fetch);
     vi.spyOn(console, "info").mockImplementation(() => {});
     const result = await geminiReader("key", "gemini-test").read([{ mimeType: "image/jpeg", data: "AAAA" }], { suppliers: ["Heanens"] });
-    expect(result.lines).toEqual([{ description: "Chicken Thigh", code: "", quantity: 2, unitPrice: 12, lineTotal: 24 }]);
+    expect(result.lines).toEqual([{ description: "Chicken Thigh", code: "", quantity: 2, unitPrice: 12, lineTotal: 24, kind: "food" }]);
     const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toContain("/models/gemini-test:generateContent");
     expect((init.headers as Record<string, string>)["x-goog-api-key"]).toBe("key");

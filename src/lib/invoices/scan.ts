@@ -1,3 +1,5 @@
+import { productKind, type ProductKind } from "@/lib/stock/kind";
+
 /** What an invoice reader returns, whatever AI service read the photo. Shared by server and browser. */
 export interface ScannedLine {
   /** Product text as printed on the invoice. */
@@ -10,6 +12,8 @@ export interface ScannedLine {
   unitPrice: number;
   /** Line total, VAT excluded, as printed; used to check the reading. */
   lineTotal: number | null;
+  /** Food, or a cleaning product or supply: decides the kind of a product created from this line. */
+  kind: ProductKind;
 }
 
 export interface ScannedInvoice {
@@ -67,7 +71,7 @@ export function normalizeScan(raw: unknown): ScannedInvoice {
     let unitPrice = amount(line.unitPrice) ?? 0;
     if (!unitPrice && lineTotal && quantity) unitPrice = Math.round((lineTotal / quantity) * 10000) / 10000;
     if (!description || quantity <= 0) return [];
-    return [{ description, code: text(line.code), quantity, unitPrice, lineTotal }];
+    return [{ description, code: text(line.code), quantity, unitPrice, lineTotal, kind: productKind(line) }];
   });
   return { supplier: text(value.supplier), invoiceNumber: text(value.invoiceNumber), date: isoDate(value.date), netTotal: amount(value.netTotal), lines };
 }

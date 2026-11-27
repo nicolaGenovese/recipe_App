@@ -49,6 +49,7 @@ Il magazzino (Inventario) è l'unico catalogo degli ingredienti. Una riga di ric
 - Apertura = chiusura dell'ultimo report inviato. Senza report: il conteggio in Inventario, altrimenti la giacenza iniziale.
 - Totale fatture = consegne registrate nel periodo + quantità aggiunte a mano in Qtà fattura. Se una consegna ha l'importo fattura, vale quello al posto del totale righe. Il campo si può sostituire con l'importo reale.
 - Costo del venduto = apertura + fatture + trasferimenti − chiusura. I trasferimenti si possono escludere dalle impostazioni.
+- **Solo alimenti**: apertura, fatture, chiusura e costo del venduto contano solo i prodotti alimentari (e le basi). I prodotti di pulizia e i materiali di consumo (`kind`, vedi `lib/stock/kind.ts`) hanno una sezione propria in fondo al report e un conto a parte: usati = apertura + fatture − chiusura, mostrato nel calcolo e nel riepilogo, fuori dal GP. Il report successivo si apre dalla chiusura degli alimenti; la chiusura dei non alimentari resta nelle righe. Un totale fatture scritto a mano vale come totale delle fatture alimentari. La differenza tra importo fattura e totale righe di una consegna resta negli alimenti.
 - Vendite nette = vendite inserite. Se le vendite sono inserite IVA inclusa: vendite ÷ (1 + IVA sulle vendite).
 - GP = (vendite nette − costo del venduto) ÷ vendite nette.
 - Il GP è verde se raggiunge l'obiettivo, rosso se è sotto. Con obiettivo 0 resta neutro.

@@ -1,6 +1,6 @@
 # Proposta: avvisi del campanello
 
-Stato: **proposta, in parte fatta** (22/11/2026, aggiornata il 25/11). Oggi il campanello in alto a destra avvisa di tre cose: allergeni da riconfermare, prodotti con gli allergeni da controllare sull'etichetta e ingredienti scritti a mano nelle ricette e assenti dal magazzino. Qui c'è cosa aggiungere, dai dati che l'app ha già, e come mostrarlo.
+Stato: **proposta, in parte fatta** (22/11/2026, aggiornata il 25/11). Oggi il campanello in alto a destra avvisa di tre cose: allergeni da riconfermare, prodotti alimentari con gli allergeni da controllare sull'etichetta (mai quelli di pulizia o i materiali di consumo) e ingredienti scritti a mano nelle ricette e assenti dal magazzino. Qui c'è cosa aggiungere, dai dati che l'app ha già, e come mostrarlo.
 
 ## 1. Rosso: sicurezza alimentare (ogni giorno)
 

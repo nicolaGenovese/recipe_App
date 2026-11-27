@@ -28,12 +28,22 @@ export function StockItemDialog({ id, preset }: { id?: string; preset?: Partial<
 
   return (
     <Dialog size="narrow">
-      <DialogHeader kicker={t("PRODOTTO DI MAGAZZINO")} title={t(isNew ? "Nuovo prodotto" : "Modifica prodotto")} subtitle={t("Prezzo, misura e conversione verso le unità usate nelle ricette.")} />
+      <DialogHeader kicker={t("PRODOTTO DI MAGAZZINO")} title={t(isNew ? "Nuovo prodotto" : "Modifica prodotto")} subtitle={t(form.kind === "food" ? "Prezzo, misura e conversione verso le unità usate nelle ricette." : "Prezzo, misura e giacenza.")} />
       <form id="stockItemForm" onSubmit={submit}>
         <div className="dialog-body">
           <ProductFields form={form} setForm={setForm} />
           {existing ? (() => {
             const users = recipesUsing(existing.id, data.recipes);
+            // A product moved out of food that dishes still use: those rows keep its last cost and allergens.
+            if (form.kind !== "food") {
+              return users.length ? (
+                <div className="product-usage">
+                  <strong>{fmt(t("Ancora in {0} ricette"), users.length)}</strong>
+                  <span>{users.map((recipe) => recipe.name).join(", ")}</span>
+                  <small className="field-hint">{t("Un prodotto non alimentare non dovrebbe stare in una ricetta: toglilo da queste ricette, oppure lascialo come Alimento.")}</small>
+                </div>
+              ) : null;
+            }
             return (
               <div className="product-usage">
                 <strong>{fmt(t("Usato in {0} ricette"), users.length)}</strong>

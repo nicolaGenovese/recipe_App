@@ -1,6 +1,7 @@
 "use client";
 
 import { num } from "@/lib/num";
+import { KIND_TAGS, productKind } from "@/lib/stock/kind";
 import type { InventoryRow } from "@/lib/stock/inventory";
 import type { StockItem } from "@/lib/types";
 import { useApp } from "@/state/AppProvider";
@@ -31,7 +32,11 @@ export function InventoryTableRow({ item, row, unit }: { item: StockItem; row: I
   return (
     <tr>
       <td>{item.code}</td>
-      <td>{item.name}{NEEDS_CHECK.test(item.note || "") ? <> <span className="stock-inv-warn" title={item.note} aria-label={item.note}>⚠</span></> : null}</td>
+      <td>
+        {item.name}
+        {productKind(item) !== "food" ? <> <span className={"kind-tag kind-" + productKind(item)}>{t(KIND_TAGS[productKind(item)])}</span></> : null}
+        {NEEDS_CHECK.test(item.note || "") ? <> <span className="stock-inv-warn" title={item.note} aria-label={item.note}>⚠</span></> : null}
+      </td>
       <td>{item.supplier || "—"}</td>
       <td>{unit}</td>
       <CountCell value={row.par} label={t("Livello minimo") + " · " + item.name} onCommit={(value) => saveInventoryCell(item.id, "parLevel", value)} />

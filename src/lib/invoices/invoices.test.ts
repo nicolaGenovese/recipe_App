@@ -6,7 +6,7 @@ import type { StockItem } from "@/lib/types";
 const item = (id: string, name: string, supplier: string, price: number, invoiceNames?: string[]): StockItem => ({
   id, name, supplier, group: "", measurement: "Pack", unitOfSale: "", unitsPerPack: 1, price, initialStock: 0, recipeContent: 1, recipeUnit: "kg", allergens: [], kcal: 0, invoiceNames
 });
-const line = (description: string, unitPrice = 10): ScannedLine => ({ description, code: "", quantity: 1, unitPrice, lineTotal: null });
+const line = (description: string, unitPrice = 10): ScannedLine => ({ description, code: "", quantity: 1, unitPrice, lineTotal: null, kind: "food" });
 
 const items = [
   item("ched", "Cheddar Mature", "Chapple & Jenkins", 30),
@@ -22,10 +22,13 @@ describe("reading invoices", () => {
       lines: [{ description: "Beef  Burger 7oz", quantity: "2", lineTotal: 25 }, { description: "", quantity: 1 }, { description: "Delivery", quantity: 0 }]
     })).toEqual({
       supplier: "Heanens", invoiceNumber: "4521", date: "2026-11-03", netTotal: 1204.5,
-      lines: [{ description: "Beef Burger 7oz", code: "", quantity: 2, unitPrice: 12.5, lineTotal: 25 }]
+      lines: [{ description: "Beef Burger 7oz", code: "", quantity: 2, unitPrice: 12.5, lineTotal: 25, kind: "food" }]
     });
     expect(normalizeScan("nonsense")).toEqual({ supplier: "", invoiceNumber: "", date: "", netTotal: null, lines: [] });
     expect(normalizeScan({ lines: [{ description: "x", quantity: 1, unitPrice: "12,40" }] }).lines[0].unitPrice).toBe(12.4);
+    // Cleaning products and supplies keep their kind; anything else read is food.
+    expect(normalizeScan({ lines: [{ description: "Degreaser 5L", quantity: 1, kind: "cleaning" }, { description: "Foil", quantity: 1, kind: "supplies" }, { description: "Eggs", quantity: 1, kind: "weird" }] }).lines.map((line) => line.kind))
+      .toEqual(["cleaning", "supplies", "food"]);
   });
 
   it("scores names with invoice abbreviations and sizes", () => {

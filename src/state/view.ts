@@ -1,3 +1,5 @@
+import type { ProductKind } from "@/lib/stock/kind";
+
 // What the user is looking at. Kept apart from the data so filters survive saves and reloads of data.
 
 /** "menu" shows the dishes of one menu (`menuId`) or of every active menu; "menus" and "prep" are their own pages. */
@@ -26,6 +28,8 @@ export interface StockViewState {
   deliveryQuery: string;
   inventoryQuery: string;
   inventoryGroup: string;
+  /** "" for every product, otherwise only food, cleaning or supplies. */
+  inventoryKind: "" | ProductKind;
   inventoryReorderOnly: boolean;
   inventorySort: { key: InventorySortKey; dir: 1 | -1 };
 }
@@ -33,6 +37,6 @@ export interface StockViewState {
 export const INITIAL_VIEW: ViewState = { filter: "all", menuId: null, category: ALL_CATEGORIES, query: "", sort: "updated", page: 1, pageSize: 9, layout: "list" };
 
 export const INITIAL_STOCK_VIEW: StockViewState = {
-  tab: "reports", open: [], page: 1, deliveryQuery: "", inventoryQuery: "", inventoryGroup: "", inventoryReorderOnly: false,
+  tab: "reports", open: [], page: 1, deliveryQuery: "", inventoryQuery: "", inventoryGroup: "", inventoryKind: "", inventoryReorderOnly: false,
   inventorySort: { key: "code", dir: 1 }
 };

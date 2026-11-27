@@ -29,7 +29,7 @@ La colonna **Permesso** dice cosa serve; "—" vuol dire qualsiasi persona della
 | `POST /api/stock/reports` | `stock.manage` | Report → report salvato. |
 | `POST /api/stock/deliveries` | `stock.deliveries` | Consegna → consegna salvata. |
 | `DELETE /api/stock/:kind/:id` | `stock.deliveries` per `deliveries`, altrimenti `stock.manage` | `kind` è `items`, `reports` o `deliveries`. Un prodotto eliminato sparisce da tutte le sedi. |
-| `POST /api/invoices/scan` | `stock.deliveries` | `{ files: [{ mimeType, data }], suppliers }` (foto JPG, PNG, WEBP o PDF in base64, al massimo 5) → `{ supplier, invoiceNumber, date, netTotal, lines }`. Niente viene salvato. |
+| `POST /api/invoices/scan` | `stock.deliveries` | `{ files: [{ mimeType, data }], suppliers }` (foto JPG, PNG, WEBP o PDF in base64, al massimo 5) → `{ supplier, invoiceNumber, date, netTotal, lines }`; ogni riga è `{ description, code, quantity, unitPrice, lineTotal, kind }`, con `kind` `"food"`, `"cleaning"` o `"supplies"`. Niente viene salvato. |
 | `POST /api/menus`, `DELETE /api/menus/:id` | `menus.edit` | Menu → menu salvato, senza piatti doppi; eliminarlo lascia le ricette in archivio. |
 | `POST /api/prep-lists` | `prep.edit`; con solo `prep.tick` si possono cambiare solo spunte e quantità pronte | Prep list → prep list salvata. Le righe senza nome vengono tolte. |
 | `DELETE /api/prep-lists/:id` | `prep.edit` | `{ ok: true }` |
@@ -123,7 +123,7 @@ In **Neon** ogni record è una riga con l'`id` e il JSON completo in `payload`, 
 ```ts
 Recipe   { id, name, category, portions, ingredients: Ingredient[], sellingPrice, mayContain?, allergenCheck?, siteId?, shelfLifeDays?, … }
 Ingredient { type: "Prodotto" | "Base / preparazione" | "Esterno", name, supplier, quantity, unit, unitCost, allergens, mayContain?, kcal, stockItemId? }
-StockItem { id, code, name, supplier, price, recipeContent, recipeUnit, allergens, mayContain?, allergensChecked?, initialStock, parLevel?, stockCount?, invoiceNames?, … }
+StockItem { id, code, name, kind?, supplier, price, recipeContent, recipeUnit, allergens, mayContain?, allergensChecked?, initialStock, parLevel?, stockCount?, invoiceNames?, … }
 Menu     { id, name, description?, active, recipeIds: string[], availability?: { days: number[], slots: { from, to }[] }, createdAt, updatedAt }
 PrepList { id, name, date, menuIds: string[], portions: { [recipeId]: number }, tasks: PrepTask[], createdAt, updatedAt }
 PrepTask { id, name, quantity, onHand, unit, recipeIds: string[], baseRecipeId?, notes?, done, auto? }
@@ -136,7 +136,7 @@ SafetyLog = { id, date, time, by, ok, action?, notes?, createdAt, updatedAt } pi
 ```
 
 - **Ricette e allergeni:** `allergens` e `mayContain` delle righe collegate sono copie del prodotto o della base, riallineate a ogni sincronizzazione. `mayContain` della ricetta sono le tracce aggiunte in cucina. `allergenCheck { at, by, contains, mayContain }` è la conferma, con la copia di quello che è stato confermato. `siteId` c'è solo sulle ricette proprie di una sede.
-- **Prodotti:** `allergensChecked: false` vuol dire allergeni da controllare sull'etichetta; i prodotti senza il campo, salvati prima, contano come controllati.
+- **Prodotti:** `allergensChecked: false` vuol dire allergeni da controllare sull'etichetta; i prodotti senza il campo, salvati prima, contano come controllati. `kind` è `"cleaning"` (pulizia e igiene) o `"supplies"` (materiale di consumo); senza il campo il prodotto è un alimento. I non alimentari non vanno nelle ricette, non hanno allergeni da controllare e restano fuori dal GP; nelle righe dei report `kind` è copiato dal prodotto.
 - **Menu:** `recipeIds` è in ordine di servizio e un piatto può stare in più menu. `availability`: giorni da lunedì (0) a domenica (6), vuoto = tutti; fasce `HH:MM`, anche oltre la mezzanotte; senza = sempre disponibile.
 - **Prep list:** `portions` sono le porzioni previste per piatto e scalano le righe generate; `auto` c'è solo sulle righe generate dai piatti.
 - **Sicurezza alimentare:** i limiti stanno in `settings.foodSafety` (apparecchi con minimo e massimo, cottura 75 °C, rigenerazione 75 °C, mantenimento 63 °C, abbattimento sotto 8 °C entro 90 minuti, consegne refrigerate fino a 8 °C e surgelate fino a −15 °C, conservazione predefinita 3 giorni, voci delle checklist, `requireTemperaturePhotos`). Sono i valori delle linee guida UK Safer Food, Better Business e si cambiano da "Impostazioni sicurezza". `photoId` punta a una foto di `/api/photos`.
